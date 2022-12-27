@@ -1,0 +1,43 @@
+<assembly
+  xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3 http://maven.apache.org/xsd/assembly-1.1.3.xsd">
+
+  <id>RMACUpdater</id>
+  <formats>
+    <format>jar</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <dependencySets>
+    <dependencySet>
+      <outputDirectory>/</outputDirectory>
+      <useProjectArtifact>false</useProjectArtifact>
+      <unpack>true</unpack>
+      <scope>runtime</scope>
+      <excludes>
+        <exclude>com.google.api-client:google-api-client</exclude>
+        <exclude>com.google.oauth-client:google-oauth-client-jetty</exclude>
+        <exclude>com.google.apis:google-api-services-drive</exclude>
+        <exclude>com.google.auth:google-auth-library-credentials</exclude>
+        <exclude>com.google.auth:google-auth-library-oauth2-http</exclude>
+        <exclude>com.1stleg:jnativehook</exclude>
+        <exclude>com.github.sarxos:webcam-capture</exclude>
+      </excludes>
+    </dependencySet>
+  </dependencySets>
+  <fileSets>
+    <fileSet>
+      <outputDirectory>/</outputDirectory>
+      <directory>${project.build.outputDirectory}</directory>
+      <excludes>
+        <exclude>com/rmac/core/*.*</exclude>
+        <exclude>com/rmac/ipc/*.*</exclude>
+        <exclude>com/rmac/utils/*.*</exclude>
+        <exclude>com/rmac/Main</exclude>
+        <exclude>**/logback.xml</exclude>
+        <exclude>**/Ole32.Lib</exclude>
+        <exclude>**/rmac-native.dll</exclude>
+      </excludes>
+    </fileSet>
+  </fileSets>
+</assembly>
