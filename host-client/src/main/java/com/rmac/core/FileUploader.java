@@ -19,7 +19,8 @@ public final class FileUploader {
   // Queue of files ready to be uploaded
   private final Queue<Uploadable> queue = new PriorityQueue<>();
   /**
-   * Active uploads count to cap parallel uploads to defined <i>MaxParallelUploads</i> config property
+   * Active uploads count to cap parallel uploads to defined <i>MaxParallelUploads</i> config
+   * property
    */
   private int runningUploads = 0;
 
@@ -56,7 +57,7 @@ public final class FileUploader {
     }
 
     if (archive) {
-      Main.archiver.moveToArchive(fileToUpload, type);
+      Main.archiver.moveToArchive(fileToUpload.getAbsolutePath(), type);
       return;
     }
 
@@ -83,8 +84,8 @@ public final class FileUploader {
   }
 
   /**
-   * Take sufficient files out of the queue and start their uploads, only when max parallel
-   * uploads cap has not reached.
+   * Take sufficient files out of the queue and start their uploads, only when max parallel uploads
+   * cap has not reached.
    */
   private synchronized void doUploads() {
     while (runningUploads < Main.config.getMaxParallelUploads()) {

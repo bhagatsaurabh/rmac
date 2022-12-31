@@ -42,16 +42,19 @@ public class RMACFileAppender extends FileAppender<ILoggingEvent> {
 
   @Override
   public void setFile(String file) {
-    File logFile = new File(Constants.LOG_LOCATION);
-    if (logFile.exists() && Main.archiver != null) {
-      Main.archiver.moveToArchive(logFile, ArchiveFileType.OTHER);
+    if (Main.fs.exists(Constants.LOG_LOCATION) && Main.archiver != null) {
+      Main.archiver.moveToArchive(Constants.LOG_LOCATION, ArchiveFileType.OTHER);
     }
-    if (logFile.exists()) {
+    if (Main.fs.exists(Constants.LOG_LOCATION)) {
       addError("Could not move old log file to archive");
-      logFile.delete();
+      try {
+        Main.fs.delete(Constants.LOG_LOCATION);
+      } catch (IOException e) {
+        addError("Could not delete log file", e);
+      }
     }
 
-    super.setFile(logFile.getAbsolutePath());
+    super.setFile(Constants.LOG_LOCATION);
   }
 
   private void rollover() {
@@ -67,13 +70,16 @@ public class RMACFileAppender extends FileAppender<ILoggingEvent> {
 
   private void attemptRollover() {
     String destPath = Constants.TEMP_LOCATION + "\\Log-" + Utils.getTimestamp() + ".txt";
-    File source = new File(Constants.LOG_LOCATION);
     try {
-      Files.move(source.toPath(), Paths.get(destPath), StandardCopyOption.REPLACE_EXISTING);
-      Main.archiver.moveToArchive(new File(destPath), ArchiveFileType.OTHER);
+      Main.fs.move(Constants.LOG_LOCATION, destPath, StandardCopyOption.REPLACE_EXISTING);
+      Main.archiver.moveToArchive(destPath, ArchiveFileType.OTHER);
     } catch (IOException e) {
       addError("Could not move log file to temp", e);
-      source.delete();
+      try {
+        Main.fs.delete(Constants.LOG_LOCATION);
+      } catch (IOException ioe) {
+        addError("Could not delete old log file", e);
+      }
     }
   }
 

