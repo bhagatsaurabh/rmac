@@ -12,7 +12,9 @@ import com.rmac.core.ScriptFiles;
 import com.rmac.core.Service;
 import com.rmac.ipc.SocketServer;
 import com.rmac.utils.ArchiveFileType;
+import com.rmac.utils.Commands;
 import com.rmac.utils.Constants;
+import com.rmac.utils.FileSystem;
 import com.rmac.utils.Utils;
 import java.io.File;
 import java.io.IOException;
@@ -20,6 +22,7 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import org.jnativehook.GlobalScreen;
@@ -49,7 +52,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Main {
 
-  private static Logger log;
+  public static Logger log;
 
   // References for critical processes
   public static Config config;
@@ -70,9 +73,11 @@ public class Main {
   public static boolean NATIVE_POSSIBLE = false;
 
   // References for acquiring an instance lock
-  private static File lockFile;
-  private static FileLock fileLock;
-  private static RandomAccessFile randomAccessFile;
+  public static File lockFile;
+  public static FileLock fileLock;
+  public static RandomAccessFile randomAccessFile;
+
+  public static FileSystem fs = new FileSystem();
 
   public static void main(String[] args) {
     if (!validateRuntimeDirectory(args)) {
@@ -164,25 +169,26 @@ public class Main {
     }
 
     String runtimeDir = args[0];
-    if (!(new File(runtimeDir)).exists()) {
+    if (!fs.exists(runtimeDir)) {
       System.err.println("Provided runtime directory doesn't exist");
       return false;
     }
 
     // Validate if important executables and config exists
-    File configFile = new File(runtimeDir + "\\config.rmac");
-    File ffmpegExe = new File(runtimeDir + "\\ffmpeg.exe");
-    File megaCmdDir = new File(runtimeDir + "\\megacmd");
-    File jreDir = new File(runtimeDir + "\\jre");
-    File scriptsDir = new File(runtimeDir + "\\scripts");
-
-    if (!configFile.exists() || !ffmpegExe.exists() || !megaCmdDir.exists() || !jreDir.exists()) {
+    if (!fs.exists(runtimeDir + "\\config.rmac") ||
+        !fs.exists(runtimeDir + "\\ffmpeg.exe") ||
+        !fs.exists(runtimeDir + "\\megacmd") ||
+        !fs.exists(runtimeDir + "\\jre")
+    ) {
       System.err.println("Runtime files or config missing in runtime directory");
       return false;
     }
 
-    if (!scriptsDir.exists()) {
-      scriptsDir.mkdirs();
+    try {
+      fs.createDirs(runtimeDir + "\\scripts");
+    } catch (IOException e) {
+      System.err.println("Could not create scripts directory");
+      return false;
     }
 
     return true;
@@ -221,7 +227,7 @@ public class Main {
     log.info("Cleanup completed");
 
     try {
-      Runtime.getRuntime().exec("taskkill /f /im megacmdserver.exe");
+      Runtime.getRuntime().exec(Commands.C_MEGACMD_KILL);
     } catch (IOException e) {
       log.error("Could not kill megacmdserver process");
     }
@@ -231,10 +237,9 @@ public class Main {
     ).getAppender("FILE").stop();
 
     String logFilePath = Constants.TEMP_LOCATION + "\\Log-" + Utils.getTimestamp() + ".txt";
-    File logFile = new File(Constants.LOG_LOCATION);
     try {
-      Files.move(logFile.toPath(), Paths.get(logFilePath), StandardCopyOption.REPLACE_EXISTING);
-      Main.archiver.moveToArchive(new File(logFilePath), ArchiveFileType.OTHER);
+      fs.move(Constants.LOG_LOCATION, logFilePath, StandardCopyOption.REPLACE_EXISTING);
+      Main.archiver.moveToArchive(logFilePath, ArchiveFileType.OTHER);
     } catch (IOException ignored) {
     }
 
