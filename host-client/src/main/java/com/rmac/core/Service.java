@@ -1,7 +1,7 @@
 package com.rmac.core;
 
 import com.google.gson.Gson;
-import com.rmac.Main;
+import com.rmac.RMAC;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Scanner;
@@ -30,14 +30,14 @@ public class Service {
   public static String[] getCommands() {
     Connectivity.checkNetworkState();
 
-    if (!Main.NETWORK_STATE) {
+    if (!RMAC.NETWORK_STATE) {
       log.warn("Network down, not fetching commands");
       return new String[]{};
     }
 
     try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
-      URIBuilder builder = new URIBuilder(Main.config.getServerUrl() + "/command");
-      builder.setParameter("id", Main.config.getClientId());
+      URIBuilder builder = new URIBuilder(RMAC.config.getServerUrl() + "/command");
+      builder.setParameter("id", RMAC.config.getClientId());
       HttpGet httpget = new HttpGet(builder.build());
       HttpResponse response = httpclient.execute(httpget);
       String jsonString = EntityUtils.toString(response.getEntity());
@@ -56,27 +56,27 @@ public class Service {
   public static void registerClient() {
     Connectivity.checkNetworkState();
 
-    if (!Main.NETWORK_STATE) {
+    if (!RMAC.NETWORK_STATE) {
       log.warn("Network down, client registration skipped");
       return;
     }
 
     try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
-      URIBuilder builder = new URIBuilder(Main.config.getServerUrl() + "/register");
+      URIBuilder builder = new URIBuilder(RMAC.config.getServerUrl() + "/register");
       builder
-          .setParameter("clientName", Main.config.getClientName())
-          .setParameter("hostName", Main.config.getHostName())
-          .setParameter("id", Main.config.getClientId());
+          .setParameter("clientName", RMAC.config.getClientName())
+          .setParameter("hostName", RMAC.config.getHostName())
+          .setParameter("id", RMAC.config.getClientId());
       HttpGet httpget = new HttpGet(builder.build());
       HttpResponse response = httpclient.execute(httpget);
       Scanner sc = new Scanner(response.getEntity().getContent());
       while (sc.hasNext()) {
         String id = sc.nextLine();
-        if (!id.equals(Main.config.getClientId())) {
-          Main.config.setClientId(id);
+        if (!id.equals(RMAC.config.getClientId())) {
+          RMAC.config.setClientId(id);
         }
       }
-      Main.isClientRegistered = true;
+      RMAC.isClientRegistered = true;
     } catch (URISyntaxException | IOException | IllegalStateException e) {
       log.error("Client registration failed", e);
     }

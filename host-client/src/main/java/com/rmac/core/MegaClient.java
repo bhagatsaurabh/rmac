@@ -1,6 +1,6 @@
 package com.rmac.core;
 
-import com.rmac.Main;
+import com.rmac.RMAC;
 import com.rmac.utils.Constants;
 import com.rmac.utils.NoopOutputStream;
 import com.rmac.utils.PipeStream;
@@ -121,7 +121,7 @@ public class MegaClient {
    */
   public static boolean uploadFile(String filePath, String destPath) {
     if (!LOGGED_IN) {
-      MegaClient.login(Main.config.getMegaUser(), Main.config.getMegaPass(), true);
+      MegaClient.login(RMAC.config.getMegaUser(), RMAC.config.getMegaPass(), true);
     }
     if (!LOGGED_IN) {
       log.error("Mega client not logged in, ignoring upload");

