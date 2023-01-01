@@ -1,6 +1,9 @@
 package com.rmac.utils;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,5 +34,22 @@ public class FileSystem {
 
   public void delete(String path) throws IOException {
     Files.deleteIfExists(Paths.get(path));
+  }
+
+  public void create(String path) throws IOException {
+    Files.createFile(Paths.get(path));
+  }
+
+  public RandomAccessFile createRandomAccessFile(String path, String mode)
+      throws FileNotFoundException {
+    return new RandomAccessFile(path, mode);
+  }
+
+  public InputStream getResourceAsStream(Class<?> T, String path) {
+    return T.getResourceAsStream(path);
+  }
+
+  public void copy(InputStream is, String target, CopyOption option) throws IOException {
+    Files.copy(is, Paths.get(target), option);
   }
 }

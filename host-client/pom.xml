@@ -68,6 +68,12 @@
       <version>RELEASE</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.github.stefanbirkner</groupId>
+      <artifactId>system-lambda</artifactId>
+      <version>1.2.1</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -85,7 +91,7 @@
             <configuration>
               <archive>
                 <manifest>
-                  <mainClass>com.rmac.Main</mainClass>
+                  <mainClass>com.rmac.RMAC</mainClass>
                 </manifest>
                 <manifestEntries>
                   <Version>${rmac.version}</Version>

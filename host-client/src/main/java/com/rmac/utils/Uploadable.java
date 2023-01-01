@@ -1,6 +1,6 @@
 package com.rmac.utils;
 
-import com.rmac.Main;
+import com.rmac.RMAC;
 import com.rmac.core.MegaClient;
 import java.io.File;
 import java.util.function.Consumer;
@@ -47,7 +47,7 @@ public class Uploadable implements Comparable<Uploadable> {
 
         if (!res) {
           log.error("Unable to upload file, archiving");
-          Main.archiver.moveToArchive(this.file.getAbsolutePath(), this.type);
+          RMAC.archiver.moveToArchive(this.file.getAbsolutePath(), this.type);
         } else {
           this.file.delete();
         }

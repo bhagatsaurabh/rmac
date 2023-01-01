@@ -1,6 +1,6 @@
 package com.rmac.utils;
 
-import com.rmac.Main;
+import com.rmac.RMAC;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -53,7 +53,7 @@ public class Constants {
   public static boolean setCurrentLocation() {
     try {
       CURRENT_LOCATION = URLDecoder.decode(
-          Main.class
+          RMAC.class
               .getProtectionDomain()
               .getCodeSource()
               .getLocation()

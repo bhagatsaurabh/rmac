@@ -1,6 +1,6 @@
 package com.rmac.core;
 
-import com.rmac.Main;
+import com.rmac.RMAC;
 import com.rmac.utils.NoopOutputStream;
 import com.rmac.utils.PipeStream;
 import java.io.BufferedReader;
@@ -52,18 +52,18 @@ public class Connectivity {
       out.close();
 
       boolean newState = Boolean.parseBoolean(result.toString());
-      boolean oldState = Main.NETWORK_STATE;
-      Main.NETWORK_STATE = newState;
+      boolean oldState = RMAC.NETWORK_STATE;
+      RMAC.NETWORK_STATE = newState;
       if (newState != oldState) {
         log.warn("Network state changed to: " + newState);
-        if (newState && Main.archiver != null) {
-          new Thread(() -> Main.archiver.uploadArchives()).start();
-          if (!Main.isClientRegistered) {
+        if (newState && RMAC.archiver != null) {
+          new Thread(() -> RMAC.archiver.uploadArchives()).start();
+          if (!RMAC.isClientRegistered) {
             new Thread(Service::registerClient).start();
           }
         }
       }
-      return Main.NETWORK_STATE;
+      return RMAC.NETWORK_STATE;
     } catch (IOException e) {
       log.error("Could not test connection", e);
     } catch (InterruptedException e) {

