@@ -13,8 +13,8 @@ import java.nio.file.StandardCopyOption;
 public class RMACFileAppender extends FileAppender<ILoggingEvent> {
 
   public int maxEventsBeforeRolloverCheck = 20;
-  private int eventsPassed = 0;
-  private long maxFileSize;
+  public int eventsPassed = 0;
+  public long maxFileSize;
 
   public long getMaxFileSize() {
     return maxFileSize;
@@ -27,8 +27,12 @@ public class RMACFileAppender extends FileAppender<ILoggingEvent> {
   @Override
   protected void subAppend(ILoggingEvent event) {
     if (eventsPassed >= maxEventsBeforeRolloverCheck) {
-      if (new File(getFile()).length() >= getMaxFileSize()) {
-        this.rollover();
+      try {
+        if (RMAC.fs.size(getFile()) >= getMaxFileSize()) {
+          this.rollover();
+        }
+      } catch (IOException e) {
+        addError("Could not get file size", e);
       }
       eventsPassed = 0;
     }
@@ -55,7 +59,7 @@ public class RMACFileAppender extends FileAppender<ILoggingEvent> {
     super.setFile(Constants.LOG_LOCATION);
   }
 
-  private void rollover() {
+  public void rollover() {
     lock.lock();
     try {
       this.closeOutputStream();
@@ -66,7 +70,7 @@ public class RMACFileAppender extends FileAppender<ILoggingEvent> {
     }
   }
 
-  private void attemptRollover() {
+  public void attemptRollover() {
     String destPath = Constants.TEMP_LOCATION + "\\Log-" + Utils.getTimestamp() + ".txt";
     try {
       RMAC.fs.move(Constants.LOG_LOCATION, destPath, StandardCopyOption.REPLACE_EXISTING);
@@ -81,7 +85,7 @@ public class RMACFileAppender extends FileAppender<ILoggingEvent> {
     }
   }
 
-  private void attemptOpenFile() {
+  public void attemptOpenFile() {
     try {
       this.openFile(Constants.LOG_LOCATION);
     } catch (IOException e) {

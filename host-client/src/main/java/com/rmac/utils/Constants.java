@@ -47,7 +47,7 @@ public class Constants {
     SCRIPTS_LOCATION = Constants.RUNTIME_LOCATION + "\\scripts";
     SVCL_LOCATION = Constants.RUNTIME_LOCATION + "\\svcl.exe";
     INSTANCE_LOCK_LOCATION = Constants.RUNTIME_LOCATION + "\\client.lock";
-    RMAC_DLL_LOCATION = RUNTIME_LOCATION + "\\" + "rmac-native.dll";
+    RMAC_DLL_LOCATION = RUNTIME_LOCATION + "\\rmac-native.dll";
   }
 
   public static boolean setCurrentLocation() {
