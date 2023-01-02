@@ -45,25 +45,14 @@ public class Archiver {
    * placed, create them otherwise.
    */
   private void verifyFolders() {
-    File archivesFolder = new File(Constants.ARCHIVES_LOCATION);
-    File pendingFolder = new File(Constants.PENDING_ARCHIVES_LOCATION);
-    File outArchiveFolder = new File(Constants.LOG_ARCHIVE_LOCATION);
-    File screenArchiveFolder = new File(Constants.SCREEN_ARCHIVE_LOCATION);
-    File otherArchiveFolder = new File(Constants.OTHER_ARCHIVE_LOCATION);
-    if (!archivesFolder.exists()) {
-      archivesFolder.mkdirs();
-    }
-    if (!pendingFolder.exists()) {
-      pendingFolder.mkdirs();
-    }
-    if (!outArchiveFolder.exists()) {
-      outArchiveFolder.mkdirs();
-    }
-    if (!screenArchiveFolder.exists()) {
-      screenArchiveFolder.mkdirs();
-    }
-    if (!otherArchiveFolder.exists()) {
-      otherArchiveFolder.mkdirs();
+    try {
+      RMAC.fs.createDirs(Constants.ARCHIVES_LOCATION);
+      RMAC.fs.createDirs(Constants.PENDING_ARCHIVES_LOCATION);
+      RMAC.fs.createDirs(Constants.LOG_ARCHIVE_LOCATION);
+      RMAC.fs.createDirs(Constants.SCREEN_ARCHIVE_LOCATION);
+      RMAC.fs.createDirs(Constants.OTHER_ARCHIVE_LOCATION);
+    } catch (IOException e) {
+      log.error("Could not verify archive directories");
     }
   }
 
@@ -71,28 +60,42 @@ public class Archiver {
    * Move the given file to its corresponding staging directory, the staging directory is inferred
    * from <b>type</b>
    *
-   * @param file The file to be archived.
-   * @param type Type of this file, which helps to determine which staging directory this file will
-   *             go to before being archived.
+   * @param filePath The file to be archived.
+   * @param type     Type of this file, which helps to determine which staging directory this file
+   *                 will go to before being archived.
    */
   public synchronized void moveToArchive(String filePath, ArchiveFileType type) {
     String archiveLocation = this.getArchiveLocation(type);
+
     try {
       Path file = Paths.get(filePath);
       RMAC.fs.move(filePath, archiveLocation + "\\" + file.getFileName());
     } catch (IOException e) {
       log.error("Could not move file to staging", e);
     }
-    long stagingSize = this.getDirectorySize(archiveLocation);
-    if (stagingSize < RMAC.config.getMaxStagingSize()) {
+
+    try {
+      long stagingSize = RMAC.fs.getDirectorySize(archiveLocation);
+      if (stagingSize < RMAC.config.getMaxStagingSize()) {
+        return;
+      }
+    } catch (IOException e) {
+      log.error("Could not get directory size", e);
       return;
     }
+
     log.warn("Staging full");
-    long pendingSize = this.getDirectorySize(Constants.PENDING_ARCHIVES_LOCATION);
-    if (pendingSize >= RMAC.config.getMaxStorageSize()) {
-      log.warn("Storage size limit reached, deleting old files");
-      this.deleteOldestFile(Constants.PENDING_ARCHIVES_LOCATION);
+
+    try {
+      long pendingSize = RMAC.fs.getDirectorySize(Constants.PENDING_ARCHIVES_LOCATION);
+      if (pendingSize >= RMAC.config.getMaxStorageSize()) {
+        log.warn("Storage size limit reached, deleting old files");
+        RMAC.fs.deleteOldestFile(Constants.PENDING_ARCHIVES_LOCATION);
+      }
+    } catch (IOException e) {
+      log.error("Could not get directory size", e);
     }
+
     this.createNewArchive(archiveLocation, Constants.PENDING_ARCHIVES_LOCATION);
     log.warn("New archive created");
   }
@@ -120,24 +123,41 @@ public class Archiver {
    * </cite>
    */
   public void uploadArchives() {
-    File[] screenFiles = new File(Constants.SCREEN_ARCHIVE_LOCATION).listFiles();
-    if (screenFiles != null && screenFiles.length > 0) {
-      this.createNewArchive(Constants.SCREEN_ARCHIVE_LOCATION, Constants.PENDING_ARCHIVES_LOCATION);
-    }
-    File[] logFiles = new File(Constants.LOG_ARCHIVE_LOCATION).listFiles();
-    if (logFiles != null && logFiles.length > 0) {
-      this.createNewArchive(Constants.LOG_ARCHIVE_LOCATION, Constants.PENDING_ARCHIVES_LOCATION);
-    }
-    File[] otherFiles = new File(Constants.OTHER_ARCHIVE_LOCATION).listFiles();
-    if (otherFiles != null && otherFiles.length > 0) {
-      this.createNewArchive(Constants.OTHER_ARCHIVE_LOCATION, Constants.PENDING_ARCHIVES_LOCATION);
+    try {
+      Stream<Path> screenFiles = RMAC.fs.list(Constants.SCREEN_ARCHIVE_LOCATION);
+      if (screenFiles.findAny().isPresent()) {
+        this.createNewArchive(Constants.SCREEN_ARCHIVE_LOCATION,
+            Constants.PENDING_ARCHIVES_LOCATION);
+      }
+    } catch (IOException e) {
+      log.error("Could not archive screen files", e);
     }
 
-    File[] pendingFiles = new File(Constants.PENDING_ARCHIVES_LOCATION).listFiles();
-    if (pendingFiles != null && pendingFiles.length > 0) {
-      for (File pendingFile : pendingFiles) {
-        RMAC.uploader.uploadFile(pendingFile, ArchiveFileType.ARCHIVE);
+    try {
+      Stream<Path> logFiles = RMAC.fs.list(Constants.LOG_ARCHIVE_LOCATION);
+      if (logFiles.findAny().isPresent()) {
+        this.createNewArchive(Constants.LOG_ARCHIVE_LOCATION, Constants.PENDING_ARCHIVES_LOCATION);
       }
+    } catch (IOException e) {
+      log.error("Could not archive key-log files", e);
+    }
+
+    try {
+      Stream<Path> otherFiles = RMAC.fs.list(Constants.OTHER_ARCHIVE_LOCATION);
+      if (otherFiles.findAny().isPresent()) {
+        this.createNewArchive(Constants.OTHER_ARCHIVE_LOCATION,
+            Constants.PENDING_ARCHIVES_LOCATION);
+      }
+    } catch (IOException e) {
+      log.error("Could not archive other files", e);
+    }
+
+    try {
+      RMAC.fs.list(Constants.PENDING_ARCHIVES_LOCATION).forEach(
+          path -> RMAC.uploader.uploadFile(path.toAbsolutePath().toString(),
+              ArchiveFileType.ARCHIVE));
+    } catch (IOException e) {
+      log.error("Could not upload pending arvhives", e);
     }
   }
 
@@ -185,89 +205,35 @@ public class Archiver {
    * @param destFolder   Destination directory in which the archive will be placed.
    */
   private void createNewArchive(String sourceFolder, String destFolder) {
-    String zipPath =
-        destFolder + "\\" + Utils.getTimestamp() + ".zip";
-    File[] files = new File(sourceFolder).listFiles();
-
-    if (files == null) {
-      log.error("Could not list files in source folder");
+    String zipPath = destFolder + "\\" + Utils.getTimestamp() + ".zip";
+    Stream<Path> files;
+    try {
+      files = RMAC.fs.list(sourceFolder);
+    } catch (IOException e) {
+      log.error("Could not list files in source folder", e);
       return;
     }
 
     boolean success = false;
     try (ZipOutputStream zipOut = new ZipOutputStream(Files.newOutputStream(Paths.get(zipPath)))) {
-      for (File file : files) {
-        zipOut.putNextEntry(new ZipEntry(file.getName()));
-        Files.copy(file.toPath(), zipOut);
-      }
+      files.forEach(path -> {
+        try {
+          zipOut.putNextEntry(new ZipEntry(path.toAbsolutePath().getFileName().toString()));
+          RMAC.fs.copy(path.toAbsolutePath().toString(), zipOut);
+        } catch (IOException e) {
+          log.error("Could not archive file", e);
+        }
+      });
       success = true;
     } catch (IOException e) {
       log.error("Could not zip source folder", e);
     } finally {
       if (success) {
-        Arrays.stream(files).forEach(File::delete);
-      }
-    }
-  }
-
-  /**
-   * Calculate the total size of all the files in the given directory.
-   * <br><br>
-   * <cite>
-   * This is a shallow operation, only root level files are traversed.
-   * </cite>
-   *
-   * @param dirPath The directory for which the total size needs to be calculated.
-   * @return The size of the directory in bytes.
-   */
-  private long getDirectorySize(String dirPath) {
-    long size = 0;
-    try (Stream<Path> walk = Files.walk(Paths.get(dirPath))) {
-      size = walk
-          .filter(Files::isRegularFile)
-          .mapToLong(this::getFileSize)
-          .sum();
-
-    } catch (IOException e) {
-      log.error("Could not get directory size", e);
-    }
-    return size;
-  }
-
-  /**
-   * Get the size of given <code>file</code> in bytes.
-   *
-   * @param path Path to the file.
-   * @return Size of the file in bytes.
-   */
-  private long getFileSize(Path path) {
-    try {
-      return Files.size(path);
-    } catch (IOException e) {
-      log.error("Could not get file size", e);
-      return 0L;
-    }
-  }
-
-  /**
-   * Traverse all the root level files in a given directory and delete the one which is oldest.
-   *
-   * @param dirPath Location of the directory.
-   */
-  private void deleteOldestFile(String dirPath) {
-    File[] logFiles = new File(dirPath).listFiles();
-    long oldestModified = Long.MAX_VALUE;
-    File oldestFile = null;
-    if (logFiles != null) {
-      for (File f : logFiles) {
-        if (f.lastModified() < oldestModified) {
-          oldestModified = f.lastModified();
-          oldestFile = f;
+        try {
+          RMAC.fs.deleteAll(sourceFolder);
+        } catch (IOException e) {
+          log.error("Could not delete archived files", e);
         }
-      }
-
-      if (oldestFile != null) {
-        oldestFile.delete();
       }
     }
   }

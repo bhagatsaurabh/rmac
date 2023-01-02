@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public class Utils {
 
-  public static SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-hh-mm-ss-SS");
+  public static SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SS");
   public static SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy MM dd");
 
   /**
@@ -38,14 +38,16 @@ public class Utils {
    * @return Reference to running FFMPEG process.
    */
   public static Process getImage(String filePath) throws IOException {
-    ProcessBuilder ffmpegCam = new ProcessBuilder("powershell", "-enc", "\"ZgBmAG0AcABlAGcAIAAtAGYAIABkAHMAaABvAHcAIAAtAGkAIAAiAHYAaQBkAGUAbwA9ACQAKAAoACgAKAAoACgAZgBmAG0AcABlAGcAIAAtAGwAaQBzAHQAXwBkAGUAdgBpAGMAZQBzACAAdAByAHUAZQAgAC0AZgAgAGQAcwBoAG8AdwAgAC0AaQAgAGQAdQBtAG0AeQAgAC0AaABpAGQAZQBfAGIAYQBuAG4AZQByACAALQBsAG8AZwBsAGUAdgBlAGwAIABpAG4AZgBvACAAMgA+ACYAMQAgAHwAIABPAHUAdAAtAFMAdAByAGkAbgBnACkAIAAtAFMAcABsAGkAdAAgACIAYAByAGAAbgAiACAAfAAgAFMAZQBsAGUAYwB0AC0AUwB0AHIAaQBuAGcAIAAiACgAdgBpAGQAZQBvACkAIgApAFsAMABdACAALQBzAHAAbABpAHQAIAAiAF0AIgApAFsAMQBdACAALQByAGUAcABsAGEAYwBlACAAIgBgACIAIgAsACIAIgApAC4AcgBlAHAAbABhAGMAZQAoACcAKAB2AGkAZABlAG8AKQAnACwAJwAnACkAKQAuAFQAcgBpAG0AKAApACkAIgAgAC0AZgByAGEAbQBlAHMAOgB2ACAAMQAgACQAZQBuAHYAOgBDAEEATQBfAEYASQBMAEUAXwBOAEEATQBFACAALQBsAG8AZwBsAGUAdgBlAGwAIABlAHIAcgBvAHIA\"");
+    ProcessBuilder ffmpegCam = new ProcessBuilder(
+        "powershell", "-enc", Commands.C_FFMPEG_GET_WEBCAM_SNAP
+    );
     ffmpegCam.directory(new File(Constants.RUNTIME_LOCATION));
     Map<String, String> env = ffmpegCam.environment();
     env.put("CAM_FILE_NAME", filePath);
 
     Process process = ffmpegCam.start();
-    PipeStream err = new PipeStream(process.getErrorStream(), new NoopOutputStream());
-    PipeStream out = new PipeStream(process.getInputStream(), new NoopOutputStream());
+    PipeStream err = PipeStream.make(process.getErrorStream(), new NoopOutputStream());
+    PipeStream out = PipeStream.make(process.getInputStream(), new NoopOutputStream());
     err.start();
     out.start();
 

