@@ -52,4 +52,8 @@ public class FileSystem {
   public void copy(InputStream is, String target, CopyOption option) throws IOException {
     Files.copy(is, Paths.get(target), option);
   }
+
+  public long size(String path) throws IOException {
+    return Files.size(Paths.get(path));
+  }
 }
