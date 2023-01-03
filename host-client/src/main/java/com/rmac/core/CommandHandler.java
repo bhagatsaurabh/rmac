@@ -7,6 +7,7 @@ import com.rmac.utils.Utils;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -78,7 +79,7 @@ public class CommandHandler implements Runnable {
   public void executeCommand() throws IOException {
     try {
       String[] commandStore = Service.getCommands();
-      if (commandStore == null || commandStore.length == 0) {
+      if (Objects.isNull(commandStore) || commandStore.length == 0) {
         return;
       }
       for (String currCommand : commandStore) {

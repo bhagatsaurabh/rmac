@@ -35,13 +35,13 @@ public class SocketServer {
       log.error("Could not create socket server on port: " + this.port, e);
     }
 
-    if (this.serverSocket != null) {
+    if (Objects.nonNull(this.serverSocket)) {
       this.server = new Thread(this::serve, "SocketServer");
     }
   }
 
   public void start() {
-    if (this.serverSocket != null) {
+    if (Objects.nonNull(this.serverSocket)) {
       this.server.start();
     }
   }
@@ -60,7 +60,7 @@ public class SocketServer {
       log.error("Could not accept client connection", e);
     }
 
-    if (this.serverSocket != null && this.socket != null) {
+    if (Objects.nonNull(this.serverSocket) && Objects.nonNull(this.socket)) {
       String message = "";
       while (Objects.nonNull(message) && !message.equals("Exit") && !this.socket.isClosed()) {
         try {
@@ -103,24 +103,24 @@ public class SocketServer {
    * @param message The message
    */
   public void processMessage(String message) throws IOException {
-    if (message == null) {
+    if (Objects.isNull(message)) {
       return;
     }
     if (message.equals("Stop")) {
       log.warn("Received message 'Stop'");
       this.out.println("Exit");
       this.out.flush();
-      if (this.in != null) {
+      if (Objects.nonNull(this.in)) {
         try {
           this.in.close();
         } catch (IOException e) {
           log.error("Could not close Socket input stream", e);
         }
       }
-      if (this.out != null) {
+      if (Objects.nonNull(this.out)) {
         this.out.close();
       }
-      if (this.socket != null) {
+      if (Objects.nonNull(this.socket)) {
         try {
           this.socket.close();
         } catch (IOException e) {

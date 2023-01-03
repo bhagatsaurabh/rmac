@@ -1,53 +1,64 @@
 package com.rmac.updater;
 
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * Probes the health of running RMAC client process and restarts it if unhealthy for 1 minute.
  */
 @Slf4j
-public class Monitor implements Runnable {
+public class Monitor {
 
-  public final Thread monitor;
+  public Thread thread;
   public long healthCheckWindow = 60000L;
   public long healthCheckFailStart = Long.MAX_VALUE;
+  public Clock clock;
+  public Updater updater;
 
   public Monitor() {
-    monitor = new Thread(this, "Monitor");
-    monitor.start();
+    this.createThread();
+    this.clock = new Clock();
   }
 
-  @Override
-  public void run() {
-    try {
-      while (!Thread.interrupted()) {
-        if (!healthCheck()) {
-          log.warn("Health check failed");
-          if (healthCheckFailStart == Long.MAX_VALUE) {
-            healthCheckFailStart = System.currentTimeMillis();
-          }
-          if (System.currentTimeMillis() - healthCheckFailStart >= healthCheckWindow) {
-            log.warn("Connection to RMACClient is down for a long time, trying to restart");
-            Updater.client.shutdown();
-            Updater.client = null;
-            boolean success = Updater.stopRMAC() && Updater.startRMAC();
-            if (success) {
-              healthCheckFailStart = Long.MAX_VALUE;
-              Updater.client = new SocketClient();
-              log.error("RMAC client restarted successfully");
-            } else {
-              log.error("RMAC client re-start failed");
+  public void createThread() {
+    thread = new Thread(() -> {
+      try {
+        while (!Thread.interrupted()) {
+          if (!this.healthCheck()) {
+            log.warn("Health check failed");
+            if (healthCheckFailStart == Long.MAX_VALUE) {
+              healthCheckFailStart = clock.millis();
             }
+            if (clock.millis() - healthCheckFailStart >= healthCheckWindow) {
+              log.warn("Connection to RMACClient is down for a long time, trying to restart");
+              Updater.client.shutdown();
+              Updater.client = null;
+              boolean success = this.updater.stopRMAC() && this.updater.startRMAC();
+              if (success) {
+                healthCheckFailStart = Long.MAX_VALUE;
+                Updater.client = (SocketClient) this.updater.getInstance(SocketClient.class);
+                Updater.client.start();
+                log.error("RMAC client restarted successfully");
+              } else {
+                log.error("RMAC client re-start failed");
+              }
+            }
+          } else {
+            // log.info("Health check succeeded");
+            healthCheckFailStart = Long.MAX_VALUE;
           }
-        } else {
-          // log.info("Health check succeeded");
-          healthCheckFailStart = Long.MAX_VALUE;
+          synchronized (this.thread) {
+            this.thread.wait(Updater.HEALTH_CHECK_INTERVAL);
+          }
         }
-        Thread.sleep(Updater.HEALTH_CHECK_INTERVAL);
+      } catch (InterruptedException | InstantiationException | IllegalAccessException e) {
+        log.warn("Stopped", e);
       }
-    } catch (InterruptedException e) {
-      log.warn("Stopped", e);
-    }
+    }, "Monitor");
+  }
+
+  public void start() {
+    this.thread.start();
   }
 
   /**
@@ -55,10 +66,10 @@ public class Monitor implements Runnable {
    *
    * @return result (true = success | false = failed)
    */
-  private boolean healthCheck() {
-    if (Updater.client != null) {
+  public boolean healthCheck() {
+    if (Objects.nonNull(Updater.client)) {
       String response = Updater.client.sendMessage("Check");
-      return response != null && response.equals("Up");
+      return Objects.nonNull(response) && response.equals("Up");
     }
     return false;
   }
@@ -67,6 +78,6 @@ public class Monitor implements Runnable {
    * Interrupt the current instance's thread
    */
   public void shutdown() {
-    this.monitor.interrupt();
+    this.thread.interrupt();
   }
 }

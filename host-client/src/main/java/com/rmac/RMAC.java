@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
 import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
 import org.slf4j.Logger;
@@ -267,7 +268,7 @@ public class RMAC {
       fs.create(lockFile);
       RMAC.randomAccessFile = fs.createRandomAccessFile(lockFile, "rw");
       RMAC.fileLock = RMAC.randomAccessFile.getChannel().tryLock();
-      if (RMAC.fileLock != null) {
+      if (Objects.nonNull(RMAC.fileLock)) {
         return true;
       }
     } catch (Exception e) {
@@ -283,7 +284,7 @@ public class RMAC {
    */
   public boolean copyDLL() {
     try (InputStream is = fs.getResourceAsStream(RMAC.class, "/rmac-native.dll")) {
-      if (is != null) {
+      if (Objects.nonNull(is)) {
         fs.copy(is, Constants.RMAC_DLL_LOCATION, StandardCopyOption.REPLACE_EXISTING);
         return true;
       } else {

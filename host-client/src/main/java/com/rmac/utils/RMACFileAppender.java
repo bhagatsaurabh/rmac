@@ -6,6 +6,7 @@ import com.rmac.RMAC;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 
 /**
  * Custom logback FileAppender to integrate log output file with RMAC archiving/upload process.
@@ -44,7 +45,7 @@ public class RMACFileAppender extends FileAppender<ILoggingEvent> {
 
   @Override
   public void setFile(String file) {
-    if (RMAC.fs.exists(Constants.LOG_LOCATION) && RMAC.archiver != null) {
+    if (RMAC.fs.exists(Constants.LOG_LOCATION) && Objects.nonNull(RMAC.archiver)) {
       RMAC.archiver.moveToArchive(Constants.LOG_LOCATION, ArchiveFileType.OTHER);
     }
     if (RMAC.fs.exists(Constants.LOG_LOCATION)) {

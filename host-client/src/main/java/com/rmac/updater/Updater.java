@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.NoSuchAlgorithmException;
+import java.util.Objects;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import lombok.extern.slf4j.Slf4j;
@@ -66,7 +67,11 @@ public class Updater {
 
   public static FileSystem fs = new FileSystem();
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws InstantiationException, IllegalAccessException {
+    new Updater().start(args);
+  }
+
+  public void start(String[] args) throws InstantiationException, IllegalAccessException {
     if (args.length < 1) {
       log.error("Runtime location not provided as an argument");
       System.exit(0);
@@ -94,7 +99,8 @@ public class Updater {
 
     loadConfig(args[0]);
 
-    client = new SocketClient();
+    client = (SocketClient) getInstance(SocketClient.class);
+    client.start();
     File file = new File(
         Constants.UPDATE_LOCATION.substring(0, Constants.UPDATE_LOCATION.length() - 1));
     if (!file.exists()) {
@@ -114,10 +120,14 @@ public class Updater {
       } catch (Exception e) {
         log.warn("Could not send 'Exit' to old RMAC client");
       }
-      client = new SocketClient();
+      client = (SocketClient) getInstance(SocketClient.class);
+      client.start();
     }
     log.info("RMACClient health monitoring started");
-    monitor = new Monitor();
+    monitor = (Monitor) getInstance(Monitor.class);
+    monitor.updater = this;
+    monitor.start();
+
     addShutdownHook();
   }
 
@@ -126,7 +136,7 @@ public class Updater {
    *
    * @param configPath Path to the Runtime Location which consists RMAC config file.
    */
-  public static void loadConfig(String configPath) {
+  public void loadConfig(String configPath) {
     try {
       BufferedReader configReader = new BufferedReader(
           new FileReader(configPath + "\\config.rmac"));
@@ -150,7 +160,7 @@ public class Updater {
   /**
    * Check for any updates and start the update process.
    */
-  public static boolean startUpdate() {
+  public boolean startUpdate() {
     if (checkForUpdates()) {
       boolean result =
           createLock()
@@ -169,14 +179,14 @@ public class Updater {
   /**
    * Read the version of RMAC client jar from its MANIFEST.MF file.
    */
-  public static void readVersion() {
+  public void readVersion() {
     try (JarFile jarFile = new JarFile(Constants.RMAC_LOCATION)) {
       Manifest manifest = jarFile.getManifest();
       version = manifest.getMainAttributes().getValue("Version");
     } catch (IOException e) {
       log.error("Couldn't read version", e);
     } finally {
-      if (version == null) {
+      if (Objects.isNull(version)) {
         version = "Unknown";
       }
     }
@@ -188,7 +198,7 @@ public class Updater {
    *
    * @return Whether there is any update available (true=new-update | false=no-update).
    */
-  public static boolean checkForUpdates() {
+  public boolean checkForUpdates() {
     String downloadUrl, checksum;
     String[] data = Service.getUpdate(version);
     if (data.length != 0) {
@@ -227,7 +237,7 @@ public class Updater {
    * @param signedUrl Temporary download url
    * @return Whether download was successful (true=succeeded | false=failed).
    */
-  public static boolean downloadUpdate(String signedUrl, String checksum) {
+  public boolean downloadUpdate(String signedUrl, String checksum) {
     for (int i = 0; i <= MAX_RETRIES_UPDATE_DOWNLOAD; i++) {
       try {
         attemptDownload(signedUrl, checksum);
@@ -256,7 +266,7 @@ public class Updater {
    * @param signedUrl Temporary download url.
    * @throws IOException If download fails.
    */
-  public static void attemptDownload(String signedUrl, String checksum)
+  public void attemptDownload(String signedUrl, String checksum)
       throws Exception {
     ATTEMPT += 1;
     ReadableByteChannel readableByteChannel = Channels.newChannel(
@@ -285,7 +295,7 @@ public class Updater {
    *
    * @return Whether lock file was successfully created (true=succeeded | false=failed).
    */
-  public static boolean createLock() {
+  public boolean createLock() {
     File file = new File(Constants.UPDATE_LOCK_LOCATION);
     try {
       file.createNewFile();
@@ -302,7 +312,7 @@ public class Updater {
    *
    * @return Whether lock file deletion was successful (true=success).
    */
-  public static boolean deleteLock() {
+  public boolean deleteLock() {
     new File(Constants.UPDATE_LOCK_LOCATION).delete();
     log.info("Lock file deleted");
     return true;
@@ -313,8 +323,8 @@ public class Updater {
    *
    * @return Whether attempting to stop RMAC client process was successful (true=success).
    */
-  public static boolean stopRMAC() {
-    if (client != null) {
+  public boolean stopRMAC() {
+    if (Objects.nonNull(client)) {
       client.sendMessage("Stop");
       try {
         Thread.sleep(5000);
@@ -364,7 +374,7 @@ public class Updater {
    *
    * @return Whether this file replace was successful (true=success).
    */
-  public static boolean update() {
+  public boolean update() {
     new File(Constants.RMAC_LOCATION).delete();
     Path copied = Paths.get(Constants.RMAC_LOCATION);
     Path original = Paths.get(Constants.UPDATE_LOCATION + "RMACClient.jar");
@@ -385,7 +395,7 @@ public class Updater {
    *
    * @return Whether this attempt to start RMAC was successful (true=success).
    */
-  public static boolean startRMAC() {
+  public boolean startRMAC() {
     try {
       Runtime.getRuntime()
           .exec("cmd.exe /c \"" + Constants.START_RMAC_LOCATION + "\"");
@@ -407,7 +417,7 @@ public class Updater {
    * leftover files from previous failed attempt.
    * </cite>
    */
-  public static void verifyWorkspace() {
+  public void verifyWorkspace() {
     File lockFile = new File(Constants.UPDATE_LOCK_LOCATION);
     File updateFile = new File(Constants.UPDATE_LOCATION + "RMACClient.jar");
 
@@ -427,7 +437,7 @@ public class Updater {
   /**
    * Register the JVM shutdown hook.
    */
-  public static void addShutdownHook() {
+  public void addShutdownHook() {
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       if (!SHUTDOWN) {
         shutdown();
@@ -438,12 +448,12 @@ public class Updater {
   /**
    * Close the socket client and health monitoring process.
    */
-  public static void shutdown() {
+  public void shutdown() {
     log.warn("Shutting down...");
-    if (client != null) {
+    if (Objects.nonNull(client)) {
       client.shutdown();
     }
-    if (monitor != null) {
+    if (Objects.nonNull(monitor)) {
       monitor.shutdown();
     }
 
@@ -463,17 +473,21 @@ public class Updater {
    * @param lockFile File to acquire a lock on.
    * @return result (true = success | false = failed)
    */
-  public static boolean lockInstance(final String lockFile) {
+  public boolean lockInstance(final String lockFile) {
     try {
       Updater.lockFile = new File(lockFile);
       Updater.randomAccessFile = new RandomAccessFile(Updater.lockFile, "rw");
       Updater.fileLock = Updater.randomAccessFile.getChannel().tryLock();
-      if (Updater.fileLock != null) {
+      if (Objects.nonNull(Updater.fileLock)) {
         return true;
       }
     } catch (Exception e) {
       log.error("Couldn't create/lock lock-file: " + lockFile, e);
     }
     return false;
+  }
+
+  public Object getInstance(Class<?> clazz) throws InstantiationException, IllegalAccessException {
+    return clazz.newInstance();
   }
 }

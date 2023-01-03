@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
@@ -72,10 +73,10 @@ public class MegaCommand {
     process.destroy();
 
     try {
-      if (in != null) {
+      if (Objects.nonNull(in)) {
         in.close();
       }
-      if (out != null) {
+      if (Objects.nonNull(out)) {
         out.close();
       }
     } catch (IOException e) {

@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -133,7 +134,7 @@ public class FileSystem {
       }
     }
 
-    if (oldestFile != null) {
+    if (Objects.nonNull(oldestFile)) {
       delete(oldestFile.toAbsolutePath().toString());
     }
   }
