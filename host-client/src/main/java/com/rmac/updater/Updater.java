@@ -64,6 +64,8 @@ public class Updater {
   private static FileLock fileLock;
   private static RandomAccessFile randomAccessFile;
 
+  public static FileSystem fs = new FileSystem();
+
   public static void main(String[] args) {
     if (args.length < 1) {
       log.error("Runtime location not provided as an argument");
@@ -197,17 +199,21 @@ public class Updater {
       return false;
     }
 
-    File updateFile = new File(Constants.UPDATE_LOCATION + "RMACClient.jar");
-    if (updateFile.exists()) {
+    String updateFile = Constants.UPDATE_LOCATION + "RMACClient.jar";
+    if (Updater.fs.exists(updateFile)) {
       try {
         boolean result = Checksum.verifyChecksum(updateFile, checksum);
         if (!result) {
-          updateFile.delete();
+          Updater.fs.delete(updateFile);
         } else {
           return true;
         }
       } catch (NoSuchAlgorithmException | IOException e) {
-        updateFile.delete();
+        try {
+          Updater.fs.delete(updateFile);
+        } catch (IOException ioe) {
+          log.error("Could not delete update file", ioe);
+        }
         log.error("Cannot verify update checksum", e);
       }
     }
@@ -268,8 +274,7 @@ public class Updater {
     readableByteChannel.close();
 
     // Verify checksum
-    File updateFile = new File(Constants.UPDATE_LOCATION + "RMACClient.jar");
-    if (!Checksum.verifyChecksum(updateFile, checksum)) {
+    if (!Checksum.verifyChecksum(Constants.UPDATE_LOCATION + "RMACClient.jar", checksum)) {
       throw new Exception("Checksum mismatch");
     }
     ATTEMPT = 0;

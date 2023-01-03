@@ -44,7 +44,7 @@ public class Uploadable implements Comparable<Uploadable> {
   private void createThread() {
     this.thread = new Thread(() -> {
       try {
-        boolean res = MegaClient.uploadFile(this.file,
+        boolean res = RMAC.mega.uploadFile(this.file,
             Utils.getDate() + "/" + Paths.get(this.file).getFileName());
 
         if (!res) {

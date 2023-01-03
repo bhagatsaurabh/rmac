@@ -28,8 +28,8 @@ public final class FileUploader {
    * Start the MEGA cli server and login using defined user/pass config properties
    */
   public FileUploader() {
-    if (MegaClient.startServer()) {
-      MegaClient.login(RMAC.config.getMegaUser(), RMAC.config.getMegaPass(), false);
+    if (RMAC.mega.startServer()) {
+      RMAC.mega.login(RMAC.config.getMegaUser(), RMAC.config.getMegaPass(), false);
     }
   }
 
