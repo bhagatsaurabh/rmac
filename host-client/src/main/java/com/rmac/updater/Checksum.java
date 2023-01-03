@@ -1,6 +1,5 @@
 package com.rmac.updater;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
@@ -23,7 +22,7 @@ public class Checksum {
    * @throws NoSuchAlgorithmException when algorithm used to calculate checksum is un-recognizable.
    * @throws IOException when file read fails.
    */
-  public static boolean verifyChecksum(File file, String expected)
+  public static boolean verifyChecksum(String file, String expected)
       throws NoSuchAlgorithmException, IOException {
 
     MessageDigest digest = MessageDigest.getInstance("SHA-256");

@@ -172,7 +172,7 @@ public class KeyLog implements Runnable {
               Paths.get(filePath),
               StandardCopyOption.REPLACE_EXISTING);
           writer = new PrintWriter(new FileWriter(keyLogFile, true));
-          RMAC.uploader.uploadFile(new File(filePath), ArchiveFileType.KEY);
+          RMAC.uploader.uploadFile(filePath, ArchiveFileType.KEY);
         } catch (IOException e) {
           log.error("Could not move log file to be uploaded", e);
         } finally {

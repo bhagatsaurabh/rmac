@@ -3,6 +3,8 @@ package com.rmac.utils;
 import com.rmac.RMAC;
 import com.rmac.core.MegaClient;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,10 +26,10 @@ public class Uploadable implements Comparable<Uploadable> {
 
   private Thread thread;
   private ArchiveFileType type;
-  private File file;
+  private String file;
   private Consumer<Uploadable> callback;
 
-  public Uploadable(File file, ArchiveFileType type, Consumer<Uploadable> callback) {
+  public Uploadable(String file, ArchiveFileType type, Consumer<Uploadable> callback) {
     this.type = type;
     this.file = file;
     this.callback = callback;
@@ -42,15 +44,17 @@ public class Uploadable implements Comparable<Uploadable> {
   private void createThread() {
     this.thread = new Thread(() -> {
       try {
-        boolean res = MegaClient.uploadFile(this.file.getAbsolutePath(),
-            Utils.getDate() + "/" + this.file.getName());
+        boolean res = RMAC.mega.uploadFile(this.file,
+            Utils.getDate() + "/" + Paths.get(this.file).getFileName());
 
         if (!res) {
           log.error("Unable to upload file, archiving");
-          RMAC.archiver.moveToArchive(this.file.getAbsolutePath(), this.type);
+          RMAC.archiver.moveToArchive(this.file, this.type);
         } else {
-          this.file.delete();
+          RMAC.fs.delete(this.file);
         }
+      } catch (IOException e) {
+        log.error("Could not delete file post-upload", e);
       } finally {
         callback.accept(this);
       }

@@ -8,6 +8,7 @@ import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -16,27 +17,32 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SocketServer {
 
-  public static Thread server;
-  public static ServerSocket serverSocket;
-  public static Socket socket;
-  public static BufferedReader in;
-  public static PrintStream out;
-  public static int port = 12735;
+  public Thread server;
+  public ServerSocket serverSocket;
+  public Socket socket;
+  public BufferedReader in;
+  public PrintStream out;
+  public int port = 12735;
 
   /**
    * Create a local socket server.
    */
   public SocketServer() {
     try {
-      serverSocket = new ServerSocket(port);
-      log.info("Socket server started on port: " + port);
+      this.serverSocket = SocketServer.getInstance(this.port);
+      log.info("Socket server started on port: " + this.port);
     } catch (IOException e) {
-      log.error("Could not create socket server on port: " + port, e);
+      log.error("Could not create socket server on port: " + this.port, e);
     }
 
-    if (serverSocket != null) {
-      server = new Thread(this::serve, "SocketServer");
-      server.start();
+    if (this.serverSocket != null) {
+      this.server = new Thread(this::serve, "SocketServer");
+    }
+  }
+
+  public void start() {
+    if (this.serverSocket != null) {
+      this.server.start();
     }
   }
 
@@ -44,24 +50,24 @@ public class SocketServer {
    * Start listening for socket client connection request, once connected, start reading and
    * processing messages coming from connected process.
    */
-  private void serve() {
+  public void serve() {
     try {
-      socket = serverSocket.accept();
-      out = new PrintStream(socket.getOutputStream());
-      in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+      this.socket = this.serverSocket.accept();
+      this.out = new PrintStream(this.socket.getOutputStream());
+      this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
       log.info("RMACUpdater connected");
     } catch (IOException e) {
       log.error("Could not accept client connection", e);
     }
 
-    if (serverSocket != null && socket != null) {
+    if (this.serverSocket != null && this.socket != null) {
       String message = "";
-      while (!message.equals("Exit") && !socket.isClosed()) {
+      while (Objects.nonNull(message) && !message.equals("Exit") && !this.socket.isClosed()) {
         try {
-          message = in.readLine();
+          message = this.in.readLine();
           // log.info("Received message: " + message);
-          processMessage(message);
-        } catch (SocketException | EOFException e) {
+          this.processMessage(message);
+        } catch (SocketException | EOFException | RuntimeException e) {
           log.error("Connection abruptly closed by client", e);
           break;
         } catch (IOException e) {
@@ -70,17 +76,17 @@ public class SocketServer {
       }
       log.warn("Closing current socket connection");
       try {
-        socket.close();
-        in.close();
-        out.close();
+        this.socket.close();
+        this.in.close();
+        this.out.close();
       } catch (IOException e) {
         log.error("Could not close socket server", e);
       }
 
-      if (message.equals("Exit")) {
+      if (Objects.nonNull(message) && message.equals("Exit")) {
         // If the message was Exit (graceful connection closure from client),
-        // continue serving and listen for new connection, otherwise natural shutdown of this threaded process
-        serve();
+        // continue serving and listen for new connection, otherwise natural shutdown of this threaded process will follow
+        this.serve();
       }
     }
   }
@@ -96,27 +102,27 @@ public class SocketServer {
    *
    * @param message The message
    */
-  public void processMessage(String message) {
+  public void processMessage(String message) throws IOException {
     if (message == null) {
       return;
     }
     if (message.equals("Stop")) {
       log.warn("Received message 'Stop'");
-      out.println("Exit");
-      out.flush();
-      if (in != null) {
+      this.out.println("Exit");
+      this.out.flush();
+      if (this.in != null) {
         try {
-          in.close();
+          this.in.close();
         } catch (IOException e) {
           log.error("Could not close Socket input stream", e);
         }
       }
-      if (out != null) {
-        out.close();
+      if (this.out != null) {
+        this.out.close();
       }
-      if (socket != null) {
+      if (this.socket != null) {
         try {
-          socket.close();
+          this.socket.close();
         } catch (IOException e) {
           log.error("Could not close socket", e);
         }
@@ -125,9 +131,13 @@ public class SocketServer {
       System.exit(0);
     } else if (message.equals("Check")) {
       // Maybe sending some diagnostics here can be more helpful instead of just sending a thumbs up
-      out.println("Up");
-      out.flush();
+      this.out.println("Up");
+      this.out.flush();
       // log.info("Response sent to SocketClient");
     }
+  }
+
+  public static ServerSocket getInstance(int port) throws IOException {
+    return new ServerSocket(port);
   }
 }

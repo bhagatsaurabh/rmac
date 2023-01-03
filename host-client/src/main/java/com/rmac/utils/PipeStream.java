@@ -28,4 +28,8 @@ public class PipeStream extends Thread {
       System.err.println("Failed to pipe stream");
     }
   }
+
+  public static PipeStream make(InputStream is, OutputStream os) {
+    return new PipeStream(is, os);
+  }
 }

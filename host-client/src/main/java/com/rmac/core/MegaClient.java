@@ -28,7 +28,7 @@ public class MegaClient {
    * @param command command to run.
    * @return Reference to the MEGA command.
    */
-  private static MegaCommand executeCommand(String... command) {
+  public MegaCommand executeCommand(String... command) {
     if (!Connectivity.checkNetworkState()) {
       log.error("Network is down, ignoring megacmd command");
       return null;
@@ -48,7 +48,7 @@ public class MegaClient {
    *
    * @return Result (true = success | false = failed)
    */
-  public static boolean startServer() {
+  public boolean startServer() {
     try {
       File megaServer = new File(Constants.MEGASERVER_LOCATION);
       if (!megaServer.exists()) {
@@ -58,7 +58,7 @@ public class MegaClient {
       ProcessBuilder builder = new ProcessBuilder(Constants.MEGASERVER_LOCATION);
       builder.start();
       Thread.sleep(3000);
-      SERVER_STARTED = MegaClient.isServerRunning();
+      SERVER_STARTED = this.isServerRunning();
       return SERVER_STARTED;
     } catch (IOException e) {
       log.error("Could not start MEGAcmd server", e);
@@ -77,20 +77,20 @@ public class MegaClient {
    * @param pass Password for the username
    * @param startServer Whether to start the MEGA cli server process.
    */
-  public static void login(String user, String pass, boolean startServer) {
+  public void login(String user, String pass, boolean startServer) {
     if (!SERVER_STARTED && startServer) {
-      MegaClient.startServer();
+      RMAC.mega.startServer();
     }
     if (!SERVER_STARTED) {
       log.error("Server is not running, cannot login to MEGA");
       return;
     }
-    if (MegaClient.isLoggedIn()) {
+    if (RMAC.mega.isLoggedIn()) {
       LOGGED_IN = true;
       return;
     }
 
-    MegaCommand command = MegaClient.executeCommand("login", "\"" + user + "\"",
+    MegaCommand command = RMAC.mega.executeCommand("login", "\"" + user + "\"",
         "\"" + pass + "\"");
 
     if (command == null) {
@@ -119,16 +119,16 @@ public class MegaClient {
    * @param destPath Destination path where the file will be stored after upload.
    * @return Result (true = success | false = failed)
    */
-  public static boolean uploadFile(String filePath, String destPath) {
+  public boolean uploadFile(String filePath, String destPath) {
     if (!LOGGED_IN) {
-      MegaClient.login(RMAC.config.getMegaUser(), RMAC.config.getMegaPass(), true);
+      RMAC.mega.login(RMAC.config.getMegaUser(), RMAC.config.getMegaPass(), true);
     }
     if (!LOGGED_IN) {
       log.error("Mega client not logged in, ignoring upload");
       return false;
     }
 
-    MegaCommand command = MegaClient.executeCommand(
+    MegaCommand command = RMAC.mega.executeCommand(
         "put", "-c", "\"" + filePath + "\"", "\"" + destPath + "\""
     );
 
@@ -151,7 +151,7 @@ public class MegaClient {
    *
    * @return Result (true = running | false = not-running)
    */
-  public static boolean isServerRunning() {
+  public boolean isServerRunning() {
     try {
       ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c",
           "tasklist | find /i \"MEGAcmdServer.exe\" && echo Running || echo Not Running");
@@ -183,8 +183,8 @@ public class MegaClient {
    * Check if MEGA cli server has an active session.
    * @return Result (true = logged-in | false = not logged-in)
    */
-  public static boolean isLoggedIn() {
-    MegaCommand command = MegaClient.executeCommand("whoami");
+  public boolean isLoggedIn() {
+    MegaCommand command = RMAC.mega.executeCommand("whoami");
     if (command == null) {
       return false;
     }

@@ -28,8 +28,8 @@ public final class FileUploader {
    * Start the MEGA cli server and login using defined user/pass config properties
    */
   public FileUploader() {
-    if (MegaClient.startServer()) {
-      MegaClient.login(RMAC.config.getMegaUser(), RMAC.config.getMegaPass(), false);
+    if (RMAC.mega.startServer()) {
+      RMAC.mega.login(RMAC.config.getMegaUser(), RMAC.config.getMegaPass(), false);
     }
   }
 
@@ -41,7 +41,7 @@ public final class FileUploader {
    * @param type         File type.
    * @see com.rmac.utils.ArchiveFileType
    */
-  public void uploadFile(File fileToUpload, ArchiveFileType type) {
+  public void uploadFile(String fileToUpload, ArchiveFileType type) {
     boolean archive = false;
     if (!Connectivity.checkNetworkState()) {
       if (type == ArchiveFileType.ARCHIVE) {
@@ -57,7 +57,7 @@ public final class FileUploader {
     }
 
     if (archive) {
-      RMAC.archiver.moveToArchive(fileToUpload.getAbsolutePath(), type);
+      RMAC.archiver.moveToArchive(fileToUpload, type);
       return;
     }
 

