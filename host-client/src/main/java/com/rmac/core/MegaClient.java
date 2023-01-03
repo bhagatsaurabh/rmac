@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 
@@ -73,8 +74,8 @@ public class MegaClient {
    * Login to the associated MEGA account using user/pass, optionally start the server if not
    * already started.
    *
-   * @param user Username of the MEGA account to login into.
-   * @param pass Password for the username
+   * @param user        Username of the MEGA account to login into.
+   * @param pass        Password for the username
    * @param startServer Whether to start the MEGA cli server process.
    */
   public void login(String user, String pass, boolean startServer) {
@@ -93,7 +94,7 @@ public class MegaClient {
     MegaCommand command = RMAC.mega.executeCommand("login", "\"" + user + "\"",
         "\"" + pass + "\"");
 
-    if (command == null) {
+    if (Objects.isNull(command)) {
       LOGGED_IN = false;
       return;
     }
@@ -132,7 +133,7 @@ public class MegaClient {
         "put", "-c", "\"" + filePath + "\"", "\"" + destPath + "\""
     );
 
-    if (command == null) {
+    if (Objects.isNull(command)) {
       return false;
     }
 
@@ -181,11 +182,12 @@ public class MegaClient {
 
   /**
    * Check if MEGA cli server has an active session.
+   *
    * @return Result (true = logged-in | false = not logged-in)
    */
   public boolean isLoggedIn() {
     MegaCommand command = RMAC.mega.executeCommand("whoami");
-    if (command == null) {
+    if (Objects.isNull(command)) {
       return false;
     }
 

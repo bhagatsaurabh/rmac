@@ -8,6 +8,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -56,7 +57,7 @@ public class Connectivity {
       RMAC.NETWORK_STATE = newState;
       if (newState != oldState) {
         log.warn("Network state changed to: " + newState);
-        if (newState && RMAC.archiver != null) {
+        if (newState && Objects.nonNull(RMAC.archiver)) {
           new Thread(() -> RMAC.archiver.uploadArchives()).start();
           if (!RMAC.isClientRegistered) {
             new Thread(Service::registerClient).start();

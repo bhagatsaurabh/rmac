@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -36,7 +37,10 @@ public class SocketClient {
 
   public SocketClient() {
     client = new Thread(this::connectToServer, "SocketClient");
-    client.start();
+  }
+
+  public void start() {
+    this.client.start();
   }
 
   /**
@@ -122,7 +126,7 @@ public class SocketClient {
    * @param message The message to be sent.
    */
   public String sendMessage(String message) {
-    if (socket == null) {
+    if (Objects.isNull(socket)) {
       log.error("Cannot send message, socket not connected");
       return null;
     }

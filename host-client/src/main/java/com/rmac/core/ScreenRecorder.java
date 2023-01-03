@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Map;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -66,7 +67,7 @@ public class ScreenRecorder implements Runnable {
    * Kill current ffmpeg recording process and stop.
    */
   public void shutdown() {
-    if (currFFMPEGProc != null) {
+    if (Objects.nonNull(currFFMPEGProc)) {
       currFFMPEGProc.destroy();
     }
     try {

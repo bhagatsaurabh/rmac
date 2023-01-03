@@ -4,6 +4,7 @@ import com.rmac.RMAC;
 import com.rmac.utils.ArchiveFileType;
 import com.rmac.utils.Uploadable;
 import java.io.File;
+import java.util.Objects;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import lombok.extern.slf4j.Slf4j;
@@ -90,7 +91,7 @@ public final class FileUploader {
   private synchronized void doUploads() {
     while (runningUploads < RMAC.config.getMaxParallelUploads()) {
       Uploadable u = queue.poll();
-      if (u != null) {
+      if (Objects.nonNull(u)) {
         u.execute();
         uploadStarted();
       } else {
