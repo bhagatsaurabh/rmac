@@ -173,7 +173,7 @@ public class SocketClient {
   /**
    * Interrupt this process and as a result stop it.
    */
-  public void shutdown() {
+  public void shutdown() throws Exception {
     this.sendMessage("Exit");
   }
 }

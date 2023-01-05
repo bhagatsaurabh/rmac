@@ -51,7 +51,7 @@ public class Monitor {
             this.thread.wait(Updater.HEALTH_CHECK_INTERVAL);
           }
         }
-      } catch (InterruptedException | InstantiationException | IllegalAccessException e) {
+      } catch (Exception e) {
         log.warn("Stopped", e);
       }
     }, "Monitor");
