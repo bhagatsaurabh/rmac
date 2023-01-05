@@ -210,7 +210,7 @@ public class SocketClientTest {
 
   @Test
   @DisplayName("Shutdown")
-  public void shutdown() {
+  public void shutdown() throws Exception {
     SocketClient sc = spy(SocketClient.class);
 
     when(sc.sendMessage(eq("Exit"))).thenReturn("");

@@ -68,11 +68,13 @@ public class Updater {
   public static FileSystem fs = new FileSystem();
   public static Service service = new Service();
 
-  public static void main(String[] args) throws InstantiationException, IllegalAccessException {
+  public static void main(String[] args)
+      throws InstantiationException, IllegalAccessException, IOException {
     new Updater().start(args);
   }
 
-  public void start(String[] args) throws InstantiationException, IllegalAccessException {
+  public void start(String[] args)
+      throws InstantiationException, IllegalAccessException, IOException {
     if (args.length < 1) {
       log.error("Runtime location not provided as an argument");
       System.exit(0);
@@ -80,8 +82,10 @@ public class Updater {
 
     // Delayed Start
     try {
-      Thread.sleep(DELAYED_START);
-    } catch (InterruptedException e) {
+      synchronized (this) {
+        this.wait(DELAYED_START);
+      }
+    } catch (InterruptedException | IllegalArgumentException e) {
       log.error("Could not delay start", e);
     }
 
@@ -91,26 +95,24 @@ public class Updater {
     }
 
     // Try acquiring a lock for this instance, if it fails then probably another instance is running
-    if (!lockInstance(Constants.INSTANCE_LOCK_LOCATION)) {
+    if (!this.lockInstance(Constants.INSTANCE_LOCK_LOCATION)) {
       log.error("Failed to acquire instance lock");
       System.exit(0);
     } else {
       log.info("Instance lock acquired");
     }
 
-    loadConfig(args[0]);
+    this.loadConfig(args[0]);
 
-    client = (SocketClient) getInstance(SocketClient.class);
+    client = (SocketClient) this.getInstance(SocketClient.class);
     client.start();
-    File file = new File(
-        Constants.UPDATE_LOCATION.substring(0, Constants.UPDATE_LOCATION.length() - 1));
-    if (!file.exists()) {
-      file.mkdirs();
-    }
 
-    verifyWorkspace();
-    readVersion();
-    boolean isUpdateProcessed = startUpdate();
+    Updater.fs.createDirs(
+        Constants.UPDATE_LOCATION.substring(0, Constants.UPDATE_LOCATION.length() - 1));
+
+    this.verifyWorkspace();
+    this.readVersion();
+    boolean isUpdateProcessed = this.startUpdate();
     if (isUpdateProcessed) {
       // If RMAC updater attempted to update RMAC client, that means the old socket connection might be severed
       // (might not be, if the update started but failed to stop the old RMAC client),
@@ -121,15 +123,15 @@ public class Updater {
       } catch (Exception e) {
         log.warn("Could not send 'Exit' to old RMAC client");
       }
-      client = (SocketClient) getInstance(SocketClient.class);
+      client = (SocketClient) this.getInstance(SocketClient.class);
       client.start();
     }
     log.info("RMACClient health monitoring started");
-    monitor = (Monitor) getInstance(Monitor.class);
+    monitor = (Monitor) this.getInstance(Monitor.class);
     monitor.updater = this;
     monitor.start();
 
-    addShutdownHook();
+    this.addShutdownHook();
   }
 
   /**
@@ -139,8 +141,7 @@ public class Updater {
    */
   public void loadConfig(String configPath) {
     try {
-      BufferedReader configReader = new BufferedReader(
-          new FileReader(configPath + "\\config.rmac"));
+      BufferedReader configReader = fs.getReader(configPath + "\\config.rmac");
       String curr;
       while ((curr = configReader.readLine()) != null) {
         if (curr.contains("ServerUrl")) {
@@ -162,13 +163,13 @@ public class Updater {
    * Check for any updates and start the update process.
    */
   public boolean startUpdate() {
-    if (checkForUpdates()) {
+    if (this.checkForUpdates()) {
       boolean result =
-          createLock()
-              && stopRMAC()
-              && update()
-              && startRMAC()
-              && deleteLock();
+          this.createLock()
+              && this.stopRMAC()
+              && this.update()
+              && this.startRMAC()
+              && this.deleteLock();
       if (!result) {
         log.error("Update Failed");
       }
@@ -181,7 +182,7 @@ public class Updater {
    * Read the version of RMAC client jar from its MANIFEST.MF file.
    */
   public void readVersion() {
-    try (JarFile jarFile = new JarFile(Constants.RMAC_LOCATION)) {
+    try (JarFile jarFile = fs.getJarFile(Constants.RMAC_LOCATION)) {
       Manifest manifest = jarFile.getManifest();
       version = manifest.getMainAttributes().getValue("Version");
     } catch (IOException e) {
@@ -267,8 +268,7 @@ public class Updater {
    * @param signedUrl Temporary download url.
    * @throws IOException If download fails.
    */
-  public void attemptDownload(String signedUrl, String checksum)
-      throws Exception {
+  public void attemptDownload(String signedUrl, String checksum) throws Exception {
     ATTEMPT += 1;
     ReadableByteChannel readableByteChannel = Channels.newChannel(
         new URL(signedUrl).openStream()
@@ -441,7 +441,11 @@ public class Updater {
   public void addShutdownHook() {
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       if (!SHUTDOWN) {
-        shutdown();
+        try {
+          shutdown();
+        } catch (Exception e) {
+          log.error("Client connection shutdown failed");
+        }
       }
     }));
   }
@@ -449,7 +453,7 @@ public class Updater {
   /**
    * Close the socket client and health monitoring process.
    */
-  public void shutdown() {
+  public void shutdown() throws Exception {
     log.warn("Shutting down...");
     if (Objects.nonNull(client)) {
       client.shutdown();

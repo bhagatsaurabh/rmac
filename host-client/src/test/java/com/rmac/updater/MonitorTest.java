@@ -111,7 +111,7 @@ public class MonitorTest {
 
   @Test
   @DisplayName("Run Monitor when health is down, threshold is reached, RMAC restart fails")
-  public void run_HealthDown_ThresholdReached_Restart_Failed() throws InterruptedException {
+  public void run_HealthDown_ThresholdReached_Restart_Failed() throws Exception {
     SocketClient mockSC1 = mock(SocketClient.class);
     Updater.client = mockSC1;
 
@@ -139,7 +139,7 @@ public class MonitorTest {
   @Test
   @DisplayName("Run Monitor when health is down, threshold is reached, RMAC restart succeeds")
   public void run_HealthDown_ThresholdReached_Restart_Success()
-      throws InterruptedException, InstantiationException, IllegalAccessException {
+      throws Exception {
     SocketClient mockSC1 = mock(SocketClient.class);
     Updater.client = mockSC1;
 
