@@ -66,6 +66,7 @@ public class Updater {
   private static RandomAccessFile randomAccessFile;
 
   public static FileSystem fs = new FileSystem();
+  public static Service service = new Service();
 
   public static void main(String[] args) throws InstantiationException, IllegalAccessException {
     new Updater().start(args);
@@ -200,7 +201,7 @@ public class Updater {
    */
   public boolean checkForUpdates() {
     String downloadUrl, checksum;
-    String[] data = Service.getUpdate(version);
+    String[] data = Updater.service.getUpdate(version);
     if (data.length != 0) {
       downloadUrl = data[0];
       checksum = data[1];

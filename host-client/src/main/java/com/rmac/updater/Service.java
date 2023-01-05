@@ -28,7 +28,7 @@ public class Service {
    * @return Temporary download url for the new RMAC client jar and its SHA checksum, empty String
    * array if no update is available.
    */
-  public static String[] getUpdate(String version) {
+  public String[] getUpdate(String version) {
     HttpResponse response;
     try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
       URIBuilder builder = new URIBuilder(Updater.SERVER_URL + "/update");
