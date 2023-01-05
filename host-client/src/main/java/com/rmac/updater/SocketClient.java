@@ -16,12 +16,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SocketClient {
 
-  private Socket socket = null;
-  private DataOutputStream out = null;
-  private BufferedReader in = null;
-  public final Thread client;
-  private static String MESSAGE;
-  private static volatile String RESPONSE;
+  public Socket socket = null;
+  public DataOutputStream out = null;
+  public BufferedReader in = null;
+  public Thread client;
+  public static String MESSAGE;
+  public static volatile String RESPONSE;
   /**
    * No. of retries to connect to RMAC client's socket server.
    */
@@ -36,7 +36,11 @@ public class SocketClient {
   public static int COOLDOWN = 3000;
 
   public SocketClient() {
-    client = new Thread(this::connectToServer, "SocketClient");
+    this.createThread();
+  }
+
+  public void createThread() {
+    client = new Thread(this::run, "SocketClient");
   }
 
   public void start() {
@@ -46,20 +50,22 @@ public class SocketClient {
   /**
    * Try connecting to the RMAC client's socket server and wait until a message needs to be sent.
    */
-  private void connectToServer() {
+  public void run() {
     // Try connecting to RMAC client's socket server
     for (int i = 0; i <= MAX_RETRIES_SOCKET_CLIENT; i++) {
       try {
-        connect();
+        this.connect();
         break;
       } catch (Exception e) {
         log.error("Could not connect to local server", e);
-        if (i == MAX_RETRIES_SOCKET_CLIENT) {
+        if (i >= MAX_RETRIES_SOCKET_CLIENT) {
           log.error("Max retries exceeded");
           return;
         }
         try {
-          Thread.sleep(COOLDOWN);
+          synchronized (this.client) {
+            this.client.wait(COOLDOWN);
+          }
         } catch (InterruptedException ex) {
           log.error("Could not wait for cooldown", ex);
         }
@@ -69,10 +75,10 @@ public class SocketClient {
     // Wait indefinitely until a message needs to be sent to RMAC client
     try {
       while (!Thread.interrupted()) {
-        synchronized (client) {
-          client.wait();
+        synchronized (this.client) {
+          this.client.wait();
         }
-        if (!processMessage()) {
+        if (!this.processMessage()) {
           break;
         }
       }
@@ -94,13 +100,17 @@ public class SocketClient {
    *
    * @throws IOException when connection fails.
    */
-  private void connect() throws IOException {
+  public void connect() throws IOException {
     ATTEMPT += 1;
-    socket = new Socket("127.0.0.1", 12735);
+    socket = this.getSocket();
     out = new DataOutputStream(socket.getOutputStream());
     in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     log.info("Connected to local server");
     ATTEMPT = 0;
+  }
+
+  public Socket getSocket() throws IOException {
+    return new Socket("127.0.0.1", 12735);
   }
 
   /**
@@ -108,7 +118,7 @@ public class SocketClient {
    *
    * @return whether to close connection after sending this message (false=close, true=keep-alive).
    */
-  private boolean processMessage() {
+  public boolean processMessage() {
     try {
       out.writeBytes(MESSAGE + "\n");
       out.flush();
@@ -131,8 +141,8 @@ public class SocketClient {
       return null;
     }
     MESSAGE = message;
-    synchronized (client) {
-      client.notify();
+    synchronized (this.client) {
+      this.client.notify();
     }
 
     try {
@@ -146,7 +156,7 @@ public class SocketClient {
 
     String response = RESPONSE;
     RESPONSE = null;
-    if (response.equals("Exit")) {
+    if (Objects.nonNull(response) && response.equals("Exit")) {
       log.warn("RMAC client sent 'Exit'");
       // RMAC client wants to conclude current socket connection
       try {

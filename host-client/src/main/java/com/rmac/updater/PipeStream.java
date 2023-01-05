@@ -25,7 +25,11 @@ public class PipeStream extends Thread {
         os.write(buffer, 0, len);
       }
     } catch (IOException e) {
-      e.printStackTrace();
+      System.err.println("Failed to pipe stream");
     }
+  }
+
+  public static PipeStream make(InputStream is, OutputStream os) {
+    return new PipeStream(is, os);
   }
 }
