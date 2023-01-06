@@ -4,11 +4,12 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.RandomAccessFile;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
@@ -60,10 +61,11 @@ public class Updater {
   public static String SERVER_URL = "";
   public static int HEALTH_CHECK_INTERVAL = 3000;
   public static boolean SHUTDOWN = false;
+  public static int CLIENT_STOP_WAIT = 5000;
+  public static int CLIENT_START_WAIT = 3000;
 
-  private static File lockFile;
-  private static FileLock fileLock;
-  private static RandomAccessFile randomAccessFile;
+  public static FileLock fileLock;
+  public static RandomAccessFile randomAccessFile;
 
   public static FileSystem fs = new FileSystem();
   public static Service service = new Service();
@@ -165,11 +167,11 @@ public class Updater {
   public boolean startUpdate() {
     if (this.checkForUpdates()) {
       boolean result =
-          this.createLock()
+          this.createUpdateLock()
               && this.stopRMAC()
               && this.update()
               && this.startRMAC()
-              && this.deleteLock();
+              && this.deleteUpdateLock();
       if (!result) {
         log.error("Update Failed");
       }
@@ -203,7 +205,7 @@ public class Updater {
   public boolean checkForUpdates() {
     String downloadUrl, checksum;
     String[] data = Updater.service.getUpdate(version);
-    if (data.length != 0) {
+    if (Objects.nonNull(data) && data.length != 0) {
       downloadUrl = data[0];
       checksum = data[1];
     } else {
@@ -230,7 +232,7 @@ public class Updater {
       }
     }
 
-    return downloadUpdate(downloadUrl, checksum);
+    return this.downloadUpdate(downloadUrl, checksum);
   }
 
   /**
@@ -242,19 +244,20 @@ public class Updater {
   public boolean downloadUpdate(String signedUrl, String checksum) {
     for (int i = 0; i <= MAX_RETRIES_UPDATE_DOWNLOAD; i++) {
       try {
-        attemptDownload(signedUrl, checksum);
+        this.attemptDownload(signedUrl, checksum);
         break;
       } catch (Exception e) {
         log.error("Could not download update", e);
-        e.printStackTrace();
         if (i == MAX_RETRIES_UPDATE_DOWNLOAD) {
           log.warn(
               "Max retries exceeded, update can only be done on next restart or manually via HostCommand");
           return false;
         }
         try {
-          Thread.sleep(COOLDOWN);
-        } catch (InterruptedException ex) {
+          synchronized (this) {
+            this.wait(COOLDOWN);
+          }
+        } catch (InterruptedException | IllegalArgumentException ex) {
           log.error("Could not wait for cooldown", e);
         }
       }
@@ -270,16 +273,10 @@ public class Updater {
    */
   public void attemptDownload(String signedUrl, String checksum) throws Exception {
     ATTEMPT += 1;
-    ReadableByteChannel readableByteChannel = Channels.newChannel(
-        new URL(signedUrl).openStream()
-    );
-    FileOutputStream fileOutputStream = new FileOutputStream(
-        Constants.UPDATE_LOCATION + "RMACClient.jar"
-    );
+    ReadableByteChannel readableByteChannel = Channels.newChannel(this.getStream(signedUrl));
+    FileOutputStream fileOutputStream = fs.getFOS(Constants.UPDATE_LOCATION + "RMACClient.jar");
     FileChannel fileChannel = fileOutputStream.getChannel();
-    fileChannel.transferFrom(
-        readableByteChannel, 0, Long.MAX_VALUE
-    );
+    fileChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
     fileChannel.close();
     fileOutputStream.close();
     readableByteChannel.close();
@@ -296,15 +293,14 @@ public class Updater {
    *
    * @return Whether lock file was successfully created (true=succeeded | false=failed).
    */
-  public boolean createLock() {
-    File file = new File(Constants.UPDATE_LOCK_LOCATION);
+  public boolean createUpdateLock() {
     try {
-      file.createNewFile();
+      fs.create(Constants.UPDATE_LOCK_LOCATION);
     } catch (IOException e) {
-      log.error("Could not create lock file", e);
+      log.error("Could not create update lockfile", e);
       return false;
     }
-    log.info("Lock file created");
+    log.info("Update lockfile created");
     return true;
   }
 
@@ -313,9 +309,14 @@ public class Updater {
    *
    * @return Whether lock file deletion was successful (true=success).
    */
-  public boolean deleteLock() {
-    new File(Constants.UPDATE_LOCK_LOCATION).delete();
-    log.info("Lock file deleted");
+  public boolean deleteUpdateLock() {
+    try {
+      fs.delete(Constants.UPDATE_LOCK_LOCATION);
+    } catch (IOException e) {
+      log.error("Could not delete update lockfile", e);
+      return false;
+    }
+    log.info("Update lockfile deleted");
     return true;
   }
 
@@ -328,20 +329,20 @@ public class Updater {
     if (Objects.nonNull(client)) {
       client.sendMessage("Stop");
       try {
-        Thread.sleep(5000);
-      } catch (InterruptedException e) {
+        synchronized (this) {
+          this.wait(CLIENT_STOP_WAIT);
+        }
+      } catch (InterruptedException | IllegalArgumentException e) {
         log.error("Could not wait for RMAC client to stop on its own", e);
       }
     }
     try {
-      ProcessBuilder builder = new ProcessBuilder(
-          "powershell.exe", "-enc",
-          "\"RwBlAHQALQBXAG0AaQBPAGIAagBlAGMAdAAgAC0AQwBsAGEAcwBzACAAVwBpAG4AMwAyAF8AUAByAG8AYwBlAHMAcwAgAC0ARgBpAGwAdABlAHIAIAAnAEMAbwBtAG0AYQBuAGQATABpAG4AZQAgAEwASQBLAEUAIAAiACUAUgBNAEEAQwBDAGwAaQBlAG4AdAAuAGoAYQByACUAIgAnACAAfAAgAFMAZQBsAGUAYwB0AC0ATwBiAGoAZQBjAHQAIAAtAEUAeABwAGEAbgBkAFAAcgBvAHAAZQByAHQAeQAgAFAAcgBvAGMAZQBzAHMASQBkAA==\""
-      );
-      Process proc = builder.start();
-      BufferedReader out = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-      BufferedWriter in = new BufferedWriter(new OutputStreamWriter(proc.getOutputStream()));
-      PipeStream err = new PipeStream(proc.getErrorStream(), new NoopOutputStream());
+      ProcessBuilder builder = new ProcessBuilder("powershell.exe", "-enc",
+          Commands.C_RMAC_CLIENT_PID);
+      Process proc = this.startProcess(builder);
+      BufferedReader out = fs.getReader(proc.getInputStream());
+      BufferedWriter in = fs.getWriter(proc.getOutputStream());
+      PipeStream err = PipeStream.make(proc.getErrorStream(), new NoopOutputStream());
       err.start();
       StringBuilder info = new StringBuilder();
       String curr;
@@ -359,10 +360,8 @@ public class Updater {
         Process killProc = Runtime.getRuntime().exec("taskkill /pid " + pid);
         killProc.waitFor();
       }
-    } catch (IOException e) {
+    } catch (IOException | NumberFormatException e) {
       log.error("Could not get PID", e);
-    } catch (NumberFormatException e) {
-      log.error("Could not parse PID", e);
     } catch (InterruptedException e) {
       log.error("Could not wait for taskkill to complete", e);
     }
@@ -376,17 +375,23 @@ public class Updater {
    * @return Whether this file replace was successful (true=success).
    */
   public boolean update() {
-    new File(Constants.RMAC_LOCATION).delete();
-    Path copied = Paths.get(Constants.RMAC_LOCATION);
-    Path original = Paths.get(Constants.UPDATE_LOCATION + "RMACClient.jar");
     try {
-      Files.copy(original, copied, StandardCopyOption.REPLACE_EXISTING);
+      fs.delete(Constants.RMAC_LOCATION);
+    } catch (IOException e) {
+      log.error("Could not delete old client jar");
+    }
+    try {
+      fs.copy(Constants.RMAC_LOCATION, Constants.UPDATE_LOCATION + "RMACClient.jar",
+          StandardCopyOption.REPLACE_EXISTING);
     } catch (IOException e) {
       log.error("Could not copy new update to destination", e);
       return false;
     }
-    new File(Constants.UPDATE_LOCATION + "RMACClient.jar").delete();
-    new File(Constants.UPDATE_LOCK_LOCATION).delete();
+    try {
+      fs.delete(Constants.UPDATE_LOCATION + "RMACClient.jar");
+    } catch (IOException e) {
+      log.error("Could not delete staged client jar");
+    }
     log.info("Update complete");
     return true;
   }
@@ -398,10 +403,11 @@ public class Updater {
    */
   public boolean startRMAC() {
     try {
-      Runtime.getRuntime()
-          .exec("cmd.exe /c \"" + Constants.START_RMAC_LOCATION + "\"");
-      Thread.sleep(3000);
-    } catch (IOException | InterruptedException e) {
+      Runtime.getRuntime().exec("cmd.exe /c \"" + Constants.START_RMAC_LOCATION + "\"");
+      synchronized (this) {
+        this.wait(CLIENT_START_WAIT);
+      }
+    } catch (IOException | InterruptedException | IllegalArgumentException e) {
       log.error("Could not start RMAC", e);
       return false;
     }
@@ -419,17 +425,14 @@ public class Updater {
    * </cite>
    */
   public void verifyWorkspace() {
-    File lockFile = new File(Constants.UPDATE_LOCK_LOCATION);
-    File updateFile = new File(Constants.UPDATE_LOCATION + "RMACClient.jar");
-
-    if (lockFile.exists()) {
+    if (fs.exists(Constants.UPDATE_LOCK_LOCATION)) {
       log.info("Lockfile found, cleaning failed update");
 
-      if (updateFile.exists()) {
-        updateFile.delete();
-      }
-      if (lockFile.exists()) {
-        lockFile.delete();
+      try {
+        fs.delete(Constants.UPDATE_LOCATION + "RMACClient.jar");
+        fs.delete(Constants.UPDATE_LOCK_LOCATION);
+      } catch (IOException e) {
+        log.error("Workspace verification failed");
       }
     }
     log.info("Workspace verified");
@@ -465,7 +468,7 @@ public class Updater {
     try {
       Updater.fileLock.release();
       Updater.randomAccessFile.close();
-      Updater.lockFile.delete();
+      fs.delete(Constants.INSTANCE_LOCK_LOCATION);
       log.info("Instance lock released");
     } catch (Exception e) {
       log.error("Couldn't remove lock file: " + Constants.INSTANCE_LOCK_LOCATION, e);
@@ -480,8 +483,7 @@ public class Updater {
    */
   public boolean lockInstance(final String lockFile) {
     try {
-      Updater.lockFile = new File(lockFile);
-      Updater.randomAccessFile = new RandomAccessFile(Updater.lockFile, "rw");
+      Updater.randomAccessFile = fs.createRandomAccessFile(lockFile, "rw");
       Updater.fileLock = Updater.randomAccessFile.getChannel().tryLock();
       if (Objects.nonNull(Updater.fileLock)) {
         return true;
@@ -490,6 +492,14 @@ public class Updater {
       log.error("Couldn't create/lock lock-file: " + lockFile, e);
     }
     return false;
+  }
+
+  public InputStream getStream(String url) throws IOException {
+    return new URL(url).openStream();
+  }
+
+  public Process startProcess(ProcessBuilder builder) throws IOException {
+    return builder.start();
   }
 
   public Object getInstance(Class<?> clazz) throws InstantiationException, IllegalAccessException {
