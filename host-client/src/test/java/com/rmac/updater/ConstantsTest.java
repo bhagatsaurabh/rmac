@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mockStatic;
 
 import java.io.UnsupportedEncodingException;
@@ -31,9 +32,11 @@ public class ConstantsTest {
   @DisplayName("Set current location fails")
   public void setCurrentLocation_Failed() {
     MockedStatic<URLDecoder> mockedDecoder = mockStatic(URLDecoder.class);
-    mockedDecoder.when(() -> URLDecoder.decode(any(), any()))
+    mockedDecoder.when(() -> URLDecoder.decode(anyString(), anyString()))
         .thenThrow(UnsupportedEncodingException.class);
 
+    Constants.RMAC_LOCATION = null;
+    Constants.CURRENT_LOCATION = null;
     boolean result = Constants.setCurrentLocation();
 
     assertNull(Constants.CURRENT_LOCATION);
