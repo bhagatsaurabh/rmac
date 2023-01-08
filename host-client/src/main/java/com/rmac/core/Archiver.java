@@ -4,13 +4,11 @@ import com.rmac.RMAC;
 import com.rmac.utils.ArchiveFileType;
 import com.rmac.utils.Constants;
 import com.rmac.utils.Utils;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -44,7 +42,7 @@ public class Archiver {
    * Verify if correct working directories have been created in which files needs be archived and
    * placed, create them otherwise.
    */
-  private void verifyFolders() {
+  public void verifyFolders() {
     try {
       RMAC.fs.createDirs(Constants.ARCHIVES_LOCATION);
       RMAC.fs.createDirs(Constants.PENDING_ARCHIVES_LOCATION);
@@ -122,7 +120,7 @@ public class Archiver {
    * not from the staging directories directly.
    * </cite>
    */
-  public void uploadArchives() {
+  public void uploadArchive() {
     try {
       Stream<Path> screenFiles = RMAC.fs.list(Constants.SCREEN_ARCHIVE_LOCATION);
       if (screenFiles.findAny().isPresent()) {
@@ -204,7 +202,7 @@ public class Archiver {
    * @param sourceFolder The directory that needs to be archived.
    * @param destFolder   Destination directory in which the archive will be placed.
    */
-  private void createNewArchive(String sourceFolder, String destFolder) {
+  public void createNewArchive(String sourceFolder, String destFolder) {
     String zipPath = destFolder + "\\" + Utils.getTimestamp() + ".zip";
     Stream<Path> files;
     try {
@@ -215,7 +213,7 @@ public class Archiver {
     }
 
     boolean success = false;
-    try (ZipOutputStream zipOut = new ZipOutputStream(Files.newOutputStream(Paths.get(zipPath)))) {
+    try (ZipOutputStream zipOut = RMAC.fs.getZipOutStream(zipPath)) {
       files.forEach(path -> {
         try {
           zipOut.putNextEntry(new ZipEntry(path.toAbsolutePath().getFileName().toString()));
@@ -244,7 +242,7 @@ public class Archiver {
    * @param type Type of the staging directory.
    * @return The absolute path of the staging directory.
    */
-  private String getArchiveLocation(ArchiveFileType type) {
+  public String getArchiveLocation(ArchiveFileType type) {
     if (type == ArchiveFileType.SCREEN) {
       return Constants.SCREEN_ARCHIVE_LOCATION;
     }

@@ -643,7 +643,7 @@ public class RMACTest {
         .doReturn(mockKD)
         .when(rmac).getInstance(any());
     doReturn(true).when(rmac).copyDLL();
-    doNothing().when(mockArchiver).uploadArchives();
+    doNothing().when(mockArchiver).uploadArchive();
     doNothing().when(rmac).addShutdownHook();
 
     MockedStatic<Constants> constantsMocked = mockStatic(Constants.class);
@@ -651,9 +651,10 @@ public class RMACTest {
         .thenAnswer((Answer<Void>) invc -> null);
     constantsMocked.when(Constants::setCurrentLocation).thenReturn(true);
 
-    MockedStatic<Service> serviceMocked = mockStatic(Service.class);
-    serviceMocked.when(Service::registerClient).thenAnswer((Answer<Void>) invc -> null);
+    Service service = mock(Service.class);
+    doNothing().when(service).registerClient();
 
+    RMAC.service = service;
     rmac.start(args);
     List<ILoggingEvent> logsList = listAppender.list;
 
@@ -665,7 +666,6 @@ public class RMACTest {
 
     constantsMocked.close();
     mockedLoggerFactory.close();
-    serviceMocked.close();
   }
 
   @Test

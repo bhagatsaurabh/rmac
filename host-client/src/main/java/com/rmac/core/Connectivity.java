@@ -58,9 +58,9 @@ public class Connectivity {
       if (newState != oldState) {
         log.warn("Network state changed to: " + newState);
         if (newState && Objects.nonNull(RMAC.archiver)) {
-          new Thread(() -> RMAC.archiver.uploadArchives()).start();
+          new Thread(() -> RMAC.archiver.uploadArchive()).start();
           if (!RMAC.isClientRegistered) {
-            new Thread(Service::registerClient).start();
+            new Thread(() -> RMAC.service.registerClient()).start();
           }
         }
       }

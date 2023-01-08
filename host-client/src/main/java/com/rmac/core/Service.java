@@ -27,7 +27,7 @@ public class Service {
    *
    * @return List of commands.
    */
-  public static String[] getCommands() {
+  public String[] getCommands() {
     Connectivity.checkNetworkState();
 
     if (!RMAC.NETWORK_STATE) {
@@ -53,7 +53,7 @@ public class Service {
   /**
    * Call GET /register API to register this RMAC client.
    */
-  public static void registerClient() {
+  public void registerClient() {
     Connectivity.checkNetworkState();
 
     if (!RMAC.NETWORK_STATE) {

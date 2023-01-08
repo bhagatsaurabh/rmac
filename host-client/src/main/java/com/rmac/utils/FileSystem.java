@@ -5,8 +5,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.RandomAccessFile;
 import java.nio.file.CopyOption;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,6 +17,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+import java.util.zip.ZipOutputStream;
 
 public class FileSystem {
 
@@ -141,5 +145,20 @@ public class FileSystem {
 
   public long getLastModified(String path) throws IOException {
     return Files.getLastModifiedTime(Paths.get(path)).toMillis();
+  }
+
+  public ZipOutputStream getZipOutStream(String path) throws IOException {
+    return new ZipOutputStream(Files.newOutputStream(Paths.get(path)));
+  }
+
+  public String[] getRoots() {
+    return StreamSupport
+        .stream(FileSystems.getDefault().getRootDirectories().spliterator(), false)
+        .map(path -> path.toAbsolutePath().toString())
+        .toArray(String[]::new);
+  }
+
+  public PrintStream getPrintStream(String path) throws FileNotFoundException {
+    return new PrintStream(path);
   }
 }
