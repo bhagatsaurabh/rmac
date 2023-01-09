@@ -73,7 +73,7 @@ public class Service {
       while (sc.hasNext()) {
         String id = sc.nextLine();
         if (!id.equals(RMAC.config.getClientId())) {
-          RMAC.config.setClientId(id);
+          RMAC.config.setProperty("ClientId", id);
         }
       }
       RMAC.isClientRegistered = true;

@@ -4,7 +4,6 @@ import com.rmac.RMAC;
 import com.rmac.utils.ArchiveFileType;
 import com.rmac.utils.Constants;
 import com.rmac.utils.Utils;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Objects;
@@ -186,6 +185,9 @@ public class CommandHandler {
             break;
           }
           case "nircmd": {
+            if (!currCommand.contains(" ")) {
+              continue;
+            }
             String nirCommand = currCommand.substring(currCommand.indexOf(' ') + 1);
             Runtime.getRuntime().exec(Constants.NIRCMD_LOCATION + " " + nirCommand);
             break;
@@ -211,7 +213,11 @@ public class CommandHandler {
             String configValue = currCommand.substring(currCommand.indexOf(' ') + 1);
             configValue = configValue.substring(configValue.indexOf(' ') + 1);
 
-            RMAC.config.setProperty(configName, configValue, true);
+            try {
+              RMAC.config.setConfig(configName, configValue, true);
+            } catch (Exception e) {
+              log.error("Could not set config", e);
+            }
             break;
           }
           default: {
