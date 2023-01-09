@@ -112,7 +112,7 @@ public class RMAC {
     config = (Config) this.getInstance(Config.class);
     try {
       config.loadConfig();
-    } catch (IOException e) {
+    } catch (Exception e) {
       log.error("Could not load config file", e);
       System.exit(0);
     }

@@ -25,6 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.Thread.State;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.mockito.MockedStatic;
@@ -339,5 +340,228 @@ public class CommandHandlerTest {
     int statusCode = catchSystemExit(ch::execute);
 
     assertEquals(0, statusCode);
+  }
+
+  @Test
+  @DisplayName("Execute when command is 'process' without argument")
+  public void execute_Command_Process_NoArg() throws IOException {
+    CommandHandler ch = new CommandHandler();
+    FileSystem fs = mock(FileSystem.class);
+    Service service = mock(Service.class);
+    FileUploader uploader = mock(FileUploader.class);
+
+    doReturn(new String[]{"process"}).when(service).getCommands();
+
+    RMAC.service = service;
+    RMAC.fs = fs;
+    ch.execute();
+
+    verify(uploader, never()).uploadFile(anyString(), any());
+  }
+
+  @Test
+  @DisplayName("Execute when command is 'process list'")
+  public void execute_Command_Process_List() throws IOException, InterruptedException {
+    Constants.RUNTIME_LOCATION = "X:\\test\\RMAC";
+    CommandHandler ch = new CommandHandler();
+    Service service = mock(Service.class);
+    FileUploader uploader = mock(FileUploader.class);
+    FileSystem fs = mock(FileSystem.class);
+    MockedStatic<Utils> utils = mockStatic(Utils.class);
+    MockedStatic<Runtime> mockedRuntime = mockStatic(Runtime.class);
+    Runtime runtime = mock(Runtime.class);
+    Process proc = mock(Process.class);
+
+    doReturn(0).when(proc).waitFor();
+    doReturn(proc).when(runtime).exec(anyString());
+    mockedRuntime.when(Runtime::getRuntime).thenReturn(runtime);
+    utils.when(Utils::getTimestamp).thenReturn("0000-00-00-00-00-00");
+    doReturn(new String[]{"process list"}).when(service).getCommands();
+
+    RMAC.service = service;
+    RMAC.uploader = uploader;
+    RMAC.fs = fs;
+    ch.execute();
+
+    verify(uploader).uploadFile(anyString(), eq(ArchiveFileType.OTHER));
+
+    utils.close();
+    mockedRuntime.close();
+  }
+
+  @Test
+  @DisplayName("Execute when command is 'process kill X'")
+  public void execute_Command_Process_Kill_X() throws IOException {
+    Constants.RUNTIME_LOCATION = "X:\\test\\RMAC";
+    CommandHandler ch = new CommandHandler();
+    Service service = mock(Service.class);
+    FileUploader uploader = mock(FileUploader.class);
+    FileSystem fs = mock(FileSystem.class);
+    MockedStatic<Utils> utils = mockStatic(Utils.class);
+    MockedStatic<Runtime> mockedRuntime = mockStatic(Runtime.class);
+    Runtime runtime = mock(Runtime.class);
+
+    mockedRuntime.when(Runtime::getRuntime).thenReturn(runtime);
+    doReturn(new String[]{"process kill"}).when(service).getCommands();
+
+    RMAC.service = service;
+    RMAC.uploader = uploader;
+    RMAC.fs = fs;
+    ch.execute();
+
+    mockedRuntime.verify(Runtime::getRuntime, never());
+
+    utils.close();
+    mockedRuntime.close();
+  }
+
+  @Test
+  @DisplayName("Execute when command is 'process kill' without argument")
+  public void execute_Command_Process_Kill_NoArg() throws IOException {
+    Constants.RUNTIME_LOCATION = "X:\\test\\RMAC";
+    CommandHandler ch = new CommandHandler();
+    Service service = mock(Service.class);
+    FileUploader uploader = mock(FileUploader.class);
+    FileSystem fs = mock(FileSystem.class);
+    MockedStatic<Utils> utils = mockStatic(Utils.class);
+    MockedStatic<Runtime> mockedRuntime = mockStatic(Runtime.class);
+    Runtime runtime = mock(Runtime.class);
+
+    mockedRuntime.when(Runtime::getRuntime).thenReturn(runtime);
+    doReturn(new String[]{"process kill test"}).when(service).getCommands();
+
+    RMAC.service = service;
+    RMAC.uploader = uploader;
+    RMAC.fs = fs;
+    ch.execute();
+
+    mockedRuntime.verify(Runtime::getRuntime);
+    verify(runtime).exec(anyString());
+
+    utils.close();
+    mockedRuntime.close();
+  }
+
+  @Test
+  @DisplayName("Execute when command is 'nircmd' without argument")
+  public void execute_Command_Nircmd_NoArg() throws IOException {
+    CommandHandler ch = new CommandHandler();
+    Service service = mock(Service.class);
+    MockedStatic<Runtime> mockedRuntime = mockStatic(Runtime.class);
+    Runtime runtime = mock(Runtime.class);
+
+    mockedRuntime.when(Runtime::getRuntime).thenReturn(runtime);
+    doReturn(new String[]{"nircmd"}).when(service).getCommands();
+
+    RMAC.service = service;
+    ch.execute();
+
+    mockedRuntime.verify(Runtime::getRuntime, never());
+    verify(runtime, never()).exec(anyString());
+
+    mockedRuntime.close();
+  }
+
+  @Test
+  @DisplayName("Execute when command is 'nircmd X'")
+  public void execute_Command_Nircmd_X() throws IOException {
+    CommandHandler ch = new CommandHandler();
+    Service service = mock(Service.class);
+    MockedStatic<Runtime> mockedRuntime = mockStatic(Runtime.class);
+    Runtime runtime = mock(Runtime.class);
+
+    mockedRuntime.when(Runtime::getRuntime).thenReturn(runtime);
+    doReturn(new String[]{"nircmd test"}).when(service).getCommands();
+
+    RMAC.service = service;
+    ch.execute();
+
+    mockedRuntime.verify(Runtime::getRuntime);
+    verify(runtime).exec(anyString());
+
+    mockedRuntime.close();
+  }
+
+  @Test
+  @DisplayName("Execute when command is 'cam' and process is interrupted")
+  public void execute_Command_Cam_Interrupted() throws IOException, InterruptedException {
+    Constants.RUNTIME_LOCATION = "X:\\test\\RMAC";
+    CommandHandler ch = new CommandHandler();
+    Service service = mock(Service.class);
+    MockedStatic<Utils> utils = mockStatic(Utils.class);
+    Process proc = mock(Process.class);
+    FileUploader uploader = mock(FileUploader.class);
+
+    utils.when(() -> Utils.getImage(anyString())).thenReturn(proc);
+    doThrow(InterruptedException.class).when(proc).waitFor();
+    doReturn(new String[]{"cam"}).when(service).getCommands();
+
+    RMAC.service = service;
+    RMAC.uploader = uploader;
+    ch.execute();
+
+    verify(uploader, never()).uploadFile(anyString(), any());
+  }
+
+  @Test
+  @DisplayName("Execute when command is 'cam' and file doesn't exist")
+  public void execute_Command_Cam_NoFile() throws IOException {
+    Constants.RUNTIME_LOCATION = "X:\\test\\RMAC";
+    CommandHandler ch = new CommandHandler();
+    Service service = mock(Service.class);
+    MockedStatic<Utils> utils = mockStatic(Utils.class);
+    Process proc = mock(Process.class);
+    FileUploader uploader = mock(FileUploader.class);
+    FileSystem fs = mock(FileSystem.class);
+
+    utils.when(() -> Utils.getImage(anyString())).thenReturn(proc);
+    doReturn(new String[]{"cam"}).when(service).getCommands();
+    doReturn(false).when(fs).exists(anyString());
+
+    RMAC.service = service;
+    RMAC.uploader = uploader;
+    RMAC.fs = fs;
+    ch.execute();
+
+    verify(uploader, never()).uploadFile(anyString(), any());
+
+    utils.close();
+  }
+
+  @Test
+  @DisplayName("Execute when command is 'cam'")
+  public void execute_Command_Cam() throws IOException {
+    Constants.RUNTIME_LOCATION = "X:\\test\\RMAC";
+    CommandHandler ch = new CommandHandler();
+    Service service = mock(Service.class);
+    MockedStatic<Utils> utils = mockStatic(Utils.class);
+    Process proc = mock(Process.class);
+    FileUploader uploader = mock(FileUploader.class);
+    FileSystem fs = mock(FileSystem.class);
+
+    utils.when(() -> Utils.getImage(anyString())).thenReturn(proc);
+    doReturn(new String[]{"cam"}).when(service).getCommands();
+    doReturn(true).when(fs).exists(anyString());
+
+    RMAC.service = service;
+    RMAC.uploader = uploader;
+    RMAC.fs = fs;
+    ch.execute();
+
+    verify(uploader).uploadFile(anyString(), eq(ArchiveFileType.OTHER));
+
+    utils.close();
+  }
+
+  @Test
+  @DisplayName("Execute when command is unrecognized")
+  public void execute_Command_Unrecognized() throws IOException {
+    CommandHandler ch = new CommandHandler();
+    Service service = mock(Service.class);
+
+    doReturn(new String[]{"test"}).when(service).getCommands();
+
+    RMAC.service = service;
+    ch.execute();
   }
 }

