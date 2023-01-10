@@ -1,8 +1,10 @@
 package com.rmac.core;
 
 import com.rmac.RMAC;
+import com.rmac.utils.Commands;
 import com.rmac.utils.NoopOutputStream;
 import com.rmac.utils.PipeStream;
+import com.rmac.utils.Utils;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -37,11 +39,11 @@ public class Connectivity {
   public synchronized static boolean checkNetworkState() {
     try {
       ProcessBuilder builder = new ProcessBuilder("powershell.exe", "-enc",
-          "\"JABuAGUAdAByAGUAcwAgAD0AIABwAGkAbgBnACAAJwB3AHcAdwAuAGcAbwBvAGcAbABlAC4AYwBvAG0AJwAgAC0AbgAgADEAIAAtAGwAIAAxACAAfAAgAE8AdQB0AC0AUwB0AHIAaQBuAGcADQAKACEAJABuAGUAdAByAGUAcwAuAEMAbwBuAHQAYQBpAG4AcwAoACIAdQBuAHIAZQBhAGMAaABhAGIAbABlACIAKQAgAC0AYQBuAGQAIAAkAG4AZQB0AHIAZQBzAC4AQwBvAG4AdABhAGkAbgBzACgAIgBSAGUAcABsAHkAIABmAHIAbwBtACIAKQA=\"");
-      Process proc = builder.start();
-      BufferedReader out = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-      BufferedWriter in = new BufferedWriter(new OutputStreamWriter(proc.getOutputStream()));
-      PipeStream err = new PipeStream(proc.getErrorStream(), new NoopOutputStream());
+          Commands.C_CHECK_NETWORK);
+      Process proc = RMAC.fs.startProcess(builder);
+      BufferedReader out = RMAC.fs.getReader(proc.getInputStream());
+      BufferedWriter in = RMAC.fs.getWriter(proc.getOutputStream());
+      PipeStream err = PipeStream.make(proc.getErrorStream(), new NoopOutputStream());
       err.start();
       StringBuilder result = new StringBuilder();
       String curr;
@@ -58,9 +60,9 @@ public class Connectivity {
       if (newState != oldState) {
         log.warn("Network state changed to: " + newState);
         if (newState && Objects.nonNull(RMAC.archiver)) {
-          new Thread(() -> RMAC.archiver.uploadArchive()).start();
+          RMAC.archiver.uploadArchiveAsync();
           if (!RMAC.isClientRegistered) {
-            new Thread(() -> RMAC.service.registerClient()).start();
+            RMAC.service.registerClientAsync();
           }
         }
       }

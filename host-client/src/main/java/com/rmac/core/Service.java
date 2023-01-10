@@ -81,4 +81,10 @@ public class Service {
       log.error("Client registration failed", e);
     }
   }
+
+  public Thread registerClientAsync() {
+    Thread t = new Thread(() -> RMAC.service.registerClient());
+    t.start();
+    return t;
+  }
 }

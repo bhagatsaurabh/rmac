@@ -18,12 +18,12 @@ import lombok.extern.slf4j.Slf4j;
 public final class FileUploader {
 
   // Queue of files ready to be uploaded
-  private final Queue<Uploadable> queue = new PriorityQueue<>();
+  public final Queue<Uploadable> queue = new PriorityQueue<>();
   /**
    * Active uploads count to cap parallel uploads to defined <i>MaxParallelUploads</i> config
    * property
    */
-  private int runningUploads = 0;
+  public int runningUploads = 0;
 
   /**
    * Start the MEGA cli server and login using defined user/pass config properties
@@ -63,24 +63,24 @@ public final class FileUploader {
     }
 
     Uploadable uploadable = new Uploadable(fileToUpload, type,
-        (ignored) -> uploadComplete());
+        (ignored) -> this.uploadComplete());
     queue.add(uploadable);
 
-    doUploads();
+    this.doUploads();
   }
 
   /**
    * Decrease active uploads count.
    */
-  private synchronized void uploadComplete() {
+  public synchronized void uploadComplete() {
     runningUploads -= 1;
-    doUploads();
+    this.doUploads();
   }
 
   /**
    * Increase active uploads count.
    */
-  private synchronized void uploadStarted() {
+  public synchronized void uploadStarted() {
     runningUploads += 1;
   }
 
@@ -88,12 +88,12 @@ public final class FileUploader {
    * Take sufficient files out of the queue and start their uploads, only when max parallel uploads
    * cap has not reached.
    */
-  private synchronized void doUploads() {
+  public synchronized void doUploads() {
     while (runningUploads < RMAC.config.getMaxParallelUploads()) {
       Uploadable u = queue.poll();
       if (Objects.nonNull(u)) {
         u.execute();
-        uploadStarted();
+        this.uploadStarted();
       } else {
         break;
       }

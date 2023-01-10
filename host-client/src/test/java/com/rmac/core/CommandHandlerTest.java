@@ -501,6 +501,8 @@ public class CommandHandlerTest {
     ch.execute();
 
     verify(uploader, never()).uploadFile(anyString(), any());
+
+    utils.close();
   }
 
   @Test
