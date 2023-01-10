@@ -74,5 +74,7 @@ public class UtilsTest {
     assertNotNull(proc);
     verify(mockErrPS).start();
     verify(mockOutPS).start();
+
+    mockedPS.close();
   }
 }

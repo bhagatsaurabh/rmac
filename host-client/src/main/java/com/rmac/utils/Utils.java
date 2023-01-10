@@ -55,4 +55,10 @@ public class Utils {
 
     return process;
   }
+
+  public static Thread async(Runnable runnable) {
+    Thread t = new Thread(runnable);
+    t.start();
+    return t;
+  }
 }

