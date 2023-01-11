@@ -180,6 +180,10 @@ public class FileSystem {
     return new PrintWriter(path);
   }
 
+  public PrintWriter getNoopWriter() {
+    return new PrintWriter(new NoopOutputStream());
+  }
+
   public BufferedWriter getWriter(OutputStream os) {
     return new BufferedWriter(new OutputStreamWriter(os));
   }
