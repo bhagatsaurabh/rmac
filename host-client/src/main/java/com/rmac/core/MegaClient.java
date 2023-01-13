@@ -20,8 +20,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MegaClient {
 
-  private static boolean SERVER_STARTED = false;
+  public static boolean SERVER_STARTED = false;
   public static boolean LOGGED_IN = false;
+  public static int SERVER_START_DELAY = 3000;
+  public static int MAX_LOGIN_DELAY = 25;
 
   /**
    * Execute MEGA cli client command as a separate process.
@@ -36,7 +38,7 @@ public class MegaClient {
     }
 
     try {
-      return new MegaCommand(command);
+      return MegaCommand.run(command);
     } catch (IOException e) {
       log.error("Could not execute MEGA command", e);
     }
@@ -51,19 +53,20 @@ public class MegaClient {
    */
   public boolean startServer() {
     try {
-      File megaServer = new File(Constants.MEGASERVER_LOCATION);
-      if (!megaServer.exists()) {
+      if (!RMAC.fs.exists(Constants.MEGASERVER_LOCATION)) {
         log.error("MEGAcmd server not found");
         return false;
       }
       ProcessBuilder builder = new ProcessBuilder(Constants.MEGASERVER_LOCATION);
-      builder.start();
-      Thread.sleep(3000);
+      this.startProcess(builder);
+      synchronized (this) {
+        this.wait(SERVER_START_DELAY);
+      }
       SERVER_STARTED = this.isServerRunning();
       return SERVER_STARTED;
     } catch (IOException e) {
       log.error("Could not start MEGAcmd server", e);
-    } catch (InterruptedException e) {
+    } catch (InterruptedException | IllegalArgumentException e) {
       log.error("Could not wait for MEGAcmd server to start", e);
     }
 
@@ -100,11 +103,11 @@ public class MegaClient {
     }
 
     try {
-      if (!command.process.waitFor(25, TimeUnit.SECONDS)) {
+      if (!command.process.waitFor(MAX_LOGIN_DELAY, TimeUnit.SECONDS)) {
         LOGGED_IN = false;
         command.stop();
       }
-    } catch (InterruptedException e) {
+    } catch (InterruptedException | IllegalArgumentException e) {
       log.error("Mega client process interrupted", e);
       LOGGED_IN = false;
       return;
@@ -156,11 +159,12 @@ public class MegaClient {
     try {
       ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c",
           "tasklist | find /i \"MEGAcmdServer.exe\" && echo Running || echo Not Running");
-      Process proc = builder.start();
-      BufferedReader out = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-      BufferedWriter in = new BufferedWriter(new OutputStreamWriter(proc.getOutputStream()));
-      PipeStream err = new PipeStream(proc.getErrorStream(), new NoopOutputStream());
+      Process proc = this.startProcess(builder);
+      BufferedReader out = RMAC.fs.getReader(proc.getInputStream());
+      BufferedWriter in = RMAC.fs.getWriter(proc.getOutputStream());
+      PipeStream err = PipeStream.make(proc.getErrorStream(), new NoopOutputStream());
       err.start();
+
       StringBuilder result = new StringBuilder();
       String curr;
       while ((curr = out.readLine()) != null) {
@@ -202,5 +206,9 @@ public class MegaClient {
     }
 
     return !command.isAPIError.get();
+  }
+
+  public Process startProcess(ProcessBuilder builder) throws IOException {
+    return builder.start();
   }
 }
