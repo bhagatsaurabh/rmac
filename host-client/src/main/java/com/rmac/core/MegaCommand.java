@@ -1,5 +1,6 @@
 package com.rmac.core;
 
+import com.rmac.RMAC;
 import com.rmac.utils.Constants;
 import com.rmac.utils.NoopOutputStream;
 import com.rmac.utils.PipeStream;
@@ -42,10 +43,10 @@ public class MegaCommand {
         .toArray(String[]::new);
     ProcessBuilder builder = new ProcessBuilder(args);
     builder.directory(new File(Constants.MEGACMD_LOCATION));
-    process = builder.start();
-    out = new BufferedReader(new InputStreamReader(process.getInputStream()));
-    in = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
-    PipeStream err = new PipeStream(process.getErrorStream(), new NoopOutputStream());
+    process = this.startProcess(builder);
+    out = RMAC.fs.getReader(process.getInputStream());
+    in = RMAC.fs.getWriter(process.getOutputStream());
+    PipeStream err = PipeStream.make(process.getErrorStream(), new NoopOutputStream());
     err.start();
 
     isAPIError = new AtomicBoolean(false);
@@ -82,5 +83,13 @@ public class MegaCommand {
     } catch (IOException e) {
       log.error("Could not close MEGA command streams", e);
     }
+  }
+
+  public static MegaCommand run(String[] command) throws IOException {
+    return new MegaCommand(command);
+  }
+
+  public Process startProcess(ProcessBuilder builder) throws IOException {
+    return builder.start();
   }
 }
