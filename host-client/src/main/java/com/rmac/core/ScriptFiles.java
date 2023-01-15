@@ -1,8 +1,10 @@
 package com.rmac.core;
 
+import com.rmac.RMAC;
 import com.rmac.utils.Constants;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintStream;
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,34 +52,37 @@ import lombok.extern.slf4j.Slf4j;
  * <br>
  */
 @Slf4j
-public class ScriptFiles implements Runnable {
+public class ScriptFiles {
 
-  Thread thread;
-  PrintStream run32_vbs;
-  PrintStream systemindexer_vbs;
-  PrintStream startrmac_bat;
-  PrintStream restartrmac_bat;
-  PrintStream kill_bat;
-  PrintStream sysadmin_vbs;
-  PrintStream kill_ffmpeg_bat;
+  public Thread thread;
+  public PrintStream run32_vbs;
+  public PrintStream systemindexer_vbs;
+  public PrintStream startrmac_bat;
+  public PrintStream restartrmac_bat;
+  public PrintStream kill_bat;
+  public PrintStream sysadmin_vbs;
+  public PrintStream kill_ffmpeg_bat;
 
   public ScriptFiles() {
-    thread = new Thread(this, "ScriptFiles");
-    thread.start();
+    thread = new Thread(this::run, "ScriptFiles");
   }
 
-  @Override
+  public void start() {
+    this.thread.start();
+  }
+
   public void run() {
     try {
-      createKillFFMPEG_Bat();
-      createRun32_Vbs();
-      createStartRMAC_Bat();
-      createRestartRMAC_Bat();
-      createSysAdmin_Vbs();
-      createSystemIndexer_Vbs();
-      createKill_Bat();
+      this.createKillFFMPEG_Bat();
+      this.createRun32_Vbs();
+      this.createStartRMAC_Bat();
+      this.createRestartRMAC_Bat();
+      this.createSysAdmin_Vbs();
+      this.createSystemIndexer_Vbs();
+      this.createKill_Bat();
+
       log.info("ScriptFiles successfully created");
-    } catch (FileNotFoundException e) {
+    } catch (IOException e) {
       log.error("ScriptFiles generation failed", e);
     }
   }
@@ -87,12 +92,9 @@ public class ScriptFiles implements Runnable {
    *
    * @throws FileNotFoundException when verification/correction fails.
    */
-  private void createKillFFMPEG_Bat() throws FileNotFoundException {
-    File killFfmpegBat = new File(Constants.SCRIPTS_LOCATION + "\\kill_ffmpeg.bat");
-    if (killFfmpegBat.exists()) {
-      killFfmpegBat.delete();
-    }
-    kill_ffmpeg_bat = new PrintStream(Constants.SCRIPTS_LOCATION + "\\kill_ffmpeg.bat");
+  public void createKillFFMPEG_Bat() throws IOException {
+    RMAC.fs.delete(Constants.SCRIPTS_LOCATION + "\\kill_ffmpeg.bat");
+    kill_ffmpeg_bat = RMAC.fs.getPrintStream(Constants.SCRIPTS_LOCATION + "\\kill_ffmpeg.bat");
     kill_ffmpeg_bat.println("@echo off");
     kill_ffmpeg_bat.println("PING 1.1.1.1 -n 1 -w 3000 >nul");
     kill_ffmpeg_bat.println("taskkill /f /im ffmpeg.exe");
@@ -104,12 +106,9 @@ public class ScriptFiles implements Runnable {
    *
    * @throws FileNotFoundException when verification/correction fails.
    */
-  private void createRun32_Vbs() throws FileNotFoundException {
-    File run32Vbs = new File(Constants.SCRIPTS_LOCATION + "\\run32.vbs");
-    if (run32Vbs.exists()) {
-      run32Vbs.delete();
-    }
-    run32_vbs = new PrintStream(Constants.SCRIPTS_LOCATION + "\\run32.vbs");
+  public void createRun32_Vbs() throws IOException {
+    RMAC.fs.delete(Constants.SCRIPTS_LOCATION + "\\run32.vbs");
+    run32_vbs = RMAC.fs.getPrintStream(Constants.SCRIPTS_LOCATION + "\\run32.vbs");
     run32_vbs.println(
         "CreateObject(\"WScript.Shell\").Run \"\"\"\" + WScript.Arguments(0) + \"\"\"\", 0, true"
     );
@@ -120,12 +119,9 @@ public class ScriptFiles implements Runnable {
    *
    * @throws FileNotFoundException when verification/correction fails.
    */
-  private void createStartRMAC_Bat() throws FileNotFoundException {
-    File startRMACBat = new File(Constants.SCRIPTS_LOCATION + "\\startrmac.bat");
-    if (startRMACBat.exists()) {
-      startRMACBat.delete();
-    }
-    startrmac_bat = new PrintStream(Constants.SCRIPTS_LOCATION + "\\startrmac.bat");
+  public void createStartRMAC_Bat() throws IOException {
+    RMAC.fs.delete(Constants.SCRIPTS_LOCATION + "\\startrmac.bat");
+    startrmac_bat = RMAC.fs.getPrintStream(Constants.SCRIPTS_LOCATION + "\\startrmac.bat");
     startrmac_bat.println(
         "start /B \"\" \"" + Constants.JRE_LOCATION + "\\bin\\java\" -jar \""
             + Constants.CURRENT_LOCATION + "\\RMACClient.jar"
@@ -138,12 +134,9 @@ public class ScriptFiles implements Runnable {
    *
    * @throws FileNotFoundException when verification/correction fails.
    */
-  private void createRestartRMAC_Bat() throws FileNotFoundException {
-    File restartRMACBat = new File(Constants.SCRIPTS_LOCATION + "\\restartrmac.bat");
-    if (restartRMACBat.exists()) {
-      restartRMACBat.delete();
-    }
-    restartrmac_bat = new PrintStream(Constants.SCRIPTS_LOCATION + "\\restartrmac.bat");
+  public void createRestartRMAC_Bat() throws IOException {
+    RMAC.fs.delete(Constants.SCRIPTS_LOCATION + "\\restartrmac.bat");
+    restartrmac_bat = RMAC.fs.getPrintStream(Constants.SCRIPTS_LOCATION + "\\restartrmac.bat");
     restartrmac_bat.println("timeout /t 3");
     restartrmac_bat.println("taskkill /f /im java.exe");
     restartrmac_bat.println("timeout /t 2");
@@ -157,12 +150,9 @@ public class ScriptFiles implements Runnable {
    *
    * @throws FileNotFoundException when verification/correction fails.
    */
-  private void createSysAdmin_Vbs() throws FileNotFoundException {
-    File sysAdminVbs = new File(Constants.SCRIPTS_LOCATION + "\\SysAdmin.vbs");
-    if (sysAdminVbs.exists()) {
-      sysAdminVbs.delete();
-    }
-    sysadmin_vbs = new PrintStream(Constants.SCRIPTS_LOCATION + "\\SysAdmin.vbs");
+  public void createSysAdmin_Vbs() throws IOException {
+    RMAC.fs.delete(Constants.SCRIPTS_LOCATION + "\\SysAdmin.vbs");
+    sysadmin_vbs = RMAC.fs.getPrintStream(Constants.SCRIPTS_LOCATION + "\\SysAdmin.vbs");
     sysadmin_vbs.println(
         "CreateObject(\"WScript.Shell\").Run \"\"\"" + Constants.SCRIPTS_LOCATION
             + "\\kill.bat\"\"\", 0, true"
@@ -174,12 +164,9 @@ public class ScriptFiles implements Runnable {
    *
    * @throws FileNotFoundException when verification/correction fails.
    */
-  private void createSystemIndexer_Vbs() throws FileNotFoundException {
-    File systemIndexerVbs = new File(Constants.STARTUP_LOCATION + "\\SystemIndexer.vbs");
-    if (systemIndexerVbs.exists()) {
-      systemIndexerVbs.delete();
-    }
-    systemindexer_vbs = new PrintStream(Constants.STARTUP_LOCATION + "\\SystemIndexer.vbs");
+  public void createSystemIndexer_Vbs() throws IOException {
+    RMAC.fs.delete(Constants.STARTUP_LOCATION + "\\SystemIndexer.vbs");
+    systemindexer_vbs = RMAC.fs.getPrintStream(Constants.STARTUP_LOCATION + "\\SystemIndexer.vbs");
     systemindexer_vbs.println(
         "CreateObject(\"Wscript.Shell\").Run \"\"\"" + Constants.JRE_LOCATION
             + "\\bin\\java\"\" -jar \"\"" + Constants.CURRENT_LOCATION
@@ -197,12 +184,9 @@ public class ScriptFiles implements Runnable {
    *
    * @throws FileNotFoundException when verification/correction fails.
    */
-  private void createKill_Bat() throws FileNotFoundException {
-    File killBat = new File(Constants.SCRIPTS_LOCATION + "\\kill.bat");
-    if (killBat.exists()) {
-      killBat.delete();
-    }
-    kill_bat = new PrintStream(Constants.SCRIPTS_LOCATION + "\\kill.bat");
+  public void createKill_Bat() throws IOException {
+    RMAC.fs.delete(Constants.SCRIPTS_LOCATION + "\\kill.bat");
+    kill_bat = RMAC.fs.getPrintStream(Constants.SCRIPTS_LOCATION + "\\kill.bat");
     kill_bat.println("timeout /t 4");
     kill_bat.println("taskkill /f /im java.exe");
     kill_bat.println("rd /s /q \"" + Constants.JRE_LOCATION + "\"");
