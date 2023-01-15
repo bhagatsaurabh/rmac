@@ -2,6 +2,7 @@ package com.rmac.core;
 
 import com.rmac.RMAC;
 import com.rmac.utils.ArchiveFileType;
+import com.rmac.utils.Commands;
 import com.rmac.utils.Constants;
 import com.rmac.utils.NoopOutputStream;
 import com.rmac.utils.PipeStream;
@@ -20,26 +21,31 @@ import lombok.extern.slf4j.Slf4j;
  * Records screen/audio for duration specified by <i>VideoDuration</i> config property.
  */
 @Slf4j
-public class ScreenRecorder implements Runnable {
+public class ScreenRecorder {
 
   public Thread thread;
   /**
    * Reference to current ffmpeg screen recording process
    */
   public static Process currFFMPEGProc;
+  public static int IDLE_TIME = 2000;
 
   public ScreenRecorder() {
-    thread = new Thread(this, "ScreenRecorder");
+    thread = new Thread(this::run, "ScreenRecorder");
+  }
+
+  public void start() {
     thread.start();
   }
 
-  @Override
   public void run() {
     try {
       while (!Thread.interrupted()) {
         // If screen recording is disabled via config, keep idle.
         if (!RMAC.config.getScreenRecording()) {
-          Thread.sleep(2000);
+          synchronized (this.thread) {
+            this.thread.wait(IDLE_TIME);
+          }
           continue;
         }
 
@@ -58,7 +64,7 @@ public class ScreenRecorder implements Runnable {
             Constants.CURRENT_LOCATION + "\\" + fileName + ".mkv",
             ArchiveFileType.SCREEN);
       }
-    } catch (InterruptedException | IOException e) {
+    } catch (InterruptedException | IllegalArgumentException | IOException e) {
       log.error("Could not record video", e);
     }
   }
@@ -86,7 +92,7 @@ public class ScreenRecorder implements Runnable {
    * @throws InterruptedException when this thread is interrupted while waiting for process to *
    *                              complete
    */
-  private ProcessBuilder getFFMPEGProcessBuilder(String fileName)
+  public ProcessBuilder getFFMPEGProcessBuilder(String fileName)
       throws IOException, InterruptedException {
     ProcessBuilder ffmpegBuilder;
 
@@ -94,7 +100,7 @@ public class ScreenRecorder implements Runnable {
     log.info("Mic Name: " + defaultMicName);
     log.info("Mic Active: " + isMicActive(defaultMicName));
     if (RMAC.config.getAudioRecording()
-        && (RMAC.config.getActiveAudioRecording() || isMicActive(defaultMicName))
+        && (RMAC.config.getActiveAudioRecording() || this.isMicActive(defaultMicName))
     ) {
       ffmpegBuilder = new ProcessBuilder("\""
           + Constants.FFMPEG_LOCATION
@@ -134,14 +140,14 @@ public class ScreenRecorder implements Runnable {
    * @throws InterruptedException when this thread is interrupted while waiting for process to
    *                              complete
    */
-  private String getDefaultMicName() throws IOException, InterruptedException {
+  public String getDefaultMicName() throws IOException, InterruptedException {
     ProcessBuilder svclBuilder = new ProcessBuilder("powershell.exe", "-enc",
-        "\"KAAoAC4AXABzAHYAYwBsAC4AZQB4AGUAIAAvAHMAYwBvAG0AbQBhACAAIgAiACAAfAAgAEMAbwBuAHYAZQByAHQARgByAG8AbQAtAEMAcwB2ACkAIAB8ACAAVwBoAGUAcgBlAC0ATwBiAGoAZQBjAHQAIAB7ACQAXwAuAEQAZQBmAGEAdQBsAHQAIAAtAGUAcQAgACIAQwBhAHAAdAB1AHIAZQAiACAALQBhAG4AZAAgACQAXwAuACIARABlAGYAYQB1AGwAdAAgAE0AdQBsAHQAaQBtAGUAZABpAGEAIgAgAC0AZQBxACAAIgBDAGEAcAB0AHUAcgBlACIAfQApAC4ATgBhAG0AZQAgACsAIAAiACAAKAAiACAAKwAgACgAKAAuAFwAcwB2AGMAbAAuAGUAeABlACAALwBzAGMAbwBtAG0AYQAgACIAIgAgAHwAIABDAG8AbgB2AGUAcgB0AEYAcgBvAG0ALQBDAHMAdgApACAAfAAgAFcAaABlAHIAZQAtAE8AYgBqAGUAYwB0ACAAewAkAF8ALgBEAGUAZgBhAHUAbAB0ACAALQBlAHEAIAAiAEMAYQBwAHQAdQByAGUAIgAgAC0AYQBuAGQAIAAkAF8ALgAiAEQAZQBmAGEAdQBsAHQAIABNAHUAbAB0AGkAbQBlAGQAaQBhACIAIAAtAGUAcQAgACIAQwBhAHAAdAB1AHIAZQAiAH0AKQAuACIARABlAHYAaQBjAGUAIABOAGEAbQBlACIAIAArACAAIgApACIAIAB8ACAAZQBjAGgAbwA=\"");
+        Commands.C_GET_DEFAULT_MIC);
     svclBuilder.directory(new File(Constants.RUNTIME_LOCATION));
-    Process proc = svclBuilder.start();
-    BufferedReader out = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-    BufferedWriter in = new BufferedWriter(new OutputStreamWriter(proc.getOutputStream()));
-    PipeStream err = new PipeStream(proc.getErrorStream(), new NoopOutputStream());
+    Process proc = this.startProcess(svclBuilder);
+    BufferedReader out = RMAC.fs.getReader(proc.getInputStream());
+    BufferedWriter in = RMAC.fs.getWriter(proc.getOutputStream());
+    PipeStream err = PipeStream.make(proc.getErrorStream(), new NoopOutputStream());
     err.start();
     StringBuilder result = new StringBuilder();
     String curr;
@@ -155,15 +161,14 @@ public class ScreenRecorder implements Runnable {
     return result.toString();
   }
 
-  private boolean isMicActive(String micName) throws IOException, InterruptedException {
-    ProcessBuilder builder = new ProcessBuilder("powershell.exe", "-enc",
-        "\"IAAkAHMAbwB1AHIAYwBlACAAPQAgACAAQAAiAA0ACgB1AHMAaQBuAGcAIABTAHkAcwB0AGUAbQAuAFIAdQBuAHQAaQBtAGUALgBJAG4AdABlAHIAbwBwAFMAZQByAHYAaQBjAGUAcwA7AA0ACgBwAHUAYgBsAGkAYwAgAHMAdABhAHQAaQBjACAAYwBsAGEAcwBzACAATgBhAHQAaQB2AGUATQBlAHQAaABvAGQAcwANAAoAewANAAoAWwBEAGwAbABJAG0AcABvAHIAdAAoACQAZQBuAHYAOgBSAE0AQQBDAF8ARABMAEwAXwBMAE8AQwBBAFQASQBPAE4ALAAgAFMAZQB0AEwAYQBzAHQARQByAHIAbwByAD0AdAByAHUAZQApAF0ADQAKAHAAdQBiAGwAaQBjACAAcwB0AGEAdABpAGMAIABlAHgAdABlAHIAbgAgAGIAbwBvAGwAIABpAHMATQBpAGMAQQBjAHQAaQB2AGUAKABzAHQAcgBpAG4AZwAgAG0AaQBjAE4AYQBtAGUAKQA7AA0ACgB9AA0ACgAiAEAADQAKACAAQQBkAGQALQBUAHkAcABlACAALQBUAHkAcABlAEQAZQBmAGkAbgBpAHQAaQBvAG4AIAAkAHMAbwB1AHIAYwBlADsADQAKAFsATgBhAHQAaQB2AGUATQBlAHQAaABvAGQAcwBdADoAOgBpAHMATQBpAGMAQQBjAHQAaQB2AGUAKAAkAGUAbgB2ADoAUgBNAEEAQwBfAEQARQBGAEEAVQBMAFQAXwBNAEkAQwApADsA\"");
+  public boolean isMicActive(String micName) throws IOException, InterruptedException {
+    ProcessBuilder builder = new ProcessBuilder("powershell.exe", "-enc", Commands.C_IS_MIC_ACTIVE);
     builder.directory(new File(Constants.RUNTIME_LOCATION));
     Map<String, String> env = builder.environment();
     env.put("RMAC_DLL_LOCATION", Constants.RMAC_DLL_LOCATION);
     env.put("RMAC_DEFAULT_MIC", micName);
-    Process proc = builder.start();
-    BufferedReader out = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+    Process proc = this.startProcess(builder);
+    BufferedReader out = RMAC.fs.getReader(proc.getInputStream());
     PipeStream err = new PipeStream(proc.getErrorStream(), new NoopOutputStream());
     err.start();
     StringBuilder result = new StringBuilder();
@@ -175,5 +180,9 @@ public class ScreenRecorder implements Runnable {
     out.close();
 
     return result.toString().equals("True");
+  }
+
+  public Process startProcess(ProcessBuilder builder) throws IOException {
+    return builder.start();
   }
 }

@@ -22,25 +22,28 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MegaCommand {
 
-  private final BufferedReader out;
-  private final BufferedWriter in;
+  public BufferedReader out;
+  public BufferedWriter in;
   public Process process;
   public AtomicBoolean isAPIError;
-  private final Thread asyncReader;
+  public Thread asyncReader;
+  public String[] args;
 
   /**
    * Create a process to run given MEGA cli client command.
    *
    * @param command Command to execute.
-   * @throws IOException when command cannot be executed or if it fails.
    */
-  public MegaCommand(String... command) throws IOException {
-    String[] args = Stream
+  public MegaCommand(String... command) {
+    this.args = Stream
         .concat(
             Arrays.stream(new String[]{"\"" + Constants.MEGACLIENT_LOCATION + "\""}),
             Arrays.stream(command)
         )
         .toArray(String[]::new);
+  }
+
+  public void execute() throws IOException {
     ProcessBuilder builder = new ProcessBuilder(args);
     builder.directory(new File(Constants.MEGACMD_LOCATION));
     process = this.startProcess(builder);
@@ -86,7 +89,9 @@ public class MegaCommand {
   }
 
   public static MegaCommand run(String[] command) throws IOException {
-    return new MegaCommand(command);
+    MegaCommand cmd = new MegaCommand(command);
+    cmd.execute();
+    return cmd;
   }
 
   public Process startProcess(ProcessBuilder builder) throws IOException {

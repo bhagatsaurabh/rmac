@@ -1,6 +1,7 @@
 package com.rmac.core;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.rmac.RMAC;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -28,9 +29,7 @@ public class Service {
    * @return List of commands.
    */
   public String[] getCommands() {
-    Connectivity.checkNetworkState();
-
-    if (!RMAC.NETWORK_STATE) {
+    if (!Connectivity.checkNetworkState()) {
       log.warn("Network down, not fetching commands");
       return new String[]{};
     }
@@ -44,7 +43,7 @@ public class Service {
       return GSON.fromJson(jsonString, String[].class);
     } catch (IOException | URISyntaxException e) {
       log.error("Could not fetch commands", e);
-    } catch (ParseException e) {
+    } catch (JsonSyntaxException e) {
       log.error("Could not parse json response from /commands", e);
     }
     return new String[]{};

