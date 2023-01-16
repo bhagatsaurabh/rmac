@@ -1,6 +1,5 @@
-import { logger } from '../config/firebase.js';
-
-const errorHandler = (err, _req, res, _next) => {
+const errorHandler = (err, req, res, _next) => {
+    const { logger } = req.context;
     let error;
     if (!(err instanceof APIError)) {
         error = new APIError(errors.SERVER_ERROR);

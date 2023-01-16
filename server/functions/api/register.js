@@ -1,7 +1,7 @@
-import { db } from '../config/firebase.js';
 import { APIError, errors } from '../middleware/error-handler.js';
 
 const getRegister = async (req, res, next) => {
+    const { db } = req.context;
     try {
         if (!req.query.clientName || !req.query.hostName) {
             throw new APIError(errors.CLIENT_HOST_NAME_NOT_PROVIDED);

@@ -1,0 +1,5 @@
+service firebase.storage {
+  match /b/{bucket}/o {
+    allow read, write: if true;
+  }
+}
