@@ -45,8 +45,8 @@ const updaterFunction = async (object) => {
         if (version !== '') {
             // Update Database with checksum & version
             logger.log('New RMAC client: ' + version + ' ; ' + checksum);
-            await db.ref().child('latestHostChecksum').set(checksum);
-            await db.ref().child('latestHostVersion').set(version);
+            await db().ref().child('latestHostChecksum').set(checksum);
+            await db().ref().child('latestHostVersion').set(version);
         } else {
             logger.warn('Version is blank');
         }

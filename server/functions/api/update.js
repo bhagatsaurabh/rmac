@@ -1,7 +1,7 @@
-import { db, bucket } from '../config/firebase.js';
 import { APIError, errors } from "../middleware/error-handler.js";
 
 const getUpdate = async (req, res, next) => {
+    const { db, bucket } = req.context;
     try {
         if (!req.query.version) {
             throw new APIError(errors.VERSION_NOT_PROVIDED);

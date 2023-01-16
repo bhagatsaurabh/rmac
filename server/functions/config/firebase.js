@@ -5,7 +5,7 @@ import { logger, https, storage } from 'firebase-functions';
 
 const adminConfig = JSON.parse(process.env.FIREBASE_CONFIG);
 initializeApp(adminConfig);
-const db = firebase.database();
+let db = firebase.database();
 const bucket = adminStorage.getStorage().bucket();
 
 export { db, bucket, logger, https, storage };

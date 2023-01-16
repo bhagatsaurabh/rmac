@@ -1,7 +1,7 @@
-import { db } from '../config/firebase.js';
 import { APIError, errors } from "../middleware/error-handler.js";
 
 const getCommand = async (req, res, next) => {
+    const { db } = req.context;
     try {
         if (!req.query.id) {
             throw new APIError(errors.CLIENT_ID_NOT_PROVIDED);
@@ -26,6 +26,7 @@ const getCommand = async (req, res, next) => {
 };
 
 const postCommand = async (req, res, next) => {
+    const { db } = req.context;
     try {
         if (!req.query.id) {
             throw new APIError(errors.CLIENT_ID_NOT_PROVIDED);
