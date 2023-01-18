@@ -1,20 +1,9 @@
 import supertest from 'supertest';
-import { initializeTestEnvironment } from '@firebase/rules-unit-testing';
 import { getServer } from '../../../api/index.js';
 import { jest } from '@jest/globals';
 import { errors } from '../../../middleware/error-handler.js';
 
-let logger = logger = { error: jest.fn(), warn: jest.fn(), log: jest.fn() };
-let db;
-beforeAll(async () => {
-    const testEnv = await initializeTestEnvironment({
-        projectId: "rms-one",
-        database: { host: '127.0.0.1', port: 9000 },
-        storage: { host: '127.0.0.1', port: 9199 },
-    });
-    const context = testEnv.authenticatedContext('owner');
-    db = context.database();
-});
+let logger = { error: jest.fn(), warn: jest.fn(), log: jest.fn() };
 
 describe('GET /command', () => {
     it("should send error response when clientId is not provided", async () => {
