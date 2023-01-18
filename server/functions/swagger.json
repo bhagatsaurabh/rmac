@@ -1,0 +1,118 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "RMAC Server API",
+        "description": "RMAC Server API",
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:5001/rms-one/us-central1/api"
+        }
+    ],
+    "tags": [
+        {
+            "name": "register",
+            "description": "Register or verify registration of a host"
+        },
+        {
+            "name": "command",
+            "description": "Fetch pending commands or push commands to be executed on host"
+        },
+        {
+            "name": "update",
+            "description": "Fetch new RMAC Client update"
+        }
+    ],
+    "paths": {
+        "/register": {
+            "get": {
+                "tags": [
+                    "register"
+                ],
+                "summary": "Register or verify registration of a host",
+                "operationId": "register",
+                "parameters": [
+                    {
+                        "name": "clientName",
+                        "in": "query",
+                        "description": "Name of the client against which registration is to be performed",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "hostName",
+                        "in": "query",
+                        "description": "Name of the host against which registration is to be performed",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "description": "ID of the client against which registration is to be verified and re-registration is to be done when ID doesn't exist",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Pet"
+                                }
+                            },
+                            "application/xml": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Pet"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Client name or host name not provided to be registered"
+                    },
+                    "404": {
+                        "description": "Pet not found"
+                    },
+                    "405": {
+                        "description": "Validation exception"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "E_CLIENT_HOST_NAME_NOT_PROVIDED": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Client or Host name not provided"
+                    },
+                    "status": {
+                        "type": "integer",
+                        "example": 404
+                    }
+                }
+            }
+        }
+    }
+}
