@@ -9,7 +9,7 @@ const getRegister = async (req, res, next) => {
 
         const requestData = req.query;
         if (!requestData.id) {
-            const id = await register(requestData);
+            const id = await register(db, requestData);
             return res.status(201).send(id);
         }
 
@@ -17,7 +17,7 @@ const getRegister = async (req, res, next) => {
         if (snapshot.exists()) {
             return res.status(200).send(requestData.id);
         } else {
-            const id = await register(requestData);
+            const id = await register(db, requestData);
             return res.status(201).send(id);
         }
     } catch (error) {
@@ -25,10 +25,10 @@ const getRegister = async (req, res, next) => {
     }
 };
 
-const register = async (data) => {
+const register = async (db, data) => {
     const { clientName, hostName } = data;
     const newClient = await db.ref().push({ clientName, hostName });
     return newClient.key;
 }
 
-export { getRegister };
+export { getRegister, register };

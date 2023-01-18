@@ -14,7 +14,7 @@ const getUpdate = async (req, res, next) => {
             const [downloadUrl] = await bucket.file(latestHostVersion + ".jar").getSignedUrl({
                 action: "read",
                 expires: Date.now() + 1000 * 60 * 30,
-            })
+            });
             return res.status(200).send([downloadUrl, latestHostChecksum]);
         } else {
             return res.status(200).send([]);
