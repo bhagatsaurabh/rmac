@@ -27,7 +27,7 @@ const errorObjs = {
     3: { status: 400, message: 'ClientId must be provided' },
     4: { status: 404, message: 'ClientId not found' },
     5: { status: 400, message: 'Bad commands format, must be an array of commands' },
-    6: { status: 400, message: 'Version must be provided' },
+    6: { status: 400, message: 'Currently used version must be provided' },
 };
 
 const errors = {
