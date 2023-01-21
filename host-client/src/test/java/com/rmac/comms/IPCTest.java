@@ -1,4 +1,4 @@
-package com.rmac.ipc;
+package com.rmac.comms;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.catchSystemExit;
 import static org.junit.Assert.assertEquals;

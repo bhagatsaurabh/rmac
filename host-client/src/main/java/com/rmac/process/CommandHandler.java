@@ -1,4 +1,4 @@
-package com.rmac.core;
+package com.rmac.process;
 
 import com.rmac.RMAC;
 import com.rmac.utils.ArchiveFileType;

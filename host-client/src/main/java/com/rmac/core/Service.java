@@ -23,6 +23,14 @@ public class Service {
 
   public static Gson GSON = new Gson();
 
+  public Service() {
+    Connectivity.onChange(state -> {
+      if (state && !RMAC.isClientRegistered) {
+        this.registerClientAsync();
+      }
+    });
+  }
+
   /**
    * Call GET /commands API to fetch commands requested to be executed on this host machine.
    *
@@ -30,7 +38,6 @@ public class Service {
    */
   public String[] getCommands() {
     if (!Connectivity.checkNetworkState()) {
-      log.warn("Network down, not fetching commands");
       return new String[]{};
     }
 

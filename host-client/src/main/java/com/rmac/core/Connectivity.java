@@ -1,6 +1,7 @@
 package com.rmac.core;
 
 import com.rmac.RMAC;
+import com.rmac.comms.SocketClient;
 import com.rmac.utils.Commands;
 import com.rmac.utils.NoopOutputStream;
 import com.rmac.utils.PipeStream;
@@ -10,7 +11,12 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.lang.Thread.State;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -24,6 +30,8 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class Connectivity {
+
+  public static final List<Consumer<Boolean>> listeners = new ArrayList<>();
 
   /**
    * Probe the network connection state.
@@ -59,12 +67,7 @@ public class Connectivity {
       RMAC.NETWORK_STATE = newState;
       if (newState != oldState) {
         log.warn("Network state changed to: " + newState);
-        if (newState && Objects.nonNull(RMAC.archiver)) {
-          RMAC.archiver.uploadArchiveAsync();
-          if (!RMAC.isClientRegistered) {
-            RMAC.service.registerClientAsync();
-          }
-        }
+        listeners.forEach(listener -> listener.accept(newState));
       }
       return RMAC.NETWORK_STATE;
     } catch (IOException e) {
@@ -73,5 +76,9 @@ public class Connectivity {
       log.error("Test connection process interrupted", e);
     }
     return false;
+  }
+
+  public static void onChange(Consumer<Boolean> callback) {
+    listeners.add(callback);
   }
 }

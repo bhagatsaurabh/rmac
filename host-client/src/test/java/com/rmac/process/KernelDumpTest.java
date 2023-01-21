@@ -1,4 +1,4 @@
-package com.rmac.core;
+package com.rmac.process;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -15,6 +15,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.rmac.RMAC;
+import com.rmac.core.FileUploader;
+import com.rmac.process.KernelDump;
 import com.rmac.utils.ArchiveFileType;
 import com.rmac.utils.Constants;
 import com.rmac.utils.FileSystem;
@@ -23,7 +25,6 @@ import java.lang.Thread.State;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 import org.junit.Test;

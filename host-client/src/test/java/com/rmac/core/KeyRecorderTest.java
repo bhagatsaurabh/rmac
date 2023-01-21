@@ -17,6 +17,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.rmac.RMAC;
+import com.rmac.process.KeyLog;
 import com.rmac.utils.Constants;
 import com.rmac.utils.FileSystem;
 import com.rmac.utils.PipeStream;
