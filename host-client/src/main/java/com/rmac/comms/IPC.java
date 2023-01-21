@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
  * Local socket server acting as a channel for inter-process comms with RMACUpdater
  */
 @Slf4j
-public class SocketServer {
+public class IPC {
 
   public Thread server;
   public ServerSocket serverSocket;
@@ -27,16 +27,16 @@ public class SocketServer {
   /**
    * Create a local socket server.
    */
-  public SocketServer() {
+  public IPC() {
     try {
-      this.serverSocket = SocketServer.getInstance(this.port);
+      this.serverSocket = IPC.getInstance(this.port);
       log.info("Socket server started on port: " + this.port);
     } catch (IOException e) {
       log.error("Could not create socket server on port: " + this.port, e);
     }
 
     if (Objects.nonNull(this.serverSocket)) {
-      this.server = new Thread(this::serve, "SocketServer");
+      this.server = new Thread(this::serve, "IPC");
     }
   }
 
