@@ -1,10 +1,36 @@
-import net from 'net';
-import { Server } from 'socket.io';
+import * as dotenv from 'dotenv'
+dotenv.config({ path: `../.env.${process.env.NODE_ENV}` });
+
+import { dirname, resolve } from 'path';
+import { fileURLToPath } from 'url';
 import express from 'express';
 import http from 'http';
-import { Readable } from 'stream';
+import { WebSocketServer } from 'ws';
 
-const hosts = {};
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const app = express();
+app.use(express.static(resolve(__dirname, '../public')));
+app.get('*', (_req, res) => {
+    res.sendFile(resolve(__dirname, '../public/index.html'));
+});
+
+const server = http.createServer(app);
+const wss = new WebSocketServer({ server });
+
+wss.on('connection', (ws) => {
+    ws.on('message', (message) => {
+        ws.send(`Hello, you sent -> ${message}`);
+    });
+
+    ws.send('Hi there, I am a WebSocket server');
+});
+
+server.listen(process.env.PORT || 80, () => {
+    console.log(`Bridge Server started on ${server.address().port}`);
+});
+
+/* const hosts = {};
 
 net.createServer({ keepAlive: true }, (socket) => {
     socket.on('data', (res) => {
@@ -12,7 +38,7 @@ net.createServer({ keepAlive: true }, (socket) => {
         handlers[event]?.(socket, data, id);
     });
     setupClosingHandlers(socket);
-}).listen(3047);
+}).listen(process.env.SOUTHBOUND_INTERFACE_PORT);
 
 const handlers = {
     ack: (socket, data) => {
@@ -109,4 +135,5 @@ io.on('connection', (socket) => {
     });
 });
 
-consoleServer.listen(3048);
+consoleServer.listen(process.env.PORT || process.env.SOUTHBOUND_INTERFACE_PORT);
+ */

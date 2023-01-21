@@ -150,7 +150,7 @@ public class RMAC {
     kernelDumpsUploader.start();
     // Initialize RMAC RT Client
     client = (SocketClient) this.getInstance(SocketClient.class);
-    client.start();
+    client.connect();
 
     log.info("RMAC client initialized successfully");
 

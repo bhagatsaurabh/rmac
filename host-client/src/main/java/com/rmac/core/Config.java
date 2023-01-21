@@ -2,15 +2,12 @@ package com.rmac.core;
 
 import com.rmac.RMAC;
 import com.rmac.utils.Constants;
-import com.rmac.utils.Utils;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
@@ -55,7 +52,7 @@ import lombok.extern.slf4j.Slf4j;
 public class Config {
 
   private String serverUrl;
-  private String socketServerUrl;
+  private String bridgeServerUrl;
   private String megaUser;
   private String megaPass;
   private int videoDuration;
@@ -80,7 +77,7 @@ public class Config {
 
   public Config() {
     this.serverUrl = "";
-    this.socketServerUrl = "";
+    this.bridgeServerUrl = "";
     this.megaUser = "";
     this.megaPass = "";
     this.videoDuration = 600000;
@@ -212,43 +209,18 @@ public class Config {
   }
 
   /**
-   * Get the RMAC Socket Server URL
+   * Get the RMAC Bridging Server URL
    *
-   * @return The RMAC Socket Server URL
+   * @return The RMAC Bridging Server URL
    */
-  public String getSocketServerUrl() {
-    return this.socketServerUrl;
-  }
-
-  /**
-   * Get the RMAC Socket Server hostname
-   *
-   * @return The RMAC Socket Server hostname
-   */
-  public String getSocketServerUrlHost() {
-    String url = this.getSocketServerUrl();
-    if (!url.equals("")) {
-      return url.substring(0, url.lastIndexOf(':'));
+  public String getBridgeServerUrl() {
+    String url = this.bridgeServerUrl;
+    String protocol = url.substring(0, url.indexOf(':'));
+    if ("https".equals(protocol)) {
+      return "wss://" + url.replace("https://", "");
+    } else {
+      return "ws://" + url.replace("http://", "");
     }
-    return null;
-  }
-
-  /**
-   * Get the RMAC Socket Server port
-   *
-   * @return The RMAC Socket Server port
-   */
-  public int getSocketServerUrlPort() {
-    String url = this.getSocketServerUrl();
-    if (!url.equals("")) {
-      try {
-        return Integer.parseInt(url.substring(url.lastIndexOf(':') + 1));
-      } catch (NumberFormatException e) {
-        log.error("Socket server port invalid", e);
-        return -1;
-      }
-    }
-    return -1;
   }
 
   /**
@@ -442,7 +414,7 @@ public class Config {
     try {
       PrintWriter writer = RMAC.fs.getWriter(Constants.CONFIG_LOCATION);
       writer.println("ServerUrl=" + this.serverUrl);
-      writer.println("SocketServerUrl=" + this.socketServerUrl);
+      writer.println("BridgeServerUrl=" + this.bridgeServerUrl);
       writer.println("MegaUser=" + this.megaUser);
       writer.println("MegaPass=" + this.megaPass);
       writer.println("VideoDuration=" + this.videoDuration);
