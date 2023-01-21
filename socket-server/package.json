@@ -1,0 +1,35 @@
+{
+  "name": "rmac-socket-server",
+  "version": "1.0.0",
+  "description": "RMAC Realtime Socket Server",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/saurabh-prosoft/rmac.git"
+  },
+  "keywords": [
+    "RMAC",
+    "RMAC",
+    "RT",
+    "Server",
+    "RMAC",
+    "Socket",
+    "Server"
+  ],
+  "author": "Saurabh Bhagat",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/saurabh-prosoft/rmac/issues"
+  },
+  "homepage": "https://github.com/saurabh-prosoft/rmac#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^3.1.2",
+    "ws": "^8.12.0"
+  }
+}
