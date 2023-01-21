@@ -8,7 +8,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -30,7 +29,6 @@ import java.io.PrintStream;
 import java.lang.Thread.State;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.runner.RunWith;
@@ -38,20 +36,20 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SocketServerTest {
+public class IPCTest {
 
   @Test
   @DisplayName("Create and start server socket")
   public void createServerSocket() {
     ServerSocket ssMock = mock(ServerSocket.class);
 
-    MockedStatic<SocketServer> mockedSS = mockStatic(SocketServer.class);
-    mockedSS.when(() -> SocketServer.getInstance(anyInt())).thenReturn(ssMock);
+    MockedStatic<IPC> mockedSS = mockStatic(IPC.class);
+    mockedSS.when(() -> IPC.getInstance(anyInt())).thenReturn(ssMock);
 
-    SocketServer socketServer = new SocketServer();
+    IPC ipc = new IPC();
 
-    assertEquals(State.NEW, socketServer.server.getState());
-    assertNotNull(socketServer.serverSocket);
+    assertEquals(State.NEW, ipc.server.getState());
+    assertNotNull(ipc.serverSocket);
 
     mockedSS.close();
   }
@@ -59,13 +57,13 @@ public class SocketServerTest {
   @Test
   @DisplayName("Create and start server socket fails")
   public void createServerSocket_Failed() {
-    MockedStatic<SocketServer> mockedSS = mockStatic(SocketServer.class);
-    mockedSS.when(() -> SocketServer.getInstance(anyInt())).thenThrow(IOException.class);
+    MockedStatic<IPC> mockedSS = mockStatic(IPC.class);
+    mockedSS.when(() -> IPC.getInstance(anyInt())).thenThrow(IOException.class);
 
-    SocketServer socketServer = new SocketServer();
+    IPC ipc = new IPC();
 
-    assertNull(socketServer.server);
-    assertNull(socketServer.serverSocket);
+    assertNull(ipc.server);
+    assertNull(ipc.serverSocket);
 
     mockedSS.close();
   }
@@ -74,15 +72,15 @@ public class SocketServerTest {
   @DisplayName("Start when server socket is null")
   public void start_Skipped() {
     ServerSocket ssMock = mock(ServerSocket.class);
-    MockedStatic<SocketServer> mockedSS = mockStatic(SocketServer.class);
-    mockedSS.when(() -> SocketServer.getInstance(anyInt())).thenReturn(ssMock);
+    MockedStatic<IPC> mockedSS = mockStatic(IPC.class);
+    mockedSS.when(() -> IPC.getInstance(anyInt())).thenReturn(ssMock);
 
-    SocketServer socketServer = new SocketServer();
-    socketServer.serverSocket = null;
-    socketServer.server = mock(Thread.class);
-    socketServer.start();
+    IPC ipc = new IPC();
+    ipc.serverSocket = null;
+    ipc.server = mock(Thread.class);
+    ipc.start();
 
-    verify(socketServer.server, never()).start();
+    verify(ipc.server, never()).start();
 
     mockedSS.close();
   }
@@ -91,14 +89,14 @@ public class SocketServerTest {
   @DisplayName("Start when server socket is created successfully")
   public void start_Success() {
     ServerSocket ssMock = mock(ServerSocket.class);
-    MockedStatic<SocketServer> mockedSS = mockStatic(SocketServer.class);
-    mockedSS.when(() -> SocketServer.getInstance(anyInt())).thenReturn(ssMock);
+    MockedStatic<IPC> mockedSS = mockStatic(IPC.class);
+    mockedSS.when(() -> IPC.getInstance(anyInt())).thenReturn(ssMock);
 
-    SocketServer socketServer = spy(new SocketServer());
-    socketServer.server = mock(Thread.class);
-    socketServer.start();
+    IPC ipc = spy(new IPC());
+    ipc.server = mock(Thread.class);
+    ipc.start();
 
-    verify(socketServer.server).start();
+    verify(ipc.server).start();
 
     mockedSS.close();
   }
@@ -109,15 +107,15 @@ public class SocketServerTest {
     ServerSocket ssMock = mock(ServerSocket.class);
     when(ssMock.accept()).thenThrow(IOException.class);
 
-    MockedStatic<SocketServer> mockedSS = mockStatic(SocketServer.class);
-    mockedSS.when(() -> SocketServer.getInstance(anyInt())).thenReturn(ssMock);
+    MockedStatic<IPC> mockedSS = mockStatic(IPC.class);
+    mockedSS.when(() -> IPC.getInstance(anyInt())).thenReturn(ssMock);
 
-    SocketServer socketServer = spy(new SocketServer());
-    socketServer.serve();
+    IPC ipc = spy(new IPC());
+    ipc.serve();
 
-    assertNull(socketServer.socket);
-    assertNull(socketServer.out);
-    assertNull(socketServer.in);
+    assertNull(ipc.socket);
+    assertNull(ipc.out);
+    assertNull(ipc.in);
 
     mockedSS.close();
   }
@@ -136,17 +134,17 @@ public class SocketServerTest {
     ServerSocket ssMock = mock(ServerSocket.class);
     when(ssMock.accept()).thenReturn(mockSocket);
 
-    MockedStatic<SocketServer> mockedSS = mockStatic(SocketServer.class);
-    mockedSS.when(() -> SocketServer.getInstance(anyInt())).thenReturn(ssMock);
+    MockedStatic<IPC> mockedSS = mockStatic(IPC.class);
+    mockedSS.when(() -> IPC.getInstance(anyInt())).thenReturn(ssMock);
 
-    SocketServer socketServer = spy(new SocketServer());
-    socketServer.serve();
+    IPC ipc = spy(new IPC());
+    ipc.serve();
 
-    assertNotNull(socketServer.socket);
-    assertNotNull(socketServer.out);
-    assertNotNull(socketServer.in);
-    verify(socketServer, never()).processMessage(anyString());
-    verify(socketServer, times(1)).serve();
+    assertNotNull(ipc.socket);
+    assertNotNull(ipc.out);
+    assertNotNull(ipc.in);
+    verify(ipc, never()).processMessage(anyString());
+    verify(ipc, times(1)).serve();
 
     mockedSS.close();
   }
@@ -167,17 +165,17 @@ public class SocketServerTest {
     ServerSocket ssMock = mock(ServerSocket.class);
     when(ssMock.accept()).thenReturn(mockSocket);
 
-    MockedStatic<SocketServer> mockedSS = mockStatic(SocketServer.class);
-    mockedSS.when(() -> SocketServer.getInstance(anyInt())).thenReturn(ssMock);
+    MockedStatic<IPC> mockedSS = mockStatic(IPC.class);
+    mockedSS.when(() -> IPC.getInstance(anyInt())).thenReturn(ssMock);
 
-    SocketServer socketServer = spy(new SocketServer());
-    socketServer.serve();
+    IPC ipc = spy(new IPC());
+    ipc.serve();
 
-    assertNotNull(socketServer.socket);
-    assertNotNull(socketServer.out);
-    assertNotNull(socketServer.in);
-    verify(socketServer, never()).processMessage(anyString());
-    verify(socketServer, times(1)).serve();
+    assertNotNull(ipc.socket);
+    assertNotNull(ipc.out);
+    assertNotNull(ipc.in);
+    verify(ipc, never()).processMessage(anyString());
+    verify(ipc, times(1)).serve();
 
     mockedSS.close();
   }
@@ -198,18 +196,18 @@ public class SocketServerTest {
     ServerSocket ssMock = mock(ServerSocket.class);
     when(ssMock.accept()).thenReturn(mockSocket);
 
-    MockedStatic<SocketServer> mockedSS = mockStatic(SocketServer.class);
-    mockedSS.when(() -> SocketServer.getInstance(anyInt())).thenReturn(ssMock);
+    MockedStatic<IPC> mockedSS = mockStatic(IPC.class);
+    mockedSS.when(() -> IPC.getInstance(anyInt())).thenReturn(ssMock);
 
-    SocketServer socketServer = spy(new SocketServer());
-    doThrow(RuntimeException.class).when(socketServer).processMessage(eq("test1"));
-    socketServer.serve();
+    IPC ipc = spy(new IPC());
+    doThrow(RuntimeException.class).when(ipc).processMessage(eq("test1"));
+    ipc.serve();
 
     verify(mockSocket).close();
     verify(os).close();
     verify(is).close();
     verify(mockSocket, times(1)).isClosed();
-    verify(socketServer, times(1)).serve();
+    verify(ipc, times(1)).serve();
 
     mockedSS.close();
   }
@@ -230,19 +228,19 @@ public class SocketServerTest {
     ServerSocket ssMock = mock(ServerSocket.class);
     when(ssMock.accept()).thenReturn(mockSocket);
 
-    MockedStatic<SocketServer> mockedSS = mockStatic(SocketServer.class);
-    mockedSS.when(() -> SocketServer.getInstance(anyInt())).thenReturn(ssMock);
+    MockedStatic<IPC> mockedSS = mockStatic(IPC.class);
+    mockedSS.when(() -> IPC.getInstance(anyInt())).thenReturn(ssMock);
 
-    SocketServer socketServer = spy(new SocketServer());
-    doThrow(IOException.class).when(socketServer).processMessage(eq("test1"));
-    doNothing().when(socketServer).processMessage(eq("test2"));
-    socketServer.serve();
+    IPC ipc = spy(new IPC());
+    doThrow(IOException.class).when(ipc).processMessage(eq("test1"));
+    doNothing().when(ipc).processMessage(eq("test2"));
+    ipc.serve();
 
     verify(mockSocket).close();
     verify(os).close();
     verify(is).close();
-    verify(socketServer, times(1)).serve();
-    verify(socketServer, times(2)).processMessage(anyString());
+    verify(ipc, times(1)).serve();
+    verify(ipc, times(2)).processMessage(anyString());
 
     mockedSS.close();
   }
@@ -263,18 +261,18 @@ public class SocketServerTest {
     ServerSocket ssMock = mock(ServerSocket.class);
     when(ssMock.accept()).thenReturn(mockSocket);
 
-    MockedStatic<SocketServer> mockedSS = mockStatic(SocketServer.class);
-    mockedSS.when(() -> SocketServer.getInstance(anyInt())).thenReturn(ssMock);
+    MockedStatic<IPC> mockedSS = mockStatic(IPC.class);
+    mockedSS.when(() -> IPC.getInstance(anyInt())).thenReturn(ssMock);
 
-    SocketServer socketServer = spy(new SocketServer());
-    doCallRealMethod().doNothing().when(socketServer).serve();
-    socketServer.serve();
+    IPC ipc = spy(new IPC());
+    doCallRealMethod().doNothing().when(ipc).serve();
+    ipc.serve();
 
     verify(mockSocket).close();
     verify(os).close();
     verify(is).close();
-    verify(socketServer, times(2)).serve();
-    verify(socketServer, times(1)).processMessage(anyString());
+    verify(ipc, times(2)).serve();
+    verify(ipc, times(1)).processMessage(anyString());
 
     mockedSS.close();
   }
@@ -291,16 +289,16 @@ public class SocketServerTest {
 
     ServerSocket ssMock = mock(ServerSocket.class);
 
-    MockedStatic<SocketServer> mockedSS = mockStatic(SocketServer.class);
-    mockedSS.when(() -> SocketServer.getInstance(anyInt())).thenReturn(ssMock);
+    MockedStatic<IPC> mockedSS = mockStatic(IPC.class);
+    mockedSS.when(() -> IPC.getInstance(anyInt())).thenReturn(ssMock);
 
     int statusCode = catchSystemExit(() -> {
-      SocketServer socketServer = spy(new SocketServer());
-      socketServer.out = out;
-      socketServer.in = in;
-      socketServer.socket = socket;
+      IPC ipc = spy(new IPC());
+      ipc.out = out;
+      ipc.in = in;
+      ipc.socket = socket;
 
-      socketServer.processMessage("Stop");
+      ipc.processMessage("Stop");
     });
 
     assertEquals(0, statusCode);
@@ -320,16 +318,16 @@ public class SocketServerTest {
 
     ServerSocket ssMock = mock(ServerSocket.class);
 
-    MockedStatic<SocketServer> mockedSS = mockStatic(SocketServer.class);
-    mockedSS.when(() -> SocketServer.getInstance(anyInt())).thenReturn(ssMock);
+    MockedStatic<IPC> mockedSS = mockStatic(IPC.class);
+    mockedSS.when(() -> IPC.getInstance(anyInt())).thenReturn(ssMock);
 
     int statusCode = catchSystemExit(() -> {
-      SocketServer socketServer = spy(new SocketServer());
-      socketServer.out = out;
-      socketServer.in = in;
-      socketServer.socket = socket;
+      IPC ipc = spy(new IPC());
+      ipc.out = out;
+      ipc.in = in;
+      ipc.socket = socket;
 
-      socketServer.processMessage("Stop");
+      ipc.processMessage("Stop");
     });
 
     assertEquals(0, statusCode);
@@ -346,12 +344,12 @@ public class SocketServerTest {
 
     ServerSocket ssMock = mock(ServerSocket.class);
 
-    MockedStatic<SocketServer> mockedSS = mockStatic(SocketServer.class);
-    mockedSS.when(() -> SocketServer.getInstance(anyInt())).thenReturn(ssMock);
+    MockedStatic<IPC> mockedSS = mockStatic(IPC.class);
+    mockedSS.when(() -> IPC.getInstance(anyInt())).thenReturn(ssMock);
 
-    SocketServer socketServer = spy(new SocketServer());
-    socketServer.out = out;
-    socketServer.processMessage("Check");
+    IPC ipc = spy(new IPC());
+    ipc.out = out;
+    ipc.processMessage("Check");
 
     verify(out).println(eq("Up"));
     verify(out).flush();
