@@ -4,22 +4,51 @@ import com.google.gson.Gson;
 import com.rmac.RMAC;
 import com.rmac.core.Connectivity;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.lang.Thread.State;
 import java.net.Socket;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.drafts.Draft;
+import org.java_websocket.handshake.ServerHandshake;
 
 @Slf4j
-public class SocketClient {
+public class SocketClient extends WebSocketClient {
 
-  public static Gson GSON = new Gson();
+  public SocketClient(URI serverUri, Draft draft) {
+    super(serverUri, draft);
+  }
+
+  public SocketClient() throws URISyntaxException {
+    super(new URI(RMAC.config.getBridgeServerUrl()));
+  }
+
+  @Override
+  public void onOpen(ServerHandshake serverHandshake) {
+    log.info("Connected to RMAC bridging server");
+  }
+
+  @Override
+  public void onMessage(String s) {
+    log.info("Message: " + s);
+  }
+
+  @Override
+  public void onClose(int i, String s, boolean b) {
+    log.warn("Disconnected from RMAC bridging server");
+  }
+
+  @Override
+  public void onError(Exception e) {
+    log.warn("Bridge client error", e);
+  }
+
+  /*public static Gson GSON = new Gson();
 
   public Thread thread;
   public Socket socket;
@@ -45,20 +74,7 @@ public class SocketClient {
           this.thread.notify();
         }
       }
-    }/* else {
-      try {
-        in.close();
-        out.close();
-        socket.close();
-      } catch (Exception e) {
-        log.error("Could not close socket", e);
-      }
-      try {
-        this.thread.join();
-      } catch (InterruptedException e) {
-        log.error("Could not wait for old socket to die", e);
-      }
-    }*/
+    }
   }
 
   public void start() {
@@ -196,5 +212,5 @@ public class SocketClient {
       default:
         break;
     }
-  }
+  }*/
 }

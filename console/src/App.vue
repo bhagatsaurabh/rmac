@@ -25,17 +25,34 @@ import { io } from 'socket.io-client';
 
 export default {
   mounted() {
-    const socket = io("http://localhost:3048");
+    console.log(import.meta.env.VITE_RMAC_BRIDGE_SERVER_URL);
 
-    socket.on('health', (message) => {
+    let socket;
+    if (!import.meta.env.VITE_RMAC_BRIDGE_SERVER_URL) {
+      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+      socket = new WebSocket(`${protocol}//${window.location.host}`);
+    } else {
+      socket = new WebSocket(import.meta.env.VITE_RMAC_BRIDGE_SERVER_URL);
+    }
+
+    socket.onopen = () => {
+      console.log('Connected');
+      socket.send('hello world');
+    };
+
+    socket.onmessage = (message) => {
+      console.log(`Message`, message.data);
+    };
+
+    /* socket.on('health', (message) => {
       console.log('Health', { data: message.data });
-    })
+    });
 
     socket.on('config', (message) => {
       console.log('Config', { id: message.id, data: JSON.parse(message.data) });
     });
 
-    socket.emit('config');
+    socket.emit('config'); */
   }
 }
 </script>
