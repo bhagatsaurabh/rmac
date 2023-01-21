@@ -1,4 +1,4 @@
-package com.rmac.ipc;
+package com.rmac.comms;
 
 import java.io.BufferedReader;
 import java.io.EOFException;

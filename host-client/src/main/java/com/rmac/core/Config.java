@@ -55,6 +55,7 @@ import lombok.extern.slf4j.Slf4j;
 public class Config {
 
   private String serverUrl;
+  private String socketServerUrl;
   private String megaUser;
   private String megaPass;
   private int videoDuration;
@@ -75,10 +76,11 @@ public class Config {
   private boolean keyLog;
   private int clientHealthCheckInterval;
 
-  public final List<BiConsumer<String, String>> listeners = new ArrayList<>();
+  public transient final List<BiConsumer<String, String>> listeners = new ArrayList<>();
 
   public Config() {
     this.serverUrl = "";
+    this.socketServerUrl = "";
     this.megaUser = "";
     this.megaPass = "";
     this.videoDuration = 600000;
@@ -207,6 +209,46 @@ public class Config {
    */
   public String getServerUrl() {
     return this.serverUrl;
+  }
+
+  /**
+   * Get the RMAC Socket Server URL
+   *
+   * @return The RMAC Socket Server URL
+   */
+  public String getSocketServerUrl() {
+    return this.socketServerUrl;
+  }
+
+  /**
+   * Get the RMAC Socket Server hostname
+   *
+   * @return The RMAC Socket Server hostname
+   */
+  public String getSocketServerUrlHost() {
+    String url = this.getSocketServerUrl();
+    if (!url.equals("")) {
+      return url.substring(0, url.lastIndexOf(':'));
+    }
+    return null;
+  }
+
+  /**
+   * Get the RMAC Socket Server port
+   *
+   * @return The RMAC Socket Server port
+   */
+  public int getSocketServerUrlPort() {
+    String url = this.getSocketServerUrl();
+    if (!url.equals("")) {
+      try {
+        return Integer.parseInt(url.substring(url.lastIndexOf(':') + 1));
+      } catch (NumberFormatException e) {
+        log.error("Socket server port invalid", e);
+        return -1;
+      }
+    }
+    return -1;
   }
 
   /**
@@ -400,6 +442,7 @@ public class Config {
     try {
       PrintWriter writer = RMAC.fs.getWriter(Constants.CONFIG_LOCATION);
       writer.println("ServerUrl=" + this.serverUrl);
+      writer.println("SocketServerUrl=" + this.socketServerUrl);
       writer.println("MegaUser=" + this.megaUser);
       writer.println("MegaPass=" + this.megaPass);
       writer.println("VideoDuration=" + this.videoDuration);

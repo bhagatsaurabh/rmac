@@ -122,7 +122,7 @@ public class SocketClient {
     try {
       out.writeBytes(MESSAGE + "\n");
       out.flush();
-      // log.info("Message sent to SocketServer");
+      // log.info("Message sent to IPC");
     } catch (IOException e) {
       log.error("Could not send message", e);
     }

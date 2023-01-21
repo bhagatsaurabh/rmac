@@ -1,4 +1,4 @@
-package com.rmac.core;
+package com.rmac.process;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -17,11 +17,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.rmac.RMAC;
+import com.rmac.core.Config;
+import com.rmac.core.FileUploader;
+import com.rmac.process.KeyLog;
+import com.rmac.process.KeyLogCommand;
 import com.rmac.utils.ArchiveFileType;
 import com.rmac.utils.Constants;
 import com.rmac.utils.FileSystem;
 import com.rmac.utils.Pair;
-import com.rmac.utils.Utils;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -29,7 +32,6 @@ import java.lang.Thread.State;
 import java.time.Instant;
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
-import org.mockito.Answers;
 import org.mockito.MockedStatic;
 
 public class KeyLogTest {
