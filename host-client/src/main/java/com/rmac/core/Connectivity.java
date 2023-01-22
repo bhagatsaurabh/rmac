@@ -1,21 +1,14 @@
 package com.rmac.core;
 
 import com.rmac.RMAC;
-import com.rmac.comms.SocketClient;
 import com.rmac.utils.Commands;
 import com.rmac.utils.NoopOutputStream;
 import com.rmac.utils.PipeStream;
-import com.rmac.utils.Utils;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.lang.Thread.State;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
 

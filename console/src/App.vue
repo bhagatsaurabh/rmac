@@ -21,12 +21,9 @@ import HelloWorld from './components/HelloWorld.vue'
 </template>
 
 <script>
-import { io } from 'socket.io-client';
 
 export default {
   mounted() {
-    console.log(import.meta.env.VITE_RMAC_BRIDGE_SERVER_URL);
-
     let socket;
     if (!import.meta.env.VITE_RMAC_BRIDGE_SERVER_URL) {
       const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
@@ -35,24 +32,26 @@ export default {
       socket = new WebSocket(import.meta.env.VITE_RMAC_BRIDGE_SERVER_URL);
     }
 
+    socket.onclose = () => {
+      console.log('Disconnected from bridging server');
+    };
+    socket.onerror = (err) => {
+      console.log(err);
+    };
+
     socket.onopen = () => {
-      console.log('Connected');
-      socket.send('hello world');
+      console.log('Connected to bridging server');
+      socket.send(JSON.stringify({ event: 'identity', type: 'console' }));
+      setTimeout(() => { socket.send(JSON.stringify({ event: 'config', type: 'console' })) }, 5000);
     };
-
-    socket.onmessage = (message) => {
-      console.log(`Message`, message.data);
+    socket.onmessage = (messageEvent) => {
+      const message = JSON.parse(messageEvent.data);
+      if (message.event === 'health') {
+        console.log(message);
+      } else if (message.event === 'config') {
+        console.log(message);
+      }
     };
-
-    /* socket.on('health', (message) => {
-      console.log('Health', { data: message.data });
-    });
-
-    socket.on('config', (message) => {
-      console.log('Config', { id: message.id, data: JSON.parse(message.data) });
-    });
-
-    socket.emit('config'); */
   }
 }
 </script>

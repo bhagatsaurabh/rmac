@@ -5,8 +5,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -27,14 +25,13 @@ import java.io.IOException;
 import java.lang.Thread.State;
 import java.net.Socket;
 import java.net.SocketException;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
 
 public class SocketClientTest {
 
   @Test
-  @DisplayName("Initializing SocketClient")
+  @DisplayName("Initializing Socket")
   public void createSocketClient() {
     SocketClient sc = spy(SocketClient.class);
 
