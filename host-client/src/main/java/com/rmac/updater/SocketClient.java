@@ -40,7 +40,7 @@ public class SocketClient {
   }
 
   public void createThread() {
-    client = new Thread(this::run, "SocketClient");
+    client = new Thread(this::run, "Socket");
   }
 
   public void start() {
@@ -83,7 +83,7 @@ public class SocketClient {
         }
       }
     } catch (InterruptedException e) {
-      log.info("SocketClient interrupted, closing this process...");
+      log.info("Socket interrupted, closing this process...");
     } finally {
       try {
         out.close();

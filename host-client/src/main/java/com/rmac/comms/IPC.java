@@ -133,7 +133,7 @@ public class IPC {
       // Maybe sending some diagnostics here can be more helpful instead of just sending a thumbs up
       this.out.println("Up");
       this.out.flush();
-      // log.info("Response sent to SocketClient");
+      // log.info("Response sent to Socket");
     }
   }
 

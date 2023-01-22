@@ -1,6 +1,7 @@
 package com.rmac;
 
-import com.rmac.comms.SocketClient;
+import com.rmac.comms.BridgeClient;
+import com.rmac.comms.Socket;
 import com.rmac.core.Archiver;
 import com.rmac.process.CommandHandler;
 import com.rmac.core.Config;
@@ -64,7 +65,7 @@ public class RMAC {
   public static Archiver archiver;
   public static IPC ipcInterface;
   public static KernelDump kernelDumpsUploader;
-  public static SocketClient client;
+  public static BridgeClient bridgeClient;
 
   // Global flags
   public static boolean isClientRegistered = false;
@@ -149,8 +150,8 @@ public class RMAC {
     kernelDumpsUploader = (KernelDump) this.getInstance(KernelDump.class);
     kernelDumpsUploader.start();
     // Initialize RMAC RT Client
-    client = (SocketClient) this.getInstance(SocketClient.class);
-    client.connect();
+    bridgeClient = (BridgeClient) this.getInstance(BridgeClient.class);
+    bridgeClient.start();
 
     log.info("RMAC client initialized successfully");
 
