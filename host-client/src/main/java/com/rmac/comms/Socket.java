@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.rmac.RMAC;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft;
@@ -36,12 +37,16 @@ public class Socket extends WebSocketClient {
 
   @Override
   public void onClose(int i, String s, boolean b) {
-    log.warn("Disconnected from RMAC bridging server");
+    log.warn("Connection closed to RMAC bridging server");
+
+    if (Objects.isNull(RMAC.bridgeClient.thread)) {
+      RMAC.bridgeClient.reconnect();
+    }
   }
 
   @Override
   public void onError(Exception e) {
-    log.warn("Bridge client error", e);
+    log.warn("BridgeClient error", log.isDebugEnabled() ? e : null);
   }
 
   public void emit(Message message) {

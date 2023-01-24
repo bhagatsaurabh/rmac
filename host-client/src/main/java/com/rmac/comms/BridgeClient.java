@@ -1,27 +1,37 @@
 package com.rmac.comms;
 
 import com.rmac.RMAC;
+import com.rmac.core.Connectivity;
+import java.lang.Thread.State;
+import java.net.URISyntaxException;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
+import org.java_websocket.enums.ReadyState;
 
 @Slf4j
 public class BridgeClient {
 
   public Thread thread;
   public Socket socket;
-  public boolean isConnecting = false;
 
   public static int MAX_RETRIES = 5;
-  public static int ATTEMPT = 0;
   public static int CONNECT_COOLDOWN = 3000;
-  public static int RECONNECT_COOLDOWN = 90000;
+  public static int RECONNECT_COOLDOWN = 60000;
 
   public BridgeClient() {
+    try {
+      this.socket = new Socket(RMAC.config.getBridgeServerUrl());
+    } catch (URISyntaxException e) {
+      log.error("Malformed RMAC Bridge server URL, connection will not be established", e);
+      return;
+    }
+
     this.thread = new Thread(this::run, "BridgeClient");
 
-    // Connectivity.onChange(this::networkHandler);
+    Connectivity.onChange(this::networkHandler);
   }
 
-  /*public void networkHandler(boolean state) {
+  public void networkHandler(boolean state) {
     if (state) {
       if (State.WAITING == this.thread.getState()) {
         synchronized (this.thread) {
@@ -29,91 +39,78 @@ public class BridgeClient {
         }
       }
     }
-  }*/
+  }
 
   public void start() {
-    this.thread.start();
+    if (Objects.nonNull(this.thread)) {
+      this.thread.start();
+    }
   }
 
   public void run() {
-    try {
-      this.socket = new Socket(RMAC.config.getBridgeServerUrl());
-      this.socket.connect();
-    } catch (Exception e) {
-      log.error("Error while connecting to bridging server", e);
+    int attempt = 1;
+
+    while (!this.connect()) {
+      if (!Connectivity.checkNetworkState()) {
+        this.waitIndefinite();
+        attempt = 0;
+      } else {
+        this.waitDefinite(attempt >= MAX_RETRIES ? RECONNECT_COOLDOWN : CONNECT_COOLDOWN);
+        if (attempt >= MAX_RETRIES) {
+          attempt = 0;
+        }
+      }
+
+      attempt += 1;
     }
+
+    this.thread = null;
   }
 
-  /*public void coolOffAndRetry() {
-    try {
-      synchronized (this.thread) {
-        this.thread.wait(RECONNECT_COOLDOWN);
-      }
-    } catch (InterruptedException e) {
-      log.error("Could not wait for reconnect cooldown");
-    }
-    this.socket = null;
-    this.out = null;
-    this.in = null;
-    this.thread = new Thread(this::run);
-    this.start();
-  }*/
-
-  /*public boolean openConnection(int cooldown) {
-    if (Objects.nonNull(this.socket) && this.socket.isConnected()) {
+  public boolean connect() {
+    if (this.socket.isOpen()) {
       return true;
     }
 
-    isConnecting = true;
-    ATTEMPT = 0;
-    for (int i = 0; i <= MAX_RETRIES; i++) {
-      try {
-        this.connect();
-        isConnecting = false;
-        return true;
-      } catch (Exception e) {
-        log.warn("Could not connect to remote socket");
-        if (i >= MAX_RETRIES) {
-          log.error("Max retries exceeded");
-          isConnecting = false;
-          return false;
-        }
-        try {
-          synchronized (this.thread) {
-            this.thread.wait(cooldown);
-          }
-        } catch (InterruptedException ex) {
-          log.error("Could not wait for cooldown");
-        }
+    boolean result = false;
+    ReadyState state = this.socket.getReadyState();
+    try {
+      if (ReadyState.NOT_YET_CONNECTED.equals(state)) {
+        result = this.socket.connectBlocking();
+      } else if (ReadyState.CLOSING.equals(state) || ReadyState.CLOSED.equals(state)) {
+        result = this.socket.reconnectBlocking();
       }
+    } catch (Exception ignored) {
     }
-    isConnecting = false;
-    return false;
-  }*/
 
-  /*public void connect() throws IOException {
-    ATTEMPT += 1;
-    socket = this.getSocket();
-    log.info("Connected to remote socket");
-    ATTEMPT = 0;
-  }*/
+    if (!result) {
+      log.warn("Could not connect to remote socket");
+    }
+    return result;
+  }
 
-  /*public Socket getSocket() throws IOException {
-    socket = new Socket(RMAC.config.getSocketServerUrlHost(), RMAC.config.getSocketServerUrlPort());
-    socket.setKeepAlive(true);
-    out = new PrintStream(socket.getOutputStream());
-    in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+  public void reconnect() {
+    this.thread = new Thread(this::run);
+    this.thread.start();
+  }
 
-    return socket;
-  }*/
+  public void waitIndefinite() {
+    try {
+      synchronized (this.thread) {
+        this.thread.wait();
+      }
+    } catch (InterruptedException e) {
+      log.error("Could not wait indefinitely");
+    }
+  }
 
-  /*public void emit(String event, String data) {
-    out.print(event + ";:" + data);
-    out.flush();
-  }*/
-
-  /*public void emit(String event, String id, String data) {
-    out.print(event + ";" + id + ":" + data);
-    out.flush();
-  }*/
+  public void waitDefinite(int cooldown) {
+    try {
+      synchronized (this.thread) {
+        this.thread.wait(cooldown);
+      }
+    } catch (InterruptedException e) {
+      log.error("Could not wait until cooldown");
+    }
+  }
 }
