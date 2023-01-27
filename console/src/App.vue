@@ -1,10 +1,5 @@
-<script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
-  <header>
+  <!-- <header>
     <img alt="Vue logo" class="logo" src="@/assets/rmac-logo-combined.png" />
 
     <div class="wrapper">
@@ -15,14 +10,40 @@ import HelloWorld from './components/HelloWorld.vue'
         <RouterLink to="/about">About</RouterLink>
       </nav>
     </div>
-  </header>
+  </header> -->
 
   <RouterView />
 </template>
 
-<script>
+<script setup>
+import { RouterView } from 'vue-router';
+import { useStore } from 'vuex';
+import { onBeforeUnmount } from 'vue';
+import { themes } from '@/store/constants';
 
-export default {
+const store = useStore();
+const setSystemTheme = (theme) => store.dispatch('setSystemTheme', theme);
+
+const mediaChangeHandler = async (e, theme) => e.matches && await setSystemTheme(theme);
+
+const mediaHighContrast = window.matchMedia('(prefers-contrast: more)');
+mediaHighContrast.addEventListener('change', async e => await mediaChangeHandler(e, themes.HIGH_CONTRAST));
+
+const mediaDark = window.matchMedia('(prefers-color-scheme: dark)');
+mediaDark.addEventListener('change', async e => await mediaChangeHandler(e, themes.DARK));
+
+const mediaLight = window.matchMedia('(prefers-color-scheme: light)');
+mediaLight.addEventListener('change', async e => await mediaChangeHandler(e, themes.LIGHT));
+
+onBeforeUnmount(() => {
+  mediaHighContrast.removeEventListener('change', mediaChangeHandler);
+  mediaDark.removeEventListener('change', mediaChangeHandler);
+  mediaLight.removeEventListener('change', mediaChangeHandler);
+});
+</script>
+
+<script>
+/* export default {
   mounted() {
     let pingTimer = -1;
 
@@ -70,7 +91,7 @@ export default {
       }, 30000 + 1000);
     }
   }
-}
+} */
 </script>
 
 <style scoped>

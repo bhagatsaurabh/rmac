@@ -20,7 +20,8 @@
   --c-text-dark-2: rgba(235, 235, 235, 0.64);
 }
 
-:root {
+:root,
+.light {
   --color-background: var(--c-white);
   --color-background-soft: var(--c-white-soft);
   --color-background-mute: var(--c-white-mute);
@@ -30,11 +31,9 @@
 
   --color-heading: var(--c-text-light-1);
   --color-text: var(--c-text-light-1);
-
-  --section-gap: 160px;
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: dark), (prefers-contrast: more) {
   :root {
     --color-background: var(--c-black);
     --color-background-soft: var(--c-black-soft);
@@ -46,6 +45,44 @@
     --color-heading: var(--c-text-dark-1);
     --color-text: var(--c-text-dark-2);
   }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --color-background: var(--c-black);
+    --color-background-soft: var(--c-black);
+    --color-background-mute: var(--c-black);
+
+    --color-border: var(--c-white);
+    --color-border-hover: var(--c-white);
+
+    --color-heading: var(--c-white);
+    --color-text: var(--c-white);
+  }
+}
+
+.dark {
+  --color-background: var(--c-black);
+  --color-background-soft: var(--c-black-soft);
+  --color-background-mute: var(--c-black-mute);
+
+  --color-border: var(--c-divider-dark-2);
+  --color-border-hover: var(--c-divider-dark-1);
+
+  --color-heading: var(--c-text-dark-1);
+  --color-text: var(--c-text-dark-2);
+}
+
+.high-contrast {
+  --color-background: var(--c-black);
+  --color-background-soft: var(--c-black);
+  --color-background-mute: var(--c-black);
+
+  --color-border: var(--c-white);
+  --color-border-hover: var(--c-white);
+
+  --color-heading: var(--c-white);
+  --color-text: var(--c-white);
 }
 
 *,
