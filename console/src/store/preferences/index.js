@@ -40,7 +40,7 @@ const actions = {
     commit(mutationKeys.SET_THEME, newTheme);
     dispatch('updatePreferences');
   },
-  setSystemTheme({}, theme) {
+  setSystemTheme({ commit }, theme) {
     if (typeof theme !== 'symbol' || !Object.values(themes).includes(theme)) {
       return;
     }
@@ -80,7 +80,7 @@ const getters = {
     if (state.theme === themes.SYSTEM) return state.systemTheme;
     return state.theme;
   },
-  getSystemTheme: () => {
+  getSystemTheme: () => () => {
     if (window.matchMedia('(prefers-contrast: more)').matches) {
       return themes.HIGH_CONTRAST;
     }

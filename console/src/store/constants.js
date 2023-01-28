@@ -6,7 +6,7 @@ export const themes = Object.freeze({
 });
 
 export const mutationKeys = Object.freeze({
-  SET_THEME: Symbol('SET_THEME'),
-  SET_PREFERENCES: Symbol('SET_PREFERENCES'),
-  SET_SYSTEM_THEME: Symbol('SET_SYSTEM_THEME'),
+  SET_THEME: 'SET_THEME',
+  SET_PREFERENCES: 'SET_PREFERENCES',
+  SET_SYSTEM_THEME: 'SET_SYSTEM_THEME',
 });
