@@ -1,17 +1,17 @@
 <template>
   <div>
     <img
-      v-hide="theme !== themes.LIGHT"
+      v-hide="currTheme === themes.DARK"
       :alt="alt"
       :style="{ ...config }"
-      class="logo"
+      class="icon"
       :src="lightSource"
     />
     <img
-      v-hide="theme === themes.LIGHT"
+      v-hide="currTheme === themes.LIGHT"
       :alt="alt"
       :style="{ ...config }"
-      class="logo dark"
+      class="icon dark"
       :src="darkSource"
     />
   </div>
@@ -43,7 +43,7 @@ const props = defineProps({
 });
 
 const store = useStore();
-const theme = computed(() => store.getters.theme);
+const currTheme = computed(() => store.getters.getTheme);
 
 const lightSource = new URL(`../../assets/${props.name}.png`, import.meta.url).href;
 const darkSource = new URL(`../../assets/${props.name}-dark.png`, import.meta.url).href;

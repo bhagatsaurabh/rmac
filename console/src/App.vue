@@ -1,32 +1,32 @@
 <template>
-    <RouterView />
+  <RouterView />
 </template>
 
 <script setup>
 import { useStore } from 'vuex';
-import { onBeforeUnmount } from 'vue';
+import { onBeforeUnmount, computed } from 'vue';
 import { themes } from '@/store/constants';
 
 const store = useStore();
-const setSystemTheme = (theme) => store.dispatch('setSystemTheme', theme);
 store.dispatch('loadPreferences');
+const currTheme = computed(() => store.state.preferences.theme);
 
-const mediaChangeHandler = async (e, theme) => e.matches && (await setSystemTheme(theme));
+const mediaChangeHandler = async (e) =>
+  e.matches &&
+  currTheme.value === themes.SYSTEM &&
+  (await store.dispatch('setTheme', themes.SYSTEM));
 
-const mediaHighContrast = window.matchMedia('(prefers-contrast: more)');
-mediaHighContrast.addEventListener(
-  'change',
-  async (e) => await mediaChangeHandler(e, themes.HIGH_CONTRAST)
-);
+const mediaHighCntrst = window.matchMedia('(prefers-contrast: more)');
+mediaHighCntrst.addEventListener('change', mediaChangeHandler);
 
 const mediaDark = window.matchMedia('(prefers-color-scheme: dark)');
-mediaDark.addEventListener('change', async (e) => await mediaChangeHandler(e, themes.DARK));
+mediaDark.addEventListener('change', mediaChangeHandler);
 
 const mediaLight = window.matchMedia('(prefers-color-scheme: light)');
-mediaLight.addEventListener('change', async (e) => await mediaChangeHandler(e, themes.LIGHT));
+mediaLight.addEventListener('change', mediaChangeHandler);
 
 onBeforeUnmount(() => {
-  mediaHighContrast.removeEventListener('change', mediaChangeHandler);
+  mediaHighCntrst.removeEventListener('change', mediaChangeHandler);
   mediaDark.removeEventListener('change', mediaChangeHandler);
   mediaLight.removeEventListener('change', mediaChangeHandler);
 });
