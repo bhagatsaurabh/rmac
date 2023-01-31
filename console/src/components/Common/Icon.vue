@@ -1,14 +1,15 @@
 <template>
   <div>
     <img
-      v-hide="currTheme === themes.DARK"
+      v-hide="!adaptive && theme === themes.DARK"
       :alt="alt"
       :style="{ ...config }"
-      class="icon"
+      :class="adaptive ? 'icon-adaptive' : 'icon'"
       :src="lightSource"
     />
     <img
-      v-hide="currTheme === themes.LIGHT"
+      v-if="!adaptive"
+      v-hide="theme === themes.LIGHT"
       :alt="alt"
       :style="{ ...config }"
       class="icon dark"
@@ -31,6 +32,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  adaptive: {
+    type: Boolean,
+    default: false,
+  },
   config: {
     type: Object,
     required: true,
@@ -43,18 +48,29 @@ const props = defineProps({
 });
 
 const store = useStore();
-const currTheme = computed(() => store.getters.getTheme);
+const theme = computed(() => store.getters.theme);
 
-const lightSource = new URL(`../../assets/${props.name}.png`, import.meta.url).href;
-const darkSource = new URL(`../../assets/${props.name}-dark.png`, import.meta.url).href;
+const metaUrl = import.meta.url;
+const lightSource = new URL(`../../assets/${props.name}.png`, metaUrl).href;
+let darkSource;
+if (!props.adaptive) {
+  darkSource = new URL(`../../assets/${props.name}-dark.png`, metaUrl).href;
+}
 </script>
 
 <style scoped>
-.logo {
+.icon {
   transition: opacity var(--theme-transition-duration) linear;
 }
 
-.dark {
+.icon-adaptive {
+  transition: filter var(--theme-transition-duration) linear;
+}
+html:not([data-theme='light']) .icon-adaptive {
+  filter: invert(1);
+}
+
+.icon.dark {
   position: absolute;
   top: 0;
   left: 0;

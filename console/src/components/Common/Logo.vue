@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="logo-container">
     <img
       v-hide="theme !== themes.LIGHT"
       :alt="alt"
@@ -60,6 +60,10 @@ const darkSource = new URL(
 </script>
 
 <style scoped>
+.logo-container {
+  max-width: fit-content;
+  margin: 0 auto;
+}
 .logo {
   transition: opacity var(--theme-transition-duration) linear;
 }
