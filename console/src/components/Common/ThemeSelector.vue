@@ -1,9 +1,17 @@
 <template>
   <div class="theme-selector">
-    
+    <button v-for="theme in themes">{{ themeName(theme) }}</button>
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { themeName, themes } from '@/store/constants';
+</script>
 
-<style scoped></style>
+<style scoped>
+.theme-selector {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+</style>
