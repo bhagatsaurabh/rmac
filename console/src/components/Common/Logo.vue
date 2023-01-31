@@ -31,6 +31,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  animated: {
+    type: Boolean,
+    default: false,
+  },
   config: {
     type: Object,
     required: true,
@@ -45,8 +49,14 @@ const props = defineProps({
 const store = useStore();
 const theme = computed(() => store.getters.theme);
 
-const lightSource = new URL(`../../assets/${props.name}.png`, import.meta.url).href;
-const darkSource = new URL(`../../assets/${props.name}-dark.png`, import.meta.url).href;
+const lightSource = new URL(
+  `../../assets/${props.name}.${props.animated ? 'gif' : 'png'}`,
+  import.meta.url
+).href;
+const darkSource = new URL(
+  `../../assets/${props.name}-dark.${props.animated ? 'gif' : 'png'}`,
+  import.meta.url
+).href;
 </script>
 
 <style scoped>

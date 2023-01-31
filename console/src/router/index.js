@@ -10,19 +10,33 @@ const router = createRouter({
     {
       path: '/',
       name: 'launch',
-      component: Launch
+      component: Launch,
+      meta: {
+        title: 'RMAC',
+      },
     },
     {
       path: '/dashboard',
       name: 'dashboard',
-      component: Dashboard
+      component: Dashboard,
+      meta: {
+        title: 'RMAC | Dashboard',
+      },
     },
     {
       path: '/host/:hostid',
       name: 'host',
-      component: Host
-    }
-  ]
-})
+      component: Host,
+      meta: {
+        title: 'RMAC | Host',
+      },
+    },
+  ],
+});
 
-export default router
+router.beforeEach((to, _from, next) => {
+  document.title = to.meta.title;
+  next();
+});
+
+export default router;
