@@ -4,10 +4,11 @@
 </template>
 
 <script setup>
-import ThemeSelector from '@/components/Common/ThemeSelector.vue';
 import { useStore } from 'vuex';
 import { onBeforeUnmount, computed } from 'vue';
+
 import { themes } from '@/store/constants';
+import ThemeSelector from '@/components/Common/ThemeSelector.vue';
 
 const store = useStore();
 store.dispatch('loadPreferences');
