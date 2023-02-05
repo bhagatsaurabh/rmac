@@ -10,6 +10,7 @@ import { themeName, themes } from '@/store/constants';
 
 <style scoped>
 .theme-selector {
+  z-index: 5;
   position: absolute;
   top: 0;
   right: 0;

@@ -58,12 +58,18 @@ import Logo from '@/components/Common/Logo.vue';
   border: 1px solid grey;
   margin-top: 0.5rem;
   box-shadow: none;
+  opacity: 0.8;
   transition: box-shadow var(--theme-transition-duration) linear,
-    border var(--theme-transition-duration) linear;
+    border var(--theme-transition-duration) linear, opacity var(--theme-transition-duration) linear;
 }
 
 .input input:focus {
-  border: 0px solid grey;
+  opacity: 1;
+}
+
+.input input:focus {
+  outline: none;
+  /* border: 0px solid grey; */
   box-shadow: 0px 2px 6px 0px grey;
 }
 
