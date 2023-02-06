@@ -6,10 +6,10 @@
     </div>
     <hr />
     <div class="input">
-      <label for="rmac-server-url">
-        Server URL
-        <Info class="infocon">The RMAC Server URL through which all your hosts register.</Info>
-      </label>
+      <Info class="infocon" label="Server URL">
+        <template #title>Server URL</template>
+        <template #desc>The RMAC Server URL through which all your hosts register.</template>
+      </Info>
       <input type="text" name="rmac-server-url" placeholder="my-rmac-server.com" required />
     </div>
   </div>
