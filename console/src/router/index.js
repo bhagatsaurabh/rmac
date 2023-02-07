@@ -39,4 +39,26 @@ router.beforeEach((to, _from, next) => {
   next();
 });
 
+/* router.afterEach((to, from) => {
+  if (from.hash.startsWith('#pop')) {
+    router.replace(router.currentRoute.value.path);
+  }
+}); */
+/* router.beforeEach(async (to, from, next) => {
+  if (from.hash.startsWith('#pop') && !to.params.passThrough) {
+    await router.replace({ ...to, params: { passThrough: true } });
+    next(false);
+  } else {
+    next();
+  }
+}); */
+/* router.beforeEach(async (to, from, next) => {
+  if (from.hash.startsWith('#pop') && !to.params.passThrough) {
+    next();
+    router.replace({ hash: '', params: { passThrough: true } });
+  } else {
+    next();
+  }
+}); */
+
 export default router;

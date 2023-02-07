@@ -4,9 +4,9 @@
       <slot name="title"></slot>
     </label>
     <button @click="showModal = !showModal" :data-title="desc" class="infocon-button">
-      <Icon class="icon" alt="Info" name="icons/info" :config="{ maxWidth: '1rem' }" adaptive />
+      <Icon alt="Info" name="icons/info" adaptive />
     </button>
-    <Modal class="info-modal" :show="showModal" @dismiss="showModal = !showModal">
+    <Modal :title="title" class="info-modal" :show="showModal" @dismiss="showModal = !showModal">
       <slot name="desc"></slot>
     </Modal>
   </div>
@@ -21,6 +21,9 @@ import Modal from './Modal.vue';
 const slots = useSlots();
 const showModal = ref(false);
 
+const title = computed(() => {
+  return slots.title()[0].children;
+});
 const desc = computed(() => {
   return slots.desc()[0].children;
 });
@@ -31,14 +34,14 @@ const desc = computed(() => {
   display: block !important;
 }
 
-.icon {
+/* .icon {
   pointer-events: none;
-}
+} */
 .infocon-button {
   padding: 0;
   background-color: transparent;
   border: none;
-  vertical-align: middle;
+  /* vertical-align: middle; */
   line-height: 1rem;
   margin-left: 0.5rem;
 }
