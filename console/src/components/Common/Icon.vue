@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <span class="icon-container">
     <img
       v-hide="!adaptive && theme === themes.DARK"
       :alt="alt"
@@ -15,7 +15,7 @@
       class="icon dark"
       :src="darkSource"
     />
-  </div>
+  </span>
 </template>
 
 <script setup>
@@ -38,7 +38,7 @@ const props = defineProps({
   },
   config: {
     type: Object,
-    required: true,
+    default: { maxWidth: '1rem' },
     validator({ maxHeight, maxWidth }) {
       if (!((maxHeight != null) ^ (maxWidth != null))) return false;
 
@@ -59,6 +59,9 @@ if (!props.adaptive) {
 </script>
 
 <style scoped>
+.icon-container {
+  /* vertical-align: -8%; */
+}
 .icon {
   transition: opacity var(--theme-transition-duration) linear;
 }

@@ -5,10 +5,17 @@
       <h1><pre>C o n s o l e</pre></h1>
     </div>
     <hr />
+    <ExternalLink to="https://github.com/saurabh-prosoft/rmac">
+      <template #prefix>
+        <Icon alt="GitHub icon" name="icons/github" adaptive></Icon>
+      </template>
+      GitHub
+    </ExternalLink>
+    <hr />
     <div class="input">
-      <Info class="infocon" label="Server URL">
+      <Info class="infocon">
         <template #title>Server URL</template>
-        <template #desc>The RMAC Server URL through which all your hosts register.</template>
+        <template #desc>The RMAC Server through which all your hosts register.</template>
       </Info>
       <input type="text" name="rmac-server-url" placeholder="my-rmac-server.com" required />
     </div>
@@ -16,6 +23,8 @@
 </template>
 
 <script setup>
+import ExternalLink from '@/components/Common/ExternalLink.vue';
+import Icon from '@/components/Common/Icon.vue';
 import Info from '@/components/Common/Info.vue';
 import Logo from '@/components/Common/Logo.vue';
 </script>
@@ -78,8 +87,6 @@ import Logo from '@/components/Common/Logo.vue';
 }
 .infocon {
   display: inline-block;
-  vertical-align: middle;
-  margin-left: 0.5rem;
 }
 
 @media (min-width: 768px) {

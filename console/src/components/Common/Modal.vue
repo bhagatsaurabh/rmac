@@ -1,5 +1,5 @@
 <template>
-  <Backdrop :show="show" @dismiss="$emit('dismiss')" />
+  <Backdrop :show="show" @dismiss="router.back()" />
   <Transition v-bind="$attrs" name="modal">
     <div v-if="show" class="modal">
       <Icon
@@ -7,10 +7,10 @@
         class="close-icon"
         alt="Close icon"
         name="icons/cancel"
-        :config="{ maxWidth: '1rem' }"
         adaptive
-        @click="$emit('dismiss')"
+        @click="router.back()"
       />
+      <div class="title">{{ title }}</div>
       <div class="content"><slot></slot></div>
       <div v-if="yes || no || ok || close" class="controls">
         <button v-if="yes" class="control">Yes</button>
@@ -23,12 +23,20 @@
 </template>
 
 <script setup>
+import { watch, onBeforeUnmount, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import Backdrop from './Backdrop.vue';
 import Icon from './Icon.vue';
 
-defineEmits(['dismiss']);
+const emit = defineEmits(['dismiss']);
+
+const router = useRouter();
 
 const props = defineProps({
+  title: {
+    type: String,
+    required: true,
+  },
   show: {
     type: Boolean,
     default: false,
@@ -50,6 +58,27 @@ const props = defineProps({
     default: false,
   },
 });
+
+let unregisterGuard = () => {};
+watch(
+  () => props.show,
+  async (newVal, oldVal) => {
+    if (oldVal !== newVal && newVal) {
+      await router.push({ hash: `#pop-${props.title.toLowerCase().replace(' ', '-')}` });
+
+      unregisterGuard = router.beforeEach((_to, from, next) => {
+        if (from.hash.startsWith('#pop')) {
+          emit('dismiss');
+        }
+        unregisterGuard();
+        next();
+      });
+    }
+  },
+  { immediate: true }
+);
+
+onBeforeUnmount(unregisterGuard);
 </script>
 
 <style scoped>
@@ -80,12 +109,13 @@ const props = defineProps({
 .modal .content {
   padding: 0 0.2rem;
 }
+
+.modal .title {
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
 .close-icon {
-  position: relative;
-  right: 0;
-  font-size: 0;
-  width: fit-content;
-  margin-left: auto;
-  margin-bottom: 0.5rem;
+  margin-left: calc(100% - 1.1rem);
 }
 </style>
