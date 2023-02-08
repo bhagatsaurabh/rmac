@@ -60,7 +60,7 @@ if (!props.adaptive) {
 
 <style scoped>
 .icon-container {
-  /* vertical-align: -8%; */
+  vertical-align: -18%;
 }
 .icon {
   transition: opacity var(--theme-transition-duration) linear;

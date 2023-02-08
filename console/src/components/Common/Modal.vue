@@ -117,5 +117,6 @@ onBeforeUnmount(unregisterGuard);
 
 .close-icon {
   margin-left: calc(100% - 1.1rem);
+  vertical-align: unset;
 }
 </style>

@@ -1,6 +1,7 @@
 <template>
   <ThemeSelector />
   <RouterView />
+  <Footer />
 </template>
 
 <script setup>
@@ -9,15 +10,17 @@ import { onBeforeUnmount, computed } from 'vue';
 
 import { themes } from '@/store/constants';
 import ThemeSelector from '@/components/Common/ThemeSelector.vue';
+import Footer from './components/Common/Footer.vue';
 
 const store = useStore();
 store.dispatch('loadPreferences');
 const currTheme = computed(() => store.state.preferences.theme);
 
-const mediaChangeHandler = async (e) =>
-  e.matches &&
-  currTheme.value === themes.SYSTEM &&
-  (await store.dispatch('setTheme', themes.SYSTEM));
+const mediaChangeHandler = async (e) => {
+  if (e.matches && currTheme.value === themes.SYSTEM) {
+    await store.dispatch('setTheme', themes.SYSTEM);
+  }
+};
 
 const mediaHighCntrst = window.matchMedia('(prefers-contrast: more)');
 mediaHighCntrst.addEventListener('change', mediaChangeHandler);

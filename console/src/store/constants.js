@@ -6,7 +6,7 @@ const themes = Object.freeze({
 });
 
 const themeNames = {
-  system: 'Auto',
+  system: 'System',
   light: 'Light',
   dark: 'Dark',
   'high-contrast': 'High Contrast',
@@ -16,6 +16,7 @@ const themeName = (theme) => themeNames[theme];
 
 const mutationKeys = Object.freeze({
   SET_THEME: 'SET_THEME',
+  SET_SYSTEM_THEME: 'SET_SYSTEM_THEME',
 });
 
 export { themes, themeName, mutationKeys };

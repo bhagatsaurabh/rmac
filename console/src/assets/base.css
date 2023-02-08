@@ -20,6 +20,7 @@
   --c-text-dark-2: rgba(235, 235, 235, 0.64);
 
   --theme-transition-duration: 0.3s;
+  --fx-transition-duration: 0.1s;
 }
 
 :root,

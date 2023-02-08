@@ -1,7 +1,19 @@
 <template>
-  <TransitionGroup class="theme-selector" name="themes" tag="div">
-    <button class="theme-item" v-for="theme in themesList" :key="theme">
-      {{ themeName(theme) }}
+  <TransitionGroup :class="{ 'theme-selector': true, open: isOpen }" name="themes" tag="nav">
+    <button
+      :data-label="themeLabel(theme)"
+      :class="{ 'theme-item': true, active: currTheme === theme }"
+      v-for="(theme, index) in themesList"
+      :key="theme"
+      :style="{ top: `${index * 3.5}rem` }"
+      @click="themeSelectHandler(theme)"
+    >
+      <Icon
+        :alt="`${themeName(theme)} theme icon`"
+        :name="`icons/theme-${theme}`"
+        :config="{ maxWidth: '2rem' }"
+        adaptive
+      />
     </button>
   </TransitionGroup>
 </template>
@@ -10,12 +22,26 @@
 import { themeName, themes } from '@/store/constants';
 import { computed, watch, ref } from 'vue';
 import { useStore } from 'vuex';
+import Icon from './Icon.vue';
 
 const store = useStore();
 
 let themesList = ref(Object.values(themes));
+const isOpen = ref(false);
 
 const currTheme = computed(() => store.state.preferences.theme);
+const sysTheme = computed(() => store.state.preferences.sysTheme);
+const themeLabel = (theme) => {
+  const tName = themeName(theme);
+  return tName + (tName === 'System' ? ` (${sysTheme.value})` : '');
+};
+
+const themeSelectHandler = async (theme) => {
+  if (currTheme.value !== theme) {
+    await store.dispatch('setTheme', theme);
+  }
+  isOpen.value = !isOpen.value;
+};
 
 watch(
   currTheme,
@@ -36,13 +62,57 @@ watch(
 .theme-selector {
   z-index: 5;
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 0.8rem;
+  right: 0.8rem;
   direction: rtl;
+}
+.theme-selector:not(.open) .theme-item {
+  top: 0rem !important;
+  opacity: 0;
 }
 
 .theme-item {
   display: block;
+  transition: all var(--fx-transition-duration) ease;
+  border: none;
+  background-color: transparent;
+  font-size: 0;
+  border-radius: 999px;
+  box-shadow: 0 0 10px 0 #646464;
+  padding: 0.5rem;
+  position: absolute;
+  top: 0rem;
+  z-index: 1;
+}
+
+.theme-item.active {
+  z-index: 2;
+  opacity: 1 !important;
+}
+
+.theme-item:not(:last-child) {
+  margin-bottom: 0.5rem;
+}
+.theme-item::before {
+  content: attr(data-label);
+  opacity: 0;
+  font-size: 1rem;
+  position: absolute;
+  white-space: nowrap;
+  top: 50%;
+  right: calc(100% + 1rem);
+  transform: translate(10%, -50%);
+  transition: transform var(--fx-transition-duration) linear,
+    opacity var(--fx-transition-duration) linear;
+  padding: 0.2rem 0.5rem;
+  pointer-events: none;
+}
+.theme-item:hover::before,
+.theme-item:focus::before,
+.theme-selector.open .theme-item::before {
+  opacity: 1;
+  transform: translate(0, -50%);
+  outline: none;
 }
 
 .themes-move,
@@ -50,13 +120,10 @@ watch(
 .themes-leave-active {
   transition: all 0.5s ease;
 }
-
 .themes-enter-from,
 .themes-leave-to {
   opacity: 0;
-  /* transform: translateX(30px); */
 }
-
 .themes-leave-active {
   position: absolute;
 }
