@@ -2,12 +2,16 @@ import { mutationKeys, themes } from '@/store/constants';
 
 const state = () => ({
   theme: themes.SYSTEM,
+  sysTheme: themes.LIGHT,
 });
 
 const mutations = {
   [mutationKeys.SET_THEME]: (state, theme) => {
     state.theme = '';
     state.theme = theme;
+  },
+  [mutationKeys.SET_SYSTEM_THEME]: (state, theme) => {
+    state.sysTheme = theme;
   },
 };
 
@@ -22,8 +26,13 @@ const actions = {
 
     if (newTheme === themes.SYSTEM) {
       document.documentElement.className = themeClass;
+      commit(mutationKeys.SET_SYSTEM_THEME, systemTheme);
     } else {
-      document.documentElement.classList.replace(getThemeClass(), themeClass);
+      if (document.documentElement.className === '') {
+        document.documentElement.classList.add(themeClass);
+      } else {
+        document.documentElement.classList.replace(getThemeClass(), themeClass);
+      }
     }
 
     commit(mutationKeys.SET_THEME, newTheme);

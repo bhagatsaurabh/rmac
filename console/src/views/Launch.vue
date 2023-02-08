@@ -1,25 +1,31 @@
 <template>
-  <div class="launch">
-    <div class="banner">
+  <main class="launch">
+    <section class="banner">
       <Logo alt="RMAC logo" :config="{ maxHeight: '10rem' }" name="rmac-logo-combined" animated />
       <h1><pre>C o n s o l e</pre></h1>
-    </div>
-    <hr />
-    <ExternalLink to="https://github.com/saurabh-prosoft/rmac">
-      <template #prefix>
-        <Icon alt="GitHub icon" name="icons/github" adaptive></Icon>
-      </template>
-      GitHub
-    </ExternalLink>
-    <hr />
-    <div class="input">
+    </section>
+    <section class="links">
+      <ExternalLink to="https://github.com/saurabh-prosoft/rmac">
+        <template #prefix>
+          <Icon alt="GitHub icon" name="icons/github" adaptive></Icon>
+        </template>
+        GitHub
+      </ExternalLink>
+      <ExternalLink to="https://github.com/saurabh-prosoft/rmac">
+        <template #prefix>
+          <Icon alt="Help icon" name="icons/help" adaptive></Icon>
+        </template>
+        Help
+      </ExternalLink>
+    </section>
+    <section class="input">
       <Info class="infocon">
         <template #title>Server URL</template>
         <template #desc>The RMAC Server through which all your hosts register.</template>
       </Info>
       <input type="text" name="rmac-server-url" placeholder="my-rmac-server.com" required />
-    </div>
-  </div>
+    </section>
+  </main>
 </template>
 
 <script setup>
@@ -34,25 +40,21 @@ import Logo from '@/components/Common/Logo.vue';
   display: flex;
   justify-content: center;
   flex-direction: column;
-  height: 100vh;
+  height: calc(100vh - 3.5rem - 1px);
   text-align: center;
 }
-.launch .banner {
+.launch section:not(:last-child) {
+  margin-bottom: 1.5rem;
 }
-.launch hr {
-  margin: 1rem 30vw 1.5rem 30vw;
-  border: none;
-  border-style: solid;
-  border-color: darkgray;
-  border-width: 1px;
-  border-top: none;
+.launch .links a {
+  margin: 0.5rem 0.5rem;
 }
-
 .launch h1 pre {
   font-family: Arial, Helvetica, sans-serif;
   color: rgb(120 120 120);
 }
-.launch .input {
+.launch .banner {
+  margin-bottom: 2rem !important;
 }
 
 .input label {
@@ -68,18 +70,14 @@ import Logo from '@/components/Common/Logo.vue';
   margin-top: 0.5rem;
   box-shadow: none;
   opacity: 0.8;
-  transition: box-shadow var(--theme-transition-duration) linear,
-    border var(--theme-transition-duration) linear, opacity var(--theme-transition-duration) linear;
+  transition: box-shadow var(--fx-transition-duration) linear,
+    border var(--fx-transition-duration) linear, opacity var(--fx-transition-duration) linear;
 }
 
 .input input:focus {
   opacity: 1;
-}
-
-.input input:focus {
   outline: none;
-  /* border: 0px solid grey; */
-  box-shadow: 0px 2px 6px 0px grey;
+  box-shadow: 4px 4px 10px -2px darkgrey;
 }
 
 .input input:focus {
