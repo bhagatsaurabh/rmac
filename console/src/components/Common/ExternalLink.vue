@@ -7,9 +7,10 @@
         class="external-link-icon"
         alt="External link icon"
         name="icons/external-link"
-        :config="{ maxWidth: '.8rem', verticalAlign: 'super' }"
+        :size="0.8"
+        :config="{ verticalAlign: 'super' }"
         adaptive
-      ></Icon>
+      />
     </button>
   </a>
 </template>
@@ -27,18 +28,22 @@ defineProps({
 
 <style scoped>
 .external-link {
+  color: var(--c-text);
 }
 .external-link button {
+  color: inherit;
   padding: 0.3rem 1rem;
-  background-color: rgb(243 243 243);
+  background-color: var(--c-background-mute);
   cursor: pointer;
-  border: none;
-  box-shadow: 2px 2px 5px 0 #8b8b8b;
-  transition: box-shadow 0.1s linear;
+  border: 1px solid var(--c-box-border);
+  box-shadow: 2px 2px 5px 0 var(--c-shadow);
+  transition: box-shadow var(--fx-transition-duration) linear,
+    background-color var(--theme-transition-duration) linear,
+    color var(--theme-transition-duration) linear, border var(--theme-transition-duration) linear;
 }
 
 .external-link button:active {
-  box-shadow: 2px 2px 5px -2px #8b8b8b, 3px 3px 5px 0 inset lightgrey;
+  box-shadow: 2px 2px 5px -2px var(--c-shadow), 3px 3px 5px 0 inset var(--c-shadow-soft);
 }
 
 .external-link-icon {

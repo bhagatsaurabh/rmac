@@ -7,11 +7,13 @@
       :key="theme"
       :style="{ top: `${index * 3.5}rem` }"
       @click="themeSelectHandler(theme)"
+      :tabindex="currTheme === theme || isOpen ? '0' : '-1'"
+      ref="themeButtons"
     >
       <Icon
         :alt="`${themeName(theme)} theme icon`"
         :name="`icons/theme-${theme}`"
-        :config="{ maxWidth: '2rem' }"
+        :size="2"
         adaptive
       />
     </button>
@@ -20,7 +22,7 @@
 
 <script setup>
 import { themeName, themes } from '@/store/constants';
-import { computed, watch, ref } from 'vue';
+import { computed, watch, ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import Icon from './Icon.vue';
 
@@ -28,6 +30,7 @@ const store = useStore();
 
 let themesList = ref(Object.values(themes));
 const isOpen = ref(false);
+const themeButtons = ref([]);
 
 const currTheme = computed(() => store.state.preferences.theme);
 const sysTheme = computed(() => store.state.preferences.sysTheme);
@@ -41,6 +44,10 @@ const themeSelectHandler = async (theme) => {
     await store.dispatch('setTheme', theme);
   }
   isOpen.value = !isOpen.value;
+
+  if (!isOpen.value) {
+    themeButtons.value.find((themeButton) => themeButton.classList.contains('active')).blur();
+  }
 };
 
 watch(
@@ -65,6 +72,7 @@ watch(
   top: 0.8rem;
   right: 0.8rem;
   direction: rtl;
+  color: var(--c-text);
 }
 .theme-selector:not(.open) .theme-item {
   top: 0rem !important;
@@ -72,19 +80,23 @@ watch(
 }
 
 .theme-item {
+  color: var(--c-text);
+  border: 1px solid var(--c-box-border);
   display: block;
   transition: all var(--fx-transition-duration) ease;
-  border: none;
   background-color: transparent;
   font-size: 0;
   border-radius: 999px;
-  box-shadow: 0 0 10px 0 #646464;
+  box-shadow: 0 0 10px 0 var(--c-shadow);
   padding: 0.5rem;
   position: absolute;
   top: 0rem;
   z-index: 1;
+  cursor: pointer;
 }
-
+.theme-item:active {
+  box-shadow: 0 0 10px -2px var(--c-shadow), 4px 4px 10px -5px var(--c-shadow-soft) inset;
+}
 .theme-item.active {
   z-index: 2;
   opacity: 1 !important;
@@ -107,12 +119,19 @@ watch(
   padding: 0.2rem 0.5rem;
   pointer-events: none;
 }
-.theme-item:hover::before,
+
 .theme-item:focus::before,
 .theme-selector.open .theme-item::before {
   opacity: 1;
   transform: translate(0, -50%);
   outline: none;
+}
+@media (hover: hover) {
+  .theme-item:hover::before {
+    opacity: 1;
+    transform: translate(0, -50%);
+    outline: none;
+  }
 }
 
 .themes-move,

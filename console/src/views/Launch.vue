@@ -25,14 +25,28 @@
       </Info>
       <input type="text" name="rmac-server-url" placeholder="my-rmac-server.com" required />
     </section>
+    <section class="controls">
+      <Button :busy="isConnecting" @click="handleConnect" icon="right-arrow" icon-right>
+        Connect
+      </Button>
+    </section>
   </main>
 </template>
 
 <script setup>
+import { ref } from 'vue';
+
+import Button from '@/components/Common/Button.vue';
 import ExternalLink from '@/components/Common/ExternalLink.vue';
 import Icon from '@/components/Common/Icon.vue';
 import Info from '@/components/Common/Info.vue';
 import Logo from '@/components/Common/Logo.vue';
+
+const isConnecting = ref(false);
+
+const handleConnect = () => {
+  isConnecting.value = !isConnecting.value;
+};
 </script>
 
 <style scoped>
@@ -51,7 +65,7 @@ import Logo from '@/components/Common/Logo.vue';
 }
 .launch h1 pre {
   font-family: Arial, Helvetica, sans-serif;
-  color: rgb(120 120 120);
+  color: var(--c-text-mute);
 }
 .launch .banner {
   margin-bottom: 2rem !important;
@@ -61,30 +75,37 @@ import Logo from '@/components/Common/Logo.vue';
   display: block;
 }
 .input input {
+  color: var(--c-text);
   width: 60vw;
   text-align: center;
   font-size: 1.1rem;
   padding: 0.3rem 1rem;
   border-radius: 999px;
-  border: 1px solid grey;
+  border: 1px solid var(--c-border);
+  background-color: var(--c-background);
   margin-top: 0.5rem;
-  box-shadow: none;
+  box-shadow: 0 0 5px 1px var(--c-shadow-soft) inset;
   opacity: 0.8;
   transition: box-shadow var(--fx-transition-duration) linear,
-    border var(--fx-transition-duration) linear, opacity var(--fx-transition-duration) linear;
+    border var(--fx-transition-duration) linear, opacity var(--fx-transition-duration) linear,
+    var(--theme-bg-transition);
 }
 
 .input input:focus {
   opacity: 1;
   outline: none;
-  box-shadow: 4px 4px 10px -2px darkgrey;
+  box-shadow: 0 0 0 0 var(--c-shadow-soft) inset, 4px 4px 10px -2px var(--c-shadow);
 }
 
 .input input:focus {
-  outline: grey;
+  outline: var(--c-border);
 }
 .infocon {
   display: inline-block;
+}
+
+.controls button {
+  font-size: 1.1rem;
 }
 
 @media (min-width: 768px) {
