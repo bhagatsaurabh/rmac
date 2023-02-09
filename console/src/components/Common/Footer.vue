@@ -10,6 +10,8 @@
 footer.footer {
   text-align: center;
   padding: 1rem 0rem;
-  border-top: 1px solid lightgray;
+  border-top: 1px solid var(--c-border);
+  color: var(--c-text-soft) !important;
+  transition: var(--theme-color-transition), var(--theme-border-transition);
 }
 </style>

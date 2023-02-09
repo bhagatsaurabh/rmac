@@ -3,15 +3,19 @@
     <img
       v-hide="!adaptive && theme === themes.DARK"
       :alt="alt"
-      :style="{ ...config }"
-      :class="adaptive ? 'icon-adaptive' : 'icon'"
+      :style="{ ...config, maxWidth: `${size}rem` }"
+      :class="{
+        'icon-adaptive': adaptive,
+        icon: !adaptive,
+        invert,
+      }"
       :src="lightSource"
     />
     <img
       v-if="!adaptive"
       v-hide="theme === themes.LIGHT"
       :alt="alt"
-      :style="{ ...config }"
+      :style="{ ...config, maxWidth: `${size}rem` }"
       class="icon dark"
       :src="darkSource"
     />
@@ -36,14 +40,17 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  size: {
+    type: Number,
+    default: 1,
+  },
+  invert: {
+    type: Boolean,
+    default: false,
+  },
   config: {
     type: Object,
-    default: { maxWidth: '1rem' },
-    validator({ maxHeight, maxWidth }) {
-      if (!((maxHeight != null) ^ (maxWidth != null))) return false;
-
-      return true;
-    },
+    default: {},
   },
 });
 
@@ -69,8 +76,22 @@ if (!props.adaptive) {
 .icon-adaptive {
   transition: filter var(--theme-transition-duration) linear;
 }
-html:not([data-theme='light']) .icon-adaptive {
+.icon-adaptive.invert {
   filter: invert(1);
+}
+html[data-theme='dark'] .icon-adaptive:not(.invert) {
+  /* #dddddd */
+  filter: invert(93%) sepia(0%) saturate(2975%) hue-rotate(147deg) brightness(126%) contrast(73%);
+}
+html[data-theme='dark'] .icon-adaptive.invert {
+  /* #222222 */
+  filter: invert(9%) sepia(0%) saturate(509%) hue-rotate(170deg) brightness(93%) contrast(87%);
+}
+html[data-theme='high-contrast'] .icon-adaptive:not(.invert) {
+  filter: invert(1);
+}
+html[data-theme='high-contrast'] .icon-adaptive.invert {
+  filter: invert(0);
 }
 
 .icon.dark {

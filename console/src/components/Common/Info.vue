@@ -1,8 +1,8 @@
 <template>
   <div class="infocon-container">
-    <label for="rmac-server-url">
+    <span>
       <slot name="title"></slot>
-    </label>
+    </span>
     <button @click="showModal = !showModal" :data-title="desc" class="infocon-button">
       <Icon alt="Info" name="icons/info" adaptive />
     </button>
@@ -32,16 +32,13 @@ const desc = computed(() => {
 <style scoped>
 .infocon-container {
   display: block !important;
+  transition: var(--theme-color-transition);
 }
 
-/* .icon {
-  pointer-events: none;
-} */
 .infocon-button {
   padding: 0;
   background-color: transparent;
   border: none;
-  /* vertical-align: middle; */
   line-height: 1rem;
   margin-left: 0.5rem;
 }
@@ -53,23 +50,24 @@ const desc = computed(() => {
     position: absolute;
     top: -50%;
     left: 50%;
-    z-index: 99;
+    z-index: 101;
     margin-left: -5px;
     border-width: 5px;
     border-style: solid;
-    border-color: #e9e9e9 transparent transparent transparent;
+    border-color: var(--c-background-mute) transparent transparent transparent;
   }
 
   .infocon-button:focus:after,
   .infocon-button:hover:after {
     content: attr(data-title);
     z-index: 100;
-    background-color: #e9e9e9;
+    background-color: var(--c-background-mute);
+    color: var(--c-text);
     padding: 0.5rem 1rem;
     opacity: 0.9;
     border-radius: 0.5rem;
-    border: 1px solid lightgrey;
-    box-shadow: 0 0 10px 0px #ababab;
+    border: 1px solid var(--c-box-border);
+    box-shadow: 0 0 10px 0px var(--c-shadow);
     transform: translate(-50%, -100%);
     top: -50%;
     position: absolute;

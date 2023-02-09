@@ -23,7 +23,7 @@
 </template>
 
 <script setup>
-import { watch, onBeforeUnmount, ref } from 'vue';
+import { watch, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import Backdrop from './Backdrop.vue';
 import Icon from './Icon.vue';
@@ -85,15 +85,16 @@ onBeforeUnmount(unregisterGuard);
 .modal {
   position: fixed;
   z-index: 102;
-  border: 1px solid;
-  box-shadow: 0 0 10px 0px #b3b3b3;
+  border: 1px solid var(--c-text);
+  box-shadow: 0 0 10px 0px var(--c-shadow);
   left: 10vw;
   right: 10vw;
   top: 50vh;
   opacity: 1;
-  background-color: #f1f1f1;
+  background-color: var(--c-background-mute);
   transform: translateY(-50%);
   padding: 0.3rem 0.3rem 1rem 0.3rem;
+  color: var(--c-text);
 }
 
 .modal-enter-active,
