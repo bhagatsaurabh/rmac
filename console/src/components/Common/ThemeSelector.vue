@@ -9,6 +9,7 @@
       @click="themeSelectHandler(theme)"
       :tabindex="currTheme === theme || isOpen ? '0' : '-1'"
       ref="themeButtons"
+      @blur="currTheme === theme && activeThemeBlurHandler()"
     >
       <Icon
         :alt="`${themeName(theme)} theme icon`"
@@ -39,15 +40,23 @@ const themeLabel = (theme) => {
   return tName + (tName === 'System' ? ` (${sysTheme.value})` : '');
 };
 
+let handle;
 const themeSelectHandler = async (theme) => {
   if (currTheme.value !== theme) {
     await store.dispatch('setTheme', theme);
+    isOpen.value = false;
+    clearTimeout(handle);
+  } else {
+    isOpen.value = !isOpen.value;
   }
-  isOpen.value = !isOpen.value;
 
   if (!isOpen.value) {
     themeButtons.value.find((themeButton) => themeButton.classList.contains('active')).blur();
   }
+};
+const activeThemeBlurHandler = () => {
+  clearTimeout(handle);
+  handle = setTimeout(() => (isOpen.value = false), 70);
 };
 
 watch(
@@ -116,8 +125,12 @@ watch(
   transform: translate(10%, -50%);
   transition: transform var(--fx-transition-duration) linear,
     opacity var(--fx-transition-duration) linear;
-  padding: 0.2rem 0.5rem;
+  padding: 0.4rem 1.2rem;
   pointer-events: none;
+  background-color: var(--c-background-mute);
+  border-radius: 999px;
+  border: 1px solid var(--c-box-border);
+  box-shadow: 0 0 8px -1px var(--c-shadow);
 }
 
 .theme-item:focus::before,
