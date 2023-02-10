@@ -29,6 +29,9 @@
       <Button :busy="isConnecting" @click="handleConnect" icon="right-arrow" icon-right>
         Connect
       </Button>
+      <span class="launch-status">
+        {{ statusMsg }}
+      </span>
     </section>
   </main>
 </template>
@@ -43,10 +46,39 @@ import Info from '@/components/Common/Info.vue';
 import Logo from '@/components/Common/Logo.vue';
 
 const isConnecting = ref(false);
+const statusMsg = ref('');
 
-const handleConnect = () => {
-  isConnecting.value = !isConnecting.value;
+const emit = defineEmits(['connected']);
+
+let socket;
+const handleFinish = (err) => {
+  if (err) {
+    
+  }
+  isConnecting.value = false;
 };
+const handleConnect = () => {
+  isConnecting.value = true;
+
+  if (!import.meta.env.VITE_RMAC_BRIDGE_SERVER_URL) {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    socket = new WebSocket(`${protocol}//${window.location.host}`);
+  } else {
+    socket = new WebSocket(import.meta.env.VITE_RMAC_BRIDGE_SERVER_URL);
+  }
+
+  socket.addEventListener('open', handleFinish);
+  socket.addEventListener('close', handleFinish);
+  socket.addEventListener('error', handleFinish);
+
+  emit('connected', socket);
+};
+
+onBeforeUnmount(() => {
+  socket?.removeEventListener('open', handleFinish);
+  socket?.removeEventListener('close', handleFinish);
+  socket?.removeEventListener('error', handleFinish);
+});
 </script>
 
 <style scoped>

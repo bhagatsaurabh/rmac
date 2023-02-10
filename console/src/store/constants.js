@@ -17,6 +17,7 @@ const themeName = (theme) => themeNames[theme];
 const mutationKeys = Object.freeze({
   SET_THEME: 'SET_THEME',
   SET_SYSTEM_THEME: 'SET_SYSTEM_THEME',
+  SET_CONNECTED: 'SET_CONNECTED',
 });
 
 export { themes, themeName, mutationKeys };

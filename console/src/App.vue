@@ -1,12 +1,12 @@
 <template>
   <ThemeSelector />
-  <RouterView />
+  <RouterView @connected="handleConnected" />
   <Footer />
 </template>
 
 <script setup>
 import { useStore } from 'vuex';
-import { onBeforeUnmount, computed } from 'vue';
+import { onBeforeUnmount, computed, provide } from 'vue';
 
 import { themes } from '@/store/constants';
 import ThemeSelector from '@/components/Common/ThemeSelector.vue';
@@ -31,6 +31,8 @@ mediaDark.addEventListener('change', mediaChangeHandler);
 const mediaLight = window.matchMedia('(prefers-color-scheme: light)');
 mediaLight.addEventListener('change', mediaChangeHandler);
 
+const handleConnected = (socket) => provide('socket', socket);
+
 onBeforeUnmount(() => {
   mediaHighCntrst.removeEventListener('change', mediaChangeHandler);
   mediaDark.removeEventListener('change', mediaChangeHandler);
@@ -39,13 +41,13 @@ onBeforeUnmount(() => {
 </script>
 
 <script>
-/* export default {
+export default {
   mounted() {
     let pingTimer = -1;
 
     let socket;
     if (!import.meta.env.VITE_RMAC_BRIDGE_SERVER_URL) {
-      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       socket = new WebSocket(`${protocol}//${window.location.host}`);
     } else {
       socket = new WebSocket(import.meta.env.VITE_RMAC_BRIDGE_SERVER_URL);
@@ -63,7 +65,9 @@ onBeforeUnmount(() => {
       console.log('Connected to bridging server');
       heartbeat();
       socket.send(JSON.stringify({ event: 'identity', type: 'console' }));
-      setTimeout(() => { socket.send(JSON.stringify({ event: 'config', type: 'console' })) }, 5000);
+      setTimeout(() => {
+        socket.send(JSON.stringify({ event: 'config', type: 'console' }));
+      }, 5000);
     };
     socket.onmessage = (messageEvent) => {
       if (messageEvent.data === '?') {
@@ -85,9 +89,9 @@ onBeforeUnmount(() => {
       pingTimer = setTimeout(() => {
         socket.close();
       }, 30000 + 1000);
-    }
-  }
-} */
+    };
+  },
+};
 </script>
 
 <style scoped></style>

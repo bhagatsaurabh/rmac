@@ -2,9 +2,8 @@
   <button
     :class="{
       control: true,
-      busy,
-      disabled,
     }"
+    :disabled="disabled || busy"
   >
     <Icon
       class="mr-0p5"
@@ -71,7 +70,8 @@ defineProps({
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
   transition: var(--theme-bg-transition), var(--theme-color-transition),
-    var(--theme-border-transition), box-shadow var(--fx-transition-duration) linear;
+    var(--theme-border-transition), box-shadow var(--fx-transition-duration) linear,
+    opacity var(--fx-transition-duration) linear;
   box-shadow: 0 0 10px 0 var(--c-shadow);
 }
 .control:active {
@@ -81,6 +81,9 @@ defineProps({
   .control:hover {
     background-color: var(--c-text-mute);
   }
+}
+.control:disabled {
+  opacity: 0.6;
 }
 
 .control:deep(span) {
