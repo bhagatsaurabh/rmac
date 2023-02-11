@@ -44,6 +44,8 @@ import ExternalLink from '@/components/Common/ExternalLink.vue';
 import Icon from '@/components/Common/Icon.vue';
 import Info from '@/components/Common/Info.vue';
 import Logo from '@/components/Common/Logo.vue';
+import bus from '@/event';
+import { notifications } from '@/store/constants';
 
 const isConnecting = ref(false);
 const statusMsg = ref('');
@@ -51,11 +53,14 @@ const statusMsg = ref('');
 const emit = defineEmits(['connected']);
 
 let socket;
-const handleFinish = (err) => {
-  if (err) {
-    
-  }
-  isConnecting.value = false;
+const handleFinish = () => (isConnecting.value = false);
+const handleError = (err) => {
+  bus.emit('notify', notifications.ECONN_FAILED, err);
+  handleFinish();
+};
+const handleSuccess = () => {
+  emit('connected', socket);
+  handleFinish();
 };
 const handleConnect = () => {
   isConnecting.value = true;
@@ -67,17 +72,15 @@ const handleConnect = () => {
     socket = new WebSocket(import.meta.env.VITE_RMAC_BRIDGE_SERVER_URL);
   }
 
-  socket.addEventListener('open', handleFinish);
+  socket.addEventListener('open', handleSuccess);
   socket.addEventListener('close', handleFinish);
-  socket.addEventListener('error', handleFinish);
-
-  emit('connected', socket);
+  socket.addEventListener('error', handleError);
 };
 
 onBeforeUnmount(() => {
-  socket?.removeEventListener('open', handleFinish);
+  socket?.removeEventListener('open', handleSuccess);
   socket?.removeEventListener('close', handleFinish);
-  socket?.removeEventListener('error', handleFinish);
+  socket?.removeEventListener('error', handleError);
 });
 </script>
 
