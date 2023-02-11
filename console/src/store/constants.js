@@ -18,6 +18,23 @@ const mutationKeys = Object.freeze({
   SET_THEME: 'SET_THEME',
   SET_SYSTEM_THEME: 'SET_SYSTEM_THEME',
   SET_CONNECTED: 'SET_CONNECTED',
+  SET_PING_TIMER: 'SET_PING_TIMER',
+  SET_STATUS_MSG: 'SET_STATUS_MSG',
 });
 
-export { themes, themeName, mutationKeys };
+const notificationTypes = Object.freeze({
+  SUCCESS: 'SUCCESS',
+  INFO: 'INFO',
+  WARN: 'WARN',
+  ERROR: 'ERROR',
+});
+
+const notifications = Object.freeze({
+  ECONN_FAILED: {
+    type: notificationTypes.ERROR,
+    title: 'Connection Failed',
+    desc: 'Connection to bridge server failed',
+  },
+});
+
+export { themes, themeName, mutationKeys, notificationTypes, notifications };
