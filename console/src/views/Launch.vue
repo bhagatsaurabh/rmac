@@ -18,13 +18,6 @@
         Help
       </ExternalLink>
     </section>
-    <section class="input">
-      <Info class="infocon">
-        <template #title>Server URL</template>
-        <template #desc>The RMAC Server through which all your hosts register.</template>
-      </Info>
-      <input type="text" name="rmac-server-url" placeholder="my-rmac-server.com" required />
-    </section>
     <section class="controls">
       <Button :busy="isConnecting" @click="handleConnect" icon="right-arrow" icon-right>
         Connect
@@ -37,51 +30,23 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { useStore } from 'vuex';
 
 import Button from '@/components/Common/Button.vue';
 import ExternalLink from '@/components/Common/ExternalLink.vue';
 import Icon from '@/components/Common/Icon.vue';
-import Info from '@/components/Common/Info.vue';
 import Logo from '@/components/Common/Logo.vue';
-import bus from '@/event';
-import { notifications } from '@/store/constants';
+
+const store = useStore();
+const statusMsg = computed(() => store.state.bridge.statusMsg);
 
 const isConnecting = ref(false);
-const statusMsg = ref('');
-
-const emit = defineEmits(['connected']);
-
-let socket;
-const handleFinish = () => (isConnecting.value = false);
-const handleError = (err) => {
-  bus.emit('notify', notifications.ECONN_FAILED, err);
-  handleFinish();
-};
-const handleSuccess = () => {
-  emit('connected', socket);
-  handleFinish();
-};
-const handleConnect = () => {
+const handleConnect = async () => {
   isConnecting.value = true;
-
-  if (!import.meta.env.VITE_RMAC_BRIDGE_SERVER_URL) {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    socket = new WebSocket(`${protocol}//${window.location.host}`);
-  } else {
-    socket = new WebSocket(import.meta.env.VITE_RMAC_BRIDGE_SERVER_URL);
-  }
-
-  socket.addEventListener('open', handleSuccess);
-  socket.addEventListener('close', handleFinish);
-  socket.addEventListener('error', handleError);
+  await store.dispatch('connectToBridge');
+  isConnecting.value = false;
 };
-
-onBeforeUnmount(() => {
-  socket?.removeEventListener('open', handleSuccess);
-  socket?.removeEventListener('close', handleFinish);
-  socket?.removeEventListener('error', handleError);
-});
 </script>
 
 <style scoped>
@@ -105,40 +70,6 @@ onBeforeUnmount(() => {
 .launch .banner {
   margin-bottom: 2rem !important;
 }
-
-.input label {
-  display: block;
-}
-.input input {
-  color: var(--c-text);
-  width: 60vw;
-  text-align: center;
-  font-size: 1.1rem;
-  padding: 0.3rem 1rem;
-  border-radius: 999px;
-  border: 1px solid var(--c-border);
-  background-color: var(--c-background);
-  margin-top: 0.5rem;
-  box-shadow: 0 0 5px 1px var(--c-shadow-soft) inset;
-  opacity: 0.8;
-  transition: box-shadow var(--fx-transition-duration) linear,
-    border var(--fx-transition-duration) linear, opacity var(--fx-transition-duration) linear,
-    var(--theme-bg-transition);
-}
-
-.input input:focus {
-  opacity: 1;
-  outline: none;
-  box-shadow: 0 0 0 0 var(--c-shadow-soft) inset, 4px 4px 10px -2px var(--c-shadow);
-}
-
-.input input:focus {
-  outline: var(--c-border);
-}
-.infocon {
-  display: inline-block;
-}
-
 .controls button {
   font-size: 1.1rem;
 }

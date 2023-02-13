@@ -20,6 +20,8 @@ const mutationKeys = Object.freeze({
   SET_CONNECTED: 'SET_CONNECTED',
   SET_PING_TIMER: 'SET_PING_TIMER',
   SET_STATUS_MSG: 'SET_STATUS_MSG',
+  SET_HOSTS_HEALTH: 'SET_HOSTS_HEALTH',
+  SET_HOST_CONFIG: 'SET_HOST_CONFIG',
 });
 
 const notificationTypes = Object.freeze({
