@@ -77,11 +77,11 @@ watch(
 <style scoped>
 .theme-selector {
   z-index: 5;
-  position: absolute;
-  top: 0.8rem;
-  right: 0.8rem;
+  position: relative;
   direction: rtl;
   color: var(--c-text);
+  width: 3rem;
+  height: 3rem;
 }
 .theme-selector:not(.open) .theme-item {
   top: 0rem !important;

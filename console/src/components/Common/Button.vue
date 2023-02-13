@@ -14,6 +14,13 @@
       adaptive
       invert
     />
+    <Icon
+      v-if="icon && !iconLeft && !iconRight && !hasSlot"
+      v-hide="busy"
+      :alt="`${icon} icon`"
+      :name="`icons/${icon}`"
+      adaptive
+    />
     <span v-hide="busy">
       <slot></slot>
     </span>
@@ -31,6 +38,7 @@
 </template>
 
 <script setup>
+import { useSlots, computed } from 'vue';
 import Icon from './Icon.vue';
 import Spinner from './Spinner.vue';
 
@@ -56,13 +64,15 @@ defineProps({
     default: false,
   },
 });
+
+const slots = useSlots();
+const hasSlot = computed(() => !!slots.default);
 </script>
 
 <style scoped>
 .control {
   cursor: pointer;
   display: flex;
-  margin: auto;
   align-items: center;
   background-color: var(--c-text-soft);
   color: var(--c-background);

@@ -22,6 +22,8 @@ const mutationKeys = Object.freeze({
   SET_STATUS_MSG: 'SET_STATUS_MSG',
   SET_HOSTS_HEALTH: 'SET_HOSTS_HEALTH',
   SET_HOST_CONFIG: 'SET_HOST_CONFIG',
+  PUSH_NOTIFICATION: 'PUSH_NOTIFICATION',
+  SET_READ_ALL: 'SET_READ_ALL',
 });
 
 const notificationTypes = Object.freeze({

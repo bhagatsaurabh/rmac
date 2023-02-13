@@ -1,7 +1,13 @@
 <template>
   <main class="launch">
     <section class="banner">
-      <Logo alt="RMAC logo" :config="{ maxHeight: '10rem' }" name="rmac-logo-combined" animated />
+      <Logo
+        class="banner-logo"
+        alt="RMAC logo"
+        :config="{ maxHeight: '10rem' }"
+        name="rmac-logo-combined"
+        animated
+      />
       <h1><pre>C o n s o l e</pre></h1>
     </section>
     <section class="links">
@@ -70,8 +76,12 @@ const handleConnect = async () => {
 .launch .banner {
   margin-bottom: 2rem !important;
 }
+.launch .banner-logo {
+  margin: 0 auto;
+}
 .controls button {
   font-size: 1.1rem;
+  margin: auto;
 }
 
 @media (min-width: 768px) {
