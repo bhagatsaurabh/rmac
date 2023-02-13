@@ -1,22 +1,31 @@
 <template>
-  <ThemeSelector />
-  <RouterView @connected="handleConnected" />
+  <Header>
+    <template #left>
+      <Logo alt="RMAC logo" name="rmac-logo-spell" :config="{ maxHeight: '1.5rem' }" />
+    </template>
+    <template #right>
+      <Notifications />
+      <ThemeSelector />
+    </template>
+  </Header>
+  <RouterView />
   <Footer />
 </template>
 
 <script setup>
 import { useStore } from 'vuex';
-import { onBeforeUnmount, computed, provide } from 'vue';
+import { onBeforeUnmount, computed } from 'vue';
 
 import { themes } from '@/store/constants';
 import ThemeSelector from '@/components/Common/ThemeSelector.vue';
 import Footer from './components/Common/Footer.vue';
+import Notifications from './components/Common/Notifications.vue';
+import Header from './components/Common/Header.vue';
+import Logo from './components/Common/Logo.vue';
 
 const store = useStore();
 store.dispatch('loadPreferences');
 const currTheme = computed(() => store.state.preferences.theme);
-
-const handleConnected = (socket) => provide('socket', socket);
 
 const mediaChangeHandler = async (e) => {
   if (e.matches && currTheme.value === themes.SYSTEM) {

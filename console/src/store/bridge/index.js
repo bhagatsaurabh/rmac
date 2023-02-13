@@ -1,6 +1,6 @@
-import { mutationKeys } from '@/store/constants';
-
-let socket;
+import { mutationKeys, notifications } from '@/store/constants';
+import { connect } from '@/socket';
+import bus from '@/event';
 
 const state = () => ({
   connected: false,
@@ -21,53 +21,16 @@ const mutations = {
 };
 
 const actions = {
-  async connect({ state, commit, dispatch }) {
+  async connectToBridge({ state, commit }) {
     if (state.connected) return;
 
-    if (!import.meta.env.VITE_RMAC_BRIDGE_SERVER_URL) {
-      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      socket = new WebSocket(`${protocol}//${window.location.host}`);
-    } else {
-      socket = new WebSocket(import.meta.env.VITE_RMAC_BRIDGE_SERVER_URL);
+    try {
+      await connect();
+      commit(mutationKeys.SET_CONNECTED, true);
+    } catch (error) {
+      commit(mutationKeys.SET_CONNECTED, false);
+      bus.emit('notify', notifications.ECONN_FAILED);
     }
-
-    socket.onclose = () => {
-      console.log('Disconnected from bridging server');
-      clearTimeout(pingTimer);
-    };
-    socket.onerror = (err) => {
-      console.log(err);
-    };
-
-    socket.onopen = () => {
-      console.log('Connected to bridging server');
-      heartbeat();
-      socket.send(JSON.stringify({ event: 'identity', type: 'console' }));
-      /* setTimeout(() => {
-        socket.send(JSON.stringify({ event: 'config', type: 'console' }));
-      }, 5000); */
-    };
-    socket.onmessage = (messageEvent) => {
-      if (messageEvent.data === '?') {
-        heartbeat();
-        socket.send('?');
-        return;
-      }
-
-      const message = JSON.parse(messageEvent.data);
-      if (message.event === 'health') {
-        console.log(message);
-      } else if (message.event === 'config') {
-        console.log(message);
-      }
-    };
-
-    const heartbeat = () => {
-      clearTimeout(pingTimer);
-      pingTimer = setTimeout(() => {
-        socket.close();
-      }, 30000 + 1000);
-    };
   },
 };
 

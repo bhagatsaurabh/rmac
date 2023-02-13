@@ -62,7 +62,6 @@ const darkSource = new URL(
 <style scoped>
 .logo-container {
   max-width: fit-content;
-  margin: 0 auto;
 }
 .logo {
   transition: opacity var(--theme-transition-duration) linear;
