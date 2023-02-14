@@ -1,5 +1,5 @@
 <template>
-  <div class="notification">
+  <div class="toast">
     <Icon alt="Notification type icon" :name="`icons/action-${data.type.toLowerCase()}`" singular />
     {{ data.title }}
     {{ data.desc }}
@@ -17,4 +17,8 @@ defineProps({
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.toast {
+  position: fixed;
+}
+</style>

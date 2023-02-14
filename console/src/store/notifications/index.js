@@ -6,6 +6,7 @@ const state = () => ({
 
 const mutations = {
   [mutationKeys.PUSH_NOTIFICATION]: (state, notification) => {
+    notification.read = false;
     const updatedNotifications = [...state.data];
     updatedNotifications.push(notification);
     state.data = updatedNotifications;

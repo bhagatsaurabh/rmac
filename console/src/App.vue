@@ -1,11 +1,16 @@
 <template>
   <Header>
     <template #left>
-      <Logo alt="RMAC logo" name="rmac-logo-spell" :config="{ maxHeight: '1.5rem' }" />
+      <Logo
+        class="header-logo"
+        alt="RMAC logo"
+        name="rmac-logo-spell"
+        :config="{ maxHeight: '1.5rem' }"
+      />
     </template>
     <template #right>
-      <Notifications />
-      <ThemeSelector />
+      <Notifications class="header-item-right" />
+      <ThemeSelector class="header-item-right" />
     </template>
   </Header>
   <RouterView />
@@ -45,4 +50,11 @@ onBeforeUnmount(() => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.header-logo {
+  font-size: 0;
+}
+header:deep(.header-item-right:not(:last-child)) {
+  margin-right: 1rem;
+}
+</style>

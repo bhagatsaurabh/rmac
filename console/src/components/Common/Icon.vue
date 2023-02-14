@@ -12,7 +12,7 @@
       :src="lightSource"
     />
     <img
-      v-if="!adaptive"
+      v-if="!adaptive && !singular"
       v-hide="theme === themes.LIGHT"
       :alt="alt"
       :style="{ ...config, maxWidth: `${size}rem` }"
@@ -40,6 +40,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  singular: {
+    type: Boolean,
+    default: false,
+  },
   size: {
     type: Number,
     default: 1,
@@ -60,7 +64,7 @@ const theme = computed(() => store.getters.theme);
 const metaUrl = import.meta.url;
 const lightSource = new URL(`../../assets/${props.name}.png`, metaUrl).href;
 let darkSource;
-if (!props.adaptive) {
+if (!props.adaptive && !props.singular) {
   darkSource = new URL(`../../assets/${props.name}-dark.png`, metaUrl).href;
 }
 </script>
