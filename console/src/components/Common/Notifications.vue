@@ -1,18 +1,24 @@
 <template>
-  <Button v-bind="$attrs" @click="isOpen != isOpen" icon="bell" circular :complementary="false">
+  <Button
+    v-bind="$attrs"
+    @click="() => isOpen != isOpen"
+    icon="bell"
+    circular
+    :complementary="false"
+  >
     <span v-if="count !== 0" class="notifications-count">{{ count }}</span>
   </Button>
   <aside :class="{ notifications: true, open: isOpen }">
     <header>
       <h1>Notifications</h1>
-      <Icon alt="Close icon" name="icons/cancel" adaptive="" />
+      <Icon alt="Close icon" name="icons/cancel" adaptive :size="2" />
     </header>
     <section>
       <Notification v-for="ntfcn in notifications" :data="ntfcn" />
     </section>
   </aside>
   <Transition name="toast">
-    <Toast v-if="toastNotification" :data="toastNotification" />
+    <Toast @click="isOpen = !isOpen" v-if="toastNotification" :data="toastNotification" />
   </Transition>
 </template>
 
@@ -48,12 +54,13 @@ bus.on('notify', async (data) => {
 .notifications {
   position: fixed;
   top: 0;
-  right: -100vw;
+  right: calc(-100vw - 10px);
   z-index: 100;
   width: 100vw;
   height: 100vh;
-  transition: right var(--fx-transition-duration) ease-out;
+  transition: right var(--fx-transition-duration-slow) ease-out;
   background-color: var(--c-background);
+  box-shadow: 0 0 10px 0 var(--c-shadow);
 }
 .notifications.open {
   right: 0;
@@ -62,6 +69,11 @@ bus.on('notify', async (data) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-bottom: 1px solid var(--c-border);
+  padding: 1rem;
+}
+.notifications header .icon-container {
+  font-size: 0;
 }
 .notifications-count {
   position: absolute;
@@ -83,6 +95,6 @@ bus.on('notify', async (data) => {
 .toast-enter-from,
 .toast-leave-to {
   opacity: 0;
-  transform: translateY(-1rem);
+  transform: translateY(1rem);
 }
 </style>
