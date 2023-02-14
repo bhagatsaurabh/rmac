@@ -15,10 +15,11 @@
 header.header {
   display: flex;
   width: 100vw;
-  height: 3rem;
+  height: 4rem;
   position: sticky;
   top: -1rem;
   z-index: 10;
+  padding: 0 0.5rem;
 }
 header.header::before,
 header.header::after {
@@ -28,7 +29,7 @@ header.header::after {
   position: sticky;
 }
 header::before {
-  top: 2rem;
+  top: 3rem;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.5);
 }
 header::after {

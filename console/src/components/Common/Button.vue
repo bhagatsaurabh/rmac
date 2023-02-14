@@ -2,6 +2,8 @@
   <button
     :class="{
       control: true,
+      circular,
+      complementary,
     }"
     :disabled="disabled || busy"
   >
@@ -15,11 +17,12 @@
       invert
     />
     <Icon
-      v-if="icon && !iconLeft && !iconRight && !hasSlot"
+      v-if="icon && !iconLeft && !iconRight"
       v-hide="busy"
       :alt="`${icon} icon`"
       :name="`icons/${icon}`"
       adaptive
+      :invert="complementary"
     />
     <span v-hide="busy">
       <slot></slot>
@@ -38,7 +41,6 @@
 </template>
 
 <script setup>
-import { useSlots, computed } from 'vue';
 import Icon from './Icon.vue';
 import Spinner from './Spinner.vue';
 
@@ -55,6 +57,14 @@ defineProps({
     type: Boolean,
     default: false,
   },
+  circular: {
+    type: Boolean,
+    default: false,
+  },
+  complementary: {
+    type: Boolean,
+    default: true,
+  },
   busy: {
     type: Boolean,
     default: false,
@@ -64,9 +74,6 @@ defineProps({
     default: false,
   },
 });
-
-const slots = useSlots();
-const hasSlot = computed(() => !!slots.default);
 </script>
 
 <style scoped>
@@ -74,21 +81,29 @@ const hasSlot = computed(() => !!slots.default);
   cursor: pointer;
   display: flex;
   align-items: center;
-  background-color: var(--c-text-soft);
-  color: var(--c-background);
+  color: var(--c-text);
   border: 1px solid var(--c-box-border);
   padding: 0.5rem 1rem;
+  background-color: var(--c-background);
   border-radius: 0.5rem;
   transition: var(--theme-bg-transition), var(--theme-color-transition),
     var(--theme-border-transition), box-shadow var(--fx-transition-duration) linear,
     opacity var(--fx-transition-duration) linear;
   box-shadow: 0 0 10px 0 var(--c-shadow);
 }
+.control.circular {
+  padding: 0.5rem;
+  border-radius: 999px;
+}
+.control.complementary {
+  background-color: var(--c-text-soft);
+  color: var(--c-background);
+}
 .control:active {
   box-shadow: 0 0 5px 0 var(--c-shadow);
 }
 @media (hover: hover) {
-  .control:hover {
+  .control.complementary:hover {
     background-color: var(--c-text-mute);
   }
 }

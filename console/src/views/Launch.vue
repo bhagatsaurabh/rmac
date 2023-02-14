@@ -26,7 +26,7 @@
     </section>
     <section class="controls">
       <Button :busy="isConnecting" @click="handleConnect" icon="right-arrow" icon-right>
-        Connect
+        <span>Connect</span>
       </Button>
       <span class="launch-status">
         {{ statusMsg }}
@@ -43,6 +43,8 @@ import Button from '@/components/Common/Button.vue';
 import ExternalLink from '@/components/Common/ExternalLink.vue';
 import Icon from '@/components/Common/Icon.vue';
 import Logo from '@/components/Common/Logo.vue';
+import bus from '@/event';
+import { notifications } from '@/store/constants';
 
 const store = useStore();
 const statusMsg = computed(() => store.state.bridge.statusMsg);
@@ -50,7 +52,8 @@ const statusMsg = computed(() => store.state.bridge.statusMsg);
 const isConnecting = ref(false);
 const handleConnect = async () => {
   isConnecting.value = true;
-  await store.dispatch('connectToBridge');
+  // await store.dispatch('connectToBridge');
+  bus.emit('notify', notifications.ECONN_FAILED);
   isConnecting.value = false;
 };
 </script>

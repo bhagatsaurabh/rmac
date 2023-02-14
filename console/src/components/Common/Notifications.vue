@@ -1,6 +1,8 @@
 <template>
-  <Button @click="isOpen != isOpen" icon="bell" />
-  <aside :class="{ notifications: true, active: isOpen }">
+  <Button v-bind="$attrs" @click="isOpen != isOpen" icon="bell" circular :complementary="false">
+    <span v-if="count !== 0" class="notifications-count">{{ count }}</span>
+  </Button>
+  <aside :class="{ notifications: true, open: isOpen }">
     <header>
       <h1>Notifications</h1>
       <Icon alt="Close icon" name="icons/cancel" adaptive="" />
@@ -9,6 +11,9 @@
       <Notification v-for="ntfcn in notifications" :data="ntfcn" />
     </section>
   </aside>
+  <Transition name="toast">
+    <Toast v-if="toastNotification" :data="toastNotification" />
+  </Transition>
 </template>
 
 <script setup>
@@ -17,11 +22,26 @@ import { useStore } from 'vuex';
 import Icon from './Icon.vue';
 import Notification from './Notification.vue';
 import Button from './Button.vue';
+import bus from '@/event';
+import Toast from './Toast.vue';
 
 const store = useStore();
 const notifications = computed(() => store.state.notifications.data);
+const count = computed(() => notifications.value?.filter((ntfcn) => !ntfcn.read).length ?? 0);
+// const count = computed(() => 5);
 
 const isOpen = ref(false);
+const toastNotification = ref(null);
+const timeoutHandle = ref(-1);
+
+bus.on('notify', async (data) => {
+  await store.dispatch('pushNotification', data);
+  if (!isOpen.value) {
+    toastNotification.value = data;
+    clearTimeout(timeoutHandle.value);
+    timeoutHandle.value = setTimeout(() => (toastNotification.value = null), 4000);
+  }
+});
 </script>
 
 <style scoped>
@@ -33,13 +53,36 @@ const isOpen = ref(false);
   width: 100vw;
   height: 100vh;
   transition: right var(--fx-transition-duration) ease-out;
+  background-color: var(--c-background);
 }
-.notifications.active {
+.notifications.open {
   right: 0;
 }
 .notifications header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+.notifications-count {
+  position: absolute;
+  top: -1.5rem;
+  right: -0.8rem;
+  padding: 0.2rem;
+  border-radius: 999px;
+  pointer-events: all;
+  color: var(--c-background);
+  background-color: var(--c-text);
+}
+
+.toast-enter-active,
+.toast-leave-active {
+  transition: opacity var(--fx-transition-duration) ease,
+    transform var(--fx-transition-duration) ease;
+}
+
+.toast-enter-from,
+.toast-leave-to {
+  opacity: 0;
+  transform: translateY(-1rem);
 }
 </style>
