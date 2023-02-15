@@ -1,7 +1,7 @@
 <template>
   <span class="icon-container">
     <img
-      v-hide="!adaptive && theme === themes.DARK"
+      v-hide="!adaptive && !singular && theme === themes.DARK"
       :alt="alt"
       :style="{ ...config, maxWidth: `${size}rem` }"
       :class="{

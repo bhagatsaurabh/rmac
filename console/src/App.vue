@@ -2,6 +2,7 @@
   <Header>
     <template #left>
       <Logo
+        v-if="path !== '/'"
         class="header-logo"
         alt="RMAC logo"
         name="rmac-logo-spell"
@@ -13,7 +14,7 @@
       <ThemeSelector class="header-item-right" />
     </template>
   </Header>
-  <RouterView />
+  <RouterView class="content" />
   <Footer />
 </template>
 
@@ -27,10 +28,14 @@ import Footer from './components/Common/Footer.vue';
 import Notifications from './components/Common/Notifications.vue';
 import Header from './components/Common/Header.vue';
 import Logo from './components/Common/Logo.vue';
+import { useRoute } from 'vue-router';
 
 const store = useStore();
 store.dispatch('loadPreferences');
 const currTheme = computed(() => store.state.preferences.theme);
+
+const route = useRoute();
+const path = computed(() => route.path);
 
 const mediaChangeHandler = async (e) => {
   if (e.matches && currTheme.value === themes.SYSTEM) {
@@ -56,5 +61,9 @@ onBeforeUnmount(() => {
 }
 header:deep(.header-item-right:not(:last-child)) {
   margin-right: 1rem;
+}
+
+.content {
+  min-height: calc(100vh - 4rem - 3.5rem - 1px);
 }
 </style>
