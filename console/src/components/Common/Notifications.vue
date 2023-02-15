@@ -1,31 +1,31 @@
 <template>
-  <Button
-    v-bind="$attrs"
-    @click="() => isOpen != isOpen"
-    icon="bell"
-    circular
-    :complementary="false"
-  >
+  <Button v-bind="$attrs" @click="isOpen = !isOpen" icon="bell" circular :complementary="false">
     <span v-if="count !== 0" class="notifications-count">{{ count }}</span>
   </Button>
   <aside :class="{ notifications: true, open: isOpen }">
     <header>
       <h1>Notifications</h1>
-      <Icon alt="Close icon" name="icons/cancel" adaptive :size="2" />
+      <Icon @click="router.back()" alt="Close icon" name="icons/cancel" adaptive :size="2" />
     </header>
     <section>
       <Notification v-for="ntfcn in notifications" :data="ntfcn" />
+      <div v-if="notifications.length === 0" class="empty">
+        <Icon alt="Empty icon" name="icons/empty" adaptive :size="2" />
+        Empty
+      </div>
     </section>
   </aside>
   <Transition name="toast">
-    <Toast @click="isOpen = !isOpen" v-if="toastNotification" :data="toastNotification" />
+    <Toast @click="handleToastClick" v-if="toastNotification" :data="toastNotification" />
   </Transition>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 import Icon from './Icon.vue';
+import { useRouter } from 'vue-router';
+
 import Notification from './Notification.vue';
 import Button from './Button.vue';
 import bus from '@/event';
@@ -40,6 +40,12 @@ const isOpen = ref(false);
 const toastNotification = ref(null);
 const timeoutHandle = ref(-1);
 
+const handleToastClick = () => {
+  clearTimeout(timeoutHandle.value);
+  toastNotification.value = null;
+  isOpen.value = !isOpen.value;
+};
+
 bus.on('notify', async (data) => {
   await store.dispatch('pushNotification', data);
   if (!isOpen.value) {
@@ -48,6 +54,29 @@ bus.on('notify', async (data) => {
     timeoutHandle.value = setTimeout(() => (toastNotification.value = null), 4000);
   }
 });
+
+const router = useRouter();
+let unregisterGuard = () => {};
+watch(
+  isOpen,
+  async (newVal, oldVal) => {
+    if (oldVal !== newVal && newVal) {
+      await router.push({ hash: '#notifications' });
+      await store.dispatch('readAllNotifications');
+
+      unregisterGuard = router.beforeEach((_to, from, next) => {
+        if (from.hash.startsWith('#notifications')) {
+          isOpen.value = false;
+        }
+        unregisterGuard();
+        next();
+      });
+    }
+  },
+  { immediate: true }
+);
+
+onBeforeUnmount(unregisterGuard);
 </script>
 
 <style scoped>
@@ -96,5 +125,15 @@ bus.on('notify', async (data) => {
 .toast-leave-to {
   opacity: 0;
   transform: translateY(1rem);
+}
+
+.empty {
+  text-align: center;
+  margin-top: 2rem;
+  opacity: 0.7;
+  font-size: 1.6rem;
+}
+.empty .icon-container {
+  margin-right: 0.5rem;
 }
 </style>

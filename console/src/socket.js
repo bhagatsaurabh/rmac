@@ -9,7 +9,7 @@ const connect = () =>
   new Promise((resolve, reject) => {
     connHandle = {
       resolve: () => resolve() && (connHandle = {}),
-      reject: () => reject() && (connHandle = {}),
+      reject: (err) => reject(err) && (connHandle = {}),
     };
     pingTimer = -1;
     store.commit(mutationKeys.SET_STATUS_MSG, 'Connecting...');
@@ -38,7 +38,7 @@ const onClose = () => {
 const onError = (err) => {
   console.log(err);
   if (!store.state.bridge.connected) {
-    connHandle.reject?.();
+    connHandle.reject?.(err);
   }
 };
 const onOpen = () => {

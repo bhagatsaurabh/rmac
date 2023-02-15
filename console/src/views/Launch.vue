@@ -36,26 +36,39 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
 
 import Button from '@/components/Common/Button.vue';
 import ExternalLink from '@/components/Common/ExternalLink.vue';
 import Icon from '@/components/Common/Icon.vue';
 import Logo from '@/components/Common/Logo.vue';
-import bus from '@/event';
-import { notifications } from '@/store/constants';
 
 const store = useStore();
 const statusMsg = computed(() => store.state.bridge.statusMsg);
+const isBridgeConnected = computed(() => store.state.bridge.connected);
+
+const router = useRouter();
 
 const isConnecting = ref(false);
 const handleConnect = async () => {
   isConnecting.value = true;
-  // await store.dispatch('connectToBridge');
-  bus.emit('notify', notifications.ECONN_FAILED);
+  await store.dispatch('connectToBridge');
   isConnecting.value = false;
 };
+
+watch(isBridgeConnected, (newVal, oldVal) => {
+  if (newVal !== oldVal && newVal) {
+    router.push({ name: 'dashboard' });
+  }
+});
+
+onMounted(async () => {
+  if (isBridgeConnected.value) {
+    await store.dispatch('disconnectFromBridge');
+  }
+});
 </script>
 
 <style scoped>
@@ -63,7 +76,6 @@ const handleConnect = async () => {
   display: flex;
   justify-content: center;
   flex-direction: column;
-  height: calc(100vh - 3.5rem - 1px);
   text-align: center;
 }
 .launch section:not(:last-child) {
@@ -85,6 +97,12 @@ const handleConnect = async () => {
 .controls button {
   font-size: 1.1rem;
   margin: auto;
+}
+
+.launch-status {
+  position: absolute;
+  transform: translateX(-50%);
+  margin-top: 0.5rem;
 }
 
 @media (min-width: 768px) {

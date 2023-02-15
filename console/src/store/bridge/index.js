@@ -1,5 +1,5 @@
 import { mutationKeys, notifications } from '@/store/constants';
-import { connect } from '@/socket';
+import { connect, disconnect } from '@/socket';
 import bus from '@/event';
 
 const state = () => ({
@@ -30,7 +30,16 @@ const actions = {
     } catch (error) {
       commit(mutationKeys.SET_CONNECTED, false);
       bus.emit('notify', notifications.ECONN_FAILED);
+    } finally {
+      commit(mutationKeys.SET_STATUS_MSG, '');
     }
+  },
+  async disconnectFromBridge({ state, commit }) {
+    if (!state.connected) return;
+
+    disconnect();
+    commit(mutationKeys.SET_CONNECTED, false);
+    bus.emit('notify', notifications.ICONN_DISCONNECTED);
   },
 };
 

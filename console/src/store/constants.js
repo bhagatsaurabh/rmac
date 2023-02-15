@@ -39,6 +39,11 @@ const notifications = Object.freeze({
     title: 'Connection Failed',
     desc: 'Connection to bridge server failed',
   },
+  ICONN_DISCONNECTED: {
+    type: notificationTypes.WARN,
+    title: 'Disconnected',
+    desc: 'Disconnected from bridge server',
+  },
 });
 
 export { themes, themeName, mutationKeys, notificationTypes, notifications };
