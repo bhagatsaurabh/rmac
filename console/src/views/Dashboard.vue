@@ -1,5 +1,8 @@
 <template>
-  <span>Dashboard</span>
+  <div>
+    <div style="min-height: 100vh">Dashboard</div>
+    <div style="min-height: 100vh">Dashboard</div>
+  </div>
 </template>
 
 <script setup></script>
