@@ -5,6 +5,13 @@ import Dashboard from '@/views/Dashboard.vue';
 import Host from '@/views/Host.vue';
 import store from '@/store';
 
+const connectionGuard = (_to, _from, next) => {
+  if (!store.state.bridge.connected) {
+    return next('/');
+  }
+  return next();
+};
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -36,13 +43,6 @@ const router = createRouter({
     },
   ],
 });
-
-const connectionGuard = (_to, _from, next) => {
-  if (!store.state.bridge.connected) {
-    return next('/');
-  }
-  return next();
-};
 
 router.beforeEach((to, _from, next) => {
   document.title = to.meta.title;

@@ -1,37 +1,41 @@
 <template>
   <main class="launch">
-    <section class="banner">
-      <Logo
-        class="banner-logo"
-        alt="RMAC logo"
-        :config="{ maxHeight: '10rem' }"
-        name="rmac-logo-combined"
-        animated
-      />
-      <h1><pre>C o n s o l e</pre></h1>
-    </section>
-    <section class="links">
-      <ExternalLink to="https://github.com/saurabh-prosoft/rmac">
-        <template #prefix>
-          <Icon alt="GitHub icon" name="icons/github" adaptive></Icon>
-        </template>
-        GitHub
-      </ExternalLink>
-      <ExternalLink to="https://github.com/saurabh-prosoft/rmac">
-        <template #prefix>
-          <Icon alt="Help icon" name="icons/help" adaptive></Icon>
-        </template>
-        Help
-      </ExternalLink>
-    </section>
-    <section class="controls">
-      <Button :busy="isConnecting" @click="handleConnect" icon="right-arrow" icon-right>
-        <span>Connect</span>
-      </Button>
-      <span class="launch-status">
-        {{ statusMsg }}
-      </span>
-    </section>
+    <div class="launch-left">
+      <section class="banner">
+        <Logo
+          class="banner-logo"
+          alt="RMAC logo"
+          :config="{ maxHeight: '10rem' }"
+          name="rmac-logo-combined"
+          animated
+        />
+        <h1><pre>C o n s o l e</pre></h1>
+      </section>
+      <section class="links">
+        <ExternalLink to="https://github.com/saurabh-prosoft/rmac">
+          <template #prefix>
+            <Icon alt="GitHub icon" name="icons/github" adaptive></Icon>
+          </template>
+          GitHub
+        </ExternalLink>
+        <ExternalLink to="https://github.com/saurabh-prosoft/rmac">
+          <template #prefix>
+            <Icon alt="Help icon" name="icons/help" adaptive></Icon>
+          </template>
+          Help
+        </ExternalLink>
+      </section>
+    </div>
+    <div class="launch-right">
+      <section class="controls">
+        <Button :busy="isConnecting" @click="handleConnect" icon="right-arrow" icon-right async>
+          <span>Connect</span>
+        </Button>
+        <span class="launch-status">
+          {{ statusMsg }}
+        </span>
+      </section>
+    </div>
   </main>
 </template>
 
@@ -78,7 +82,7 @@ onMounted(async () => {
   flex-direction: column;
   text-align: center;
 }
-.launch section:not(:last-child) {
+.launch section {
   margin-bottom: 1.5rem;
 }
 .launch .links a {
@@ -109,5 +113,27 @@ onMounted(async () => {
 }
 
 @media (min-width: 1024px) {
+  .launch {
+    flex-direction: row;
+    align-items: center;
+  }
+  .launch-left {
+    margin-right: 6rem;
+  }
+  .launch-left::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: -3rem;
+    height: 60%;
+    width: 1px;
+    box-shadow: 0 0 5px 0 var(--c-shadow-soft);
+    opacity: 0.6;
+    border-right: 1px solid var(--c-border-soft);
+  }
+  .launch section:last-of-type {
+    margin-bottom: 0;
+  }
 }
 </style>

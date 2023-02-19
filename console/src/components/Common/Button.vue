@@ -36,7 +36,7 @@
       adaptive
       invert
     />
-    <Spinner v-hide="!busy" :size="1.5" invert />
+    <Spinner v-if="async" v-hide="!busy" :size="1.5" invert />
   </button>
 </template>
 
@@ -64,6 +64,10 @@ defineProps({
   complementary: {
     type: Boolean,
     default: true,
+  },
+  async: {
+    type: Boolean,
+    default: false,
   },
   busy: {
     type: Boolean,

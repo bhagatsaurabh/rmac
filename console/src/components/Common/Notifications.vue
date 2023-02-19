@@ -1,4 +1,5 @@
 <template>
+  <Backdrop @dismiss="router.back()" :show="isOpen" />
   <Button v-bind="$attrs" @click="isOpen = !isOpen" icon="bell" circular :complementary="false">
     <span v-if="count !== 0" class="notifications-count">{{ count }}</span>
   </Button>
@@ -30,11 +31,11 @@ import Notification from './Notification.vue';
 import Button from './Button.vue';
 import bus from '@/event';
 import Toast from './Toast.vue';
+import Backdrop from './Backdrop.vue';
 
 const store = useStore();
 const notifications = computed(() => store.state.notifications.data);
 const count = computed(() => notifications.value?.filter((ntfcn) => !ntfcn.read).length ?? 0);
-// const count = computed(() => 5);
 
 const isOpen = ref(false);
 const toastNotification = ref(null);
@@ -84,7 +85,7 @@ onBeforeUnmount(unregisterGuard);
   position: fixed;
   top: 0;
   right: calc(-100vw - 10px);
-  z-index: 100;
+  z-index: 105;
   width: 100vw;
   height: 100vh;
   transition: right var(--fx-transition-duration-slow) ease-out;
@@ -135,5 +136,19 @@ onBeforeUnmount(unregisterGuard);
 }
 .empty .icon-container {
   margin-right: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .notifications {
+    width: 50vw;
+    right: calc(-50vw - 10px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .notifications {
+    width: 20rem;
+    right: calc(-20rem - 10px);
+  }
 }
 </style>

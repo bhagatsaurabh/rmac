@@ -1,5 +1,5 @@
 <template>
-  <header class="header">
+  <header :class="{ header: true, drop: route.path !== '/' }">
     <div class="left">
       <slot name="left"></slot>
     </div>
@@ -9,38 +9,25 @@
   </header>
 </template>
 
-<script setup></script>
+<script setup>
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
+</script>
 
 <style scoped>
-header.header {
+.header {
   display: flex;
-  width: 100vw;
+  width: 100%;
   height: 4rem;
-  position: sticky;
-  top: -1rem;
-  z-index: 10;
-  padding: 0 0.5rem;
-}
-header.header::before,
-header.header::after {
-  content: '';
-  display: block;
-  height: 1rem;
-  position: sticky;
-}
-header::before {
-  top: 3rem;
-  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.5);
-}
-header::after {
-  background: linear-gradient(
-    white 10%,
-    rgba(255, 255, 255, 0.8) 50%,
-    rgba(255, 255, 255, 0.4) 70%,
-    transparent
-  );
   top: 0;
-  z-index: 11;
+  position: fixed;
+  z-index: 10;
+  background-color: var(--c-background);
+  border-bottom: 1px solid var(--c-box-border);
+}
+.header.drop {
+  box-shadow: 0 0 5px 0 var(--c-shadow);
 }
 
 header.header .left,
@@ -48,6 +35,7 @@ header.header .right {
   flex: 1;
   display: flex;
   align-items: center;
+  padding: 0 0.5rem;
 }
 header.header .left {
   justify-content: start;
