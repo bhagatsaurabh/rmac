@@ -21,7 +21,7 @@ const route = useRoute();
   width: 100%;
   height: 4rem;
   top: 0;
-  position: fixed;
+  position: sticky;
   z-index: 10;
   background-color: var(--c-background);
   border-bottom: 1px solid var(--c-box-border);
