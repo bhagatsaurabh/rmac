@@ -1,5 +1,6 @@
 import { state } from "../store/store.js";
 import { v4 as uuid } from "uuid";
+import { db } from "../config/firebase.js";
 
 const emit = (socket, event, cId, hId, data) => {
   socket?.send(JSON.stringify({ event, cId, hId, data }));
@@ -8,7 +9,7 @@ const parse = (res) => {
   return JSON.parse(res);
 };
 
-const identity = (socket, message) => {
+const identity = async (socket, message) => {
   if (message.type === "host") {
     socket.id = message.hId;
     socket.type = message.type;
@@ -29,9 +30,26 @@ const identity = (socket, message) => {
     state.consoles[socket.id] = socket;
     console.log("Console connected:", socket.id);
 
-    const hostsHealth = {};
-    Object.keys(state.hosts).forEach((socketId) => (hostsHealth[socketId] = true));
-    emit(socket, "health", null, null, hostsHealth);
+    let hosts = {};
+    Object.keys(state.hosts).forEach(
+      (socketId) => (hosts[socketId] = { health: true, registered: false })
+    );
+
+    const snap = await db.ref().once("value");
+    if (snap.exists()) {
+      const registeredHosts = snap.val();
+      Object.keys(registeredHosts).forEach((id) => {
+        if (hosts[id]) {
+          hosts[id] = { ...hosts[id], ...registeredHosts[id], registered: true };
+        } else {
+          hosts[id] = { ...registeredHosts[id], health: false, registered: true };
+        }
+      });
+    }
+
+    hosts = Object.keys(hosts).map((id) => ({ ...hosts[id], id }));
+
+    emit(socket, "hosts", null, null, hosts);
   }
 };
 

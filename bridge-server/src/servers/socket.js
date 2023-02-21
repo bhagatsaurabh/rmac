@@ -13,7 +13,7 @@ socketServer.on("connection", (socket) => {
 
   socket.on("close", () => onClose(socket));
   socket.on("error", (err) => onError(socket, err));
-  socket.on("message", (rawData) => {
+  socket.on("message", async (rawData) => {
     if (rawData.toString() === "?") {
       heartbeat(socket);
       return;
@@ -22,7 +22,7 @@ socketServer.on("connection", (socket) => {
     const message = parse(rawData);
 
     if (message.event === "identity") {
-      identity(socket, message);
+      await identity(socket, message);
     } else if (message.event === "config") {
       config(socket, message);
     }
