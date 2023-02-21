@@ -64,6 +64,7 @@ header:deep(.header-item-right:not(:last-child)) {
 }
 
 .content {
-  min-height: calc(100vh - 4rem - 3.5rem - 1px);
+  padding-top: 4rem;
+  min-height: calc(100vh - 3.5rem - 1px);
 }
 </style>

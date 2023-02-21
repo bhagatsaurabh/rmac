@@ -130,7 +130,6 @@
 }
 
 body {
-  min-height: 100vh;
   color: var(--c-text);
   background: var(--c-background);
   transition: var(--theme-color-transition), var(--theme-bg-transition);

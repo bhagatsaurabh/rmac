@@ -56,6 +56,8 @@ const onMessage = ({ data }) => {
   const message = JSON.parse(data);
   if (message.event === 'health') {
     store.commit(mutationKeys.SET_HOSTS_HEALTH, message);
+  } else if (message.event === 'hosts') {
+    store.commit(mutationKeys.SET_HOSTS, message.data);
     if (!store.state.bridge.connected) {
       connHandle.resolve?.();
     }
