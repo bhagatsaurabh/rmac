@@ -1,7 +1,7 @@
 import { mutationKeys } from '@/store/constants';
 
 const state = () => ({
-  hosts: {},
+  hosts: [],
 });
 
 const mutations = {
@@ -14,6 +14,9 @@ const mutations = {
       updatedHosts[id].health = data[id];
     });
     state.hosts = updatedHosts;
+  },
+  [mutationKeys.SET_HOSTS]: (state, data) => {
+    state.hosts = data ?? [];
   },
 };
 

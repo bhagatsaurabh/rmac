@@ -1,10 +1,17 @@
 <template>
-  <div>
-    <div style="min-height: 100vh">Dashboard</div>
-    <div style="min-height: 100vh">Dashboard</div>
-  </div>
+  <main>
+    <HostList :hosts="hosts" />
+  </main>
 </template>
 
-<script setup></script>
+<script setup>
+import HostList from '@/components/HostList.vue';
+import { computed } from 'vue';
+import { useStore } from 'vuex';
+
+const store = useStore();
+
+const hosts = computed(() => store.state.hosts.hosts);
+</script>
 
 <style scoped></style>
