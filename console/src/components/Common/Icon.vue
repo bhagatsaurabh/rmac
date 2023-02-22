@@ -62,10 +62,10 @@ const store = useStore();
 const theme = computed(() => store.getters.theme);
 
 const metaUrl = import.meta.url;
-const lightSource = new URL(`../../assets/${props.name}.png`, metaUrl).href;
+const lightSource = new URL(`/assets/${props.name}.png`, metaUrl).href;
 let darkSource;
 if (!props.adaptive && !props.singular) {
-  darkSource = new URL(`../../assets/${props.name}-dark.png`, metaUrl).href;
+  darkSource = new URL(`/assets/${props.name}-dark.png`, metaUrl).href;
 }
 </script>
 

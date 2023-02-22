@@ -49,14 +49,11 @@ const props = defineProps({
 const store = useStore();
 const theme = computed(() => store.getters.theme);
 
-const lightSource = new URL(
-  `../../assets/${props.name}.${props.animated ? 'gif' : 'png'}`,
-  import.meta.url
-).href;
-const darkSource = new URL(
-  `../../assets/${props.name}-dark.${props.animated ? 'gif' : 'png'}`,
-  import.meta.url
-).href;
+const metaUrl = import.meta.url;
+const lightSource = new URL(`/assets/${props.name}.${props.animated ? 'gif' : 'png'}`, metaUrl)
+  .href;
+const darkSource = new URL(`/assets/${props.name}-dark.${props.animated ? 'gif' : 'png'}`, metaUrl)
+  .href;
 </script>
 
 <style scoped>
