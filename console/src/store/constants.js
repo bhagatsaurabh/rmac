@@ -12,6 +12,12 @@ const themeNames = {
   'high-contrast': 'High Contrast',
 };
 
+let apiURL = import.meta.env.VITE_RMAC_BRIDGE_SERVER_URL;
+if (apiURL) {
+  apiURL = apiURL.replace('ws', 'http');
+}
+apiURL = `${apiURL || ''}/api/hosts`;
+
 const themeName = (theme) => themeNames[theme];
 
 const mutationKeys = Object.freeze({
@@ -40,6 +46,11 @@ const notifications = Object.freeze({
     title: 'Connection Failed',
     desc: 'Connection to bridge server failed',
   },
+  EFETCH_HOSTS_FAILED: {
+    type: notificationTypes.ERROR,
+    title: 'Could not fetch hosts',
+    desc: 'Could not fetch hosts',
+  },
   ICONN_DISCONNECTED: {
     type: notificationTypes.WARN,
     title: 'Disconnected',
@@ -47,4 +58,4 @@ const notifications = Object.freeze({
   },
 });
 
-export { themes, themeName, mutationKeys, notificationTypes, notifications };
+export { themes, themeName, mutationKeys, notificationTypes, notifications, apiURL };

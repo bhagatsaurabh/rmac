@@ -1,4 +1,5 @@
-import { mutationKeys } from '@/store/constants';
+import { apiURL, mutationKeys, notifications } from '@/store/constants';
+import bus from '@/event';
 
 const state = () => ({
   hosts: [],
@@ -20,7 +21,18 @@ const mutations = {
   },
 };
 
-const actions = {};
+const actions = {
+  async fetchHosts({ commit }) {
+    try {
+      const data = await (await fetch(apiURL)).json();
+      commit(mutationKeys.SET_HOSTS, data);
+    } catch (error) {
+      bus.emit('notify', { ...notifications.EFETCH_HOSTS_FAILED, desc: error.message });
+      return false;
+    }
+    return true;
+  },
+};
 
 const getters = {};
 

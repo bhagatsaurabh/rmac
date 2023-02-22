@@ -93,7 +93,7 @@ watch(
   border: 1px solid var(--c-box-border);
   display: block;
   transition: all var(--fx-transition-duration) ease;
-  background-color: transparent;
+  background-color: var(--c-background);
   font-size: 0;
   border-radius: 999px;
   box-shadow: 0 0 10px 0 var(--c-shadow);

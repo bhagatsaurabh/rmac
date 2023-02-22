@@ -1,3 +1,4 @@
+import router from './router';
 import store from './store';
 import { mutationKeys } from './store/constants';
 
@@ -34,6 +35,7 @@ const onClose = () => {
     connHandle.reject?.();
   }
   removeListeners();
+  router.push('/');
 };
 const onError = (err) => {
   console.log(err);
@@ -46,7 +48,7 @@ const onOpen = () => {
   store.commit(mutationKeys.SET_STATUS_MSG, 'Establishing identity...');
   emit({ event: 'identity', type: 'console' });
 };
-const onMessage = ({ data }) => {
+const onMessage = async ({ data }) => {
   if (data === '?') {
     heartbeat();
     socket.send('?');
@@ -56,10 +58,13 @@ const onMessage = ({ data }) => {
   const message = JSON.parse(data);
   if (message.event === 'health') {
     store.commit(mutationKeys.SET_HOSTS_HEALTH, message);
-  } else if (message.event === 'hosts') {
-    store.commit(mutationKeys.SET_HOSTS, message.data);
-    if (!store.state.bridge.connected) {
+  } else if (message.event === 'ack') {
+    store.commit(mutationKeys.SET_STATUS_MSG, 'Fetching hosts...');
+    const result = await store.dispatch('fetchHosts');
+    if (!store.state.bridge.connected && result) {
       connHandle.resolve?.();
+    } else if (!store.state.bridge.connected) {
+      connHandle.reject?.();
     }
   } else if (message.event === 'config') {
     store.commit(mutationKeys.SET_HOST_CONFIG, message);
@@ -86,10 +91,8 @@ const emit = (message) => {
 const heartbeat = () => {
   clearTimeout(pingTimer);
   pingTimer = setTimeout(() => {
-    socket.close();
+    router.push('/');
   }, 30000 + 1000);
 };
 
 export { connect, disconnect, emit };
-
-// socket.send(JSON.stringify({ event: 'config', type: 'console' }));

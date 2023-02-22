@@ -30,7 +30,7 @@ defineProps({
 .host {
   color: var(--c-text);
   background-color: var(--c-background-soft);
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.5rem;
   margin: 1rem;
   border: 1px solid var(--c-border);
   box-shadow: 0 0 10px 0px var(--c-shadow-soft);
@@ -44,6 +44,7 @@ defineProps({
   overflow: hidden;
   margin-bottom: 0.5rem;
   font-size: 0.9rem;
+  font-weight: bold;
 }
 .host .footer {
   display: flex;
@@ -52,22 +53,31 @@ defineProps({
 }
 
 .health {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
 .health::before {
   content: '';
   display: inline-block;
   width: 0.6rem;
   height: 0.6rem;
-  border-radius: 0.2rem;
+  border-radius: 1rem;
   border: 1px solid var(--c-text);
-  margin-right: 0.5rem;
+  margin-right: 0.3rem;
 }
 .health.online::before {
   background-color: green;
 }
 .health.offline::before {
   background-color: red;
+}
+
+.footer .tag {
+  font-size: 0.8rem;
+  background-color: var(--c-text);
+  color: var(--c-background);
+  font-style: italic;
+  padding: 0 0.3rem;
+  border-radius: 0.4rem;
 }
 
 @media (hover: hover) {
