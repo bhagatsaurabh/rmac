@@ -14,4 +14,7 @@ footer.footer {
   color: var(--c-text-soft) !important;
   transition: var(--theme-color-transition), var(--theme-border-transition);
 }
+.footer pre {
+  color: var(--c-text-mute);
+}
 </style>

@@ -110,6 +110,9 @@ defineProps({
   .control.complementary:hover {
     background-color: var(--c-text-mute);
   }
+  .control:hover {
+    background-color: var(--c-background-mute);
+  }
 }
 .control:disabled {
   opacity: 0.6;
