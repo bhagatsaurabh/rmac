@@ -1,7 +1,7 @@
 <template>
   <main>
     <SearchFilter @query="queryHandler" />
-    <HostList :hosts="hosts" />
+    <HostList class="hosts" :hosts="hosts" />
   </main>
 </template>
 
@@ -20,4 +20,8 @@ const queryHandler = (config) => {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.hosts {
+  margin-top: 4rem;
+}
+</style>

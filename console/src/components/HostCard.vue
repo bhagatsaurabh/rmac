@@ -34,7 +34,8 @@ defineProps({
   margin: 1rem;
   border: 1px solid var(--c-border);
   box-shadow: 0 0 10px 0px var(--c-shadow-soft);
-  transition: box-shadow var(--fx-transition-duration) linear;
+  transition: box-shadow var(--fx-transition-duration) linear, var(--theme-color-transition),
+    var(--theme-bg-transition);
   text-align: center;
   width: 10rem;
 }
