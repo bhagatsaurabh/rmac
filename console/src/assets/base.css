@@ -40,6 +40,7 @@
 :root,
 .light {
   --c-background: var(--c-white);
+  --c-background-transparent: #ffffffed;
   --c-background-soft: var(--c-white-soft);
   --c-background-mute: var(--c-white-mute);
 
@@ -57,6 +58,7 @@
 @media (prefers-color-scheme: dark), (prefers-contrast: more) {
   :root {
     --c-background: var(--c-jetblack);
+    --c-background-transparent: #292929ed;
     --c-background-soft: var(--c-jetblack-soft);
     --c-background-mute: var(--c-jetblack-mute);
 
@@ -73,6 +75,7 @@
 }
 .dark {
   --c-background: var(--c-jetblack);
+  --c-background-transparent: #292929ed;
   --c-background-soft: var(--c-jetblack-soft);
   --c-background-mute: var(--c-jetblack-mute);
 
@@ -90,6 +93,7 @@
 @media (prefers-contrast: more) {
   :root {
     --c-background: var(--c-black);
+    --c-background-transparent: #000000ed;
     --c-background-soft: var(--c-black-soft);
     --c-background-mute: var(--c-black-mute);
 
@@ -106,6 +110,7 @@
 }
 .high-contrast {
   --c-background: var(--c-black);
+  --c-background-transparent: #000000ed;
   --c-background-soft: var(--c-black-soft);
   --c-background-mute: var(--c-black-mute);
 

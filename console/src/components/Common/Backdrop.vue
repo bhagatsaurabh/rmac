@@ -1,6 +1,6 @@
 <template>
   <Transition name="backdrop">
-    <div v-if="show" @click="$emit('dismiss')" class="backdrop"></div>
+    <div v-if="show" @pointerdown="$emit('dismiss')" class="backdrop"></div>
   </Transition>
 </template>
 
