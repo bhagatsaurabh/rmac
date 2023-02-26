@@ -171,7 +171,7 @@ import Icon from './Icon.vue';
 const config = ref({
   name: '',
   filter: { connection: [], registration: [] },
-  sort: { connection: null, registration: null, name: null },
+  sort: { type: null, order: true },
 });
 
 const emit = defineEmits(['query']);
@@ -193,13 +193,12 @@ watch(config, () => {
 .search-filter-sort {
   width: 100%;
   padding: 1rem 1rem;
-  position: fixed;
+  position: sticky;
   box-shadow: 0 0 5px 0 var(--c-shadow);
   top: 4rem;
   background-color: var(--c-background-transparent);
   z-index: 9;
   transition: var(--theme-color-transition), var(--theme-bg-transition);
-  z-index: 102;
 }
 .controls {
   display: flex;
@@ -219,7 +218,7 @@ watch(config, () => {
   font-size: 0;
 }
 .search input {
-  padding: 0.3rem 0.3rem 0.3rem 2rem;
+  padding: 0.3rem 0.3rem 0.3rem 2.5rem;
   border-radius: 4rem;
   border: 1px solid var(--c-border-soft);
   box-shadow: 3px 3px 10px -2px var(--c-shadow);
