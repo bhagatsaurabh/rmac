@@ -57,21 +57,25 @@ const actions = {
 
     if (config.sort.type === 'name') {
       output.sort((a, b) =>
-        config.sort.order ? a.clientName > b.clientName : b.clientName > a.clientName
+        config.sort.order
+          ? a.clientName.localeCompare(b.clientName)
+          : b.clientName.localeCompare(a.clientName)
       );
     } else if (config.sort.type === 'connection') {
       output.sort((a, b) =>
         config.sort.order
-          ? (a.health ? 'online' : 'offline') > (b.health ? 'online' : 'offline')
-          : (b.health ? 'online' : 'offline') > (a.health ? 'online' : 'offline')
+          ? (a.health ? 'online' : 'offline').localeCompare(b.health ? 'online' : 'offline')
+          : (b.health ? 'online' : 'offline').localeCompare(a.health ? 'online' : 'offline')
       );
     } else if (config.sort.type === 'registration') {
       output.sort((a, b) =>
         config.sort.order
-          ? (a.registration ? 'registered' : 'unknown') >
-            (b.registration ? 'registered' : 'unknown')
-          : (b.registration ? 'registered' : 'unknown') >
-            (a.registration ? 'registered' : 'unknown')
+          ? (a.registration ? 'registered' : 'unknown').localeCompare(
+              b.registration ? 'registered' : 'unknown'
+            )
+          : (b.registration ? 'registered' : 'unknown').localeCompare(
+              a.registration ? 'registered' : 'unknown'
+            )
       );
     }
 
