@@ -1,5 +1,6 @@
 <template>
-  <section class="hosts-list">
+  <h1 class="ml-1 mt-0p5">Hosts</h1>
+  <section v-bind="$attrs" class="hosts-list">
     <HostCard v-for="host in hosts" :key="host.id" :host="host" />
   </section>
 </template>

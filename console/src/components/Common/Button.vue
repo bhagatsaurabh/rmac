@@ -14,7 +14,7 @@
       :alt="`${icon} icon`"
       :name="`icons/${icon}`"
       adaptive
-      invert
+      :invert="complementary"
     />
     <Icon
       v-if="icon && !iconLeft && !iconRight"
@@ -34,9 +34,9 @@
       :alt="`${icon} icon`"
       :name="`icons/${icon}`"
       adaptive
-      invert
+      :invert="complementary"
     />
-    <Spinner v-if="async" v-hide="!busy" :size="1.5" invert />
+    <Spinner v-if="async" v-hide="!busy" :size="1.5" :invert="complementary" />
   </button>
 </template>
 

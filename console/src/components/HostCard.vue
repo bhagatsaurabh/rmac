@@ -89,4 +89,14 @@ defineProps({
     box-shadow: 0 0 10px 0 var(--c-shadow);
   }
 }
+@media (min-width: 768px) {
+  .host {
+    width: 12rem;
+  }
+}
+@media (min-width: 1024px) {
+  .host {
+    width: 15rem;
+  }
+}
 </style>

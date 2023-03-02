@@ -17,6 +17,7 @@ const hosts = computed(() => store.state.hosts.hosts);
 const filteredHosts = computed(() => store.state.hosts.filteredHosts);
 
 const queryHandler = (config) => {
+  console.log(config);
   store.dispatch('filter', { config, hosts: hosts.value });
 };
 
