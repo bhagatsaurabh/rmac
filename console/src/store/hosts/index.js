@@ -7,13 +7,13 @@ const state = () => ({
 });
 
 const mutations = {
-  [mutationKeys.SET_HOSTS_HEALTH]: (state, data) => {
+  [mutationKeys.SET_HOSTS_HEALTH]: (state, message) => {
     const updatedHosts = { ...state.hosts };
-    Object.keys(data).forEach((id) => {
+    Object.keys(message).forEach((id) => {
       if (!updatedHosts[id]) {
         updatedHosts[id] = {};
       }
-      updatedHosts[id].health = data[id];
+      updatedHosts[id].health = message[id];
     });
     state.hosts = updatedHosts;
   },
@@ -23,12 +23,16 @@ const mutations = {
   [mutationKeys.SET_FILTERED_HOSTS]: (state, data) => {
     state.filteredHosts = data ?? [];
   },
+  [mutationKeys.SET_HOST_CONFIG]: (state, message) => {
+    const updatedHosts = [...state.hosts];
+    updatedHosts[message.id] = message.data;
+  },
 };
 
 const actions = {
   async fetchHosts({ commit }) {
     try {
-      const data = await (await fetch(apiURL)).json();
+      const data = await (await fetch(`${apiURL}/hosts`)).json();
       commit(mutationKeys.SET_HOSTS, data);
     } catch (error) {
       bus.emit('notify', { ...notifications.EFETCH_HOSTS_FAILED, desc: error.message });
@@ -81,9 +85,21 @@ const actions = {
 
     commit(mutationKeys.SET_FILTERED_HOSTS, output);
   },
+  async fetchConfig({ commit }, id) {
+    try {
+      const data = await (await fetch(`${apiURL}/config?id=${id}`)).json();
+      commit(mutationKeys.SET_HOST_CONFIG, { id, data });
+    } catch (error) {
+      bus.emit('notify', { ...notifications.EFETCH_HOST_CONFIG_FAILED, desc: error.message });
+      return false;
+    }
+    return true;
+  },
 };
 
-const getters = {};
+const getters = {
+  getHostById: (state) => (id) => state.hosts.find((host) => host.id === id),
+};
 
 export default {
   state,
