@@ -107,6 +107,7 @@ onMounted(async () => {
   position: absolute;
   transform: translateX(-50%);
   margin-top: 0.5rem;
+  white-space: nowrap;
 }
 
 @media (min-width: 768px) {

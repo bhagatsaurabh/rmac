@@ -16,7 +16,7 @@ let apiURL = import.meta.env.VITE_RMAC_BRIDGE_SERVER_URL;
 if (apiURL) {
   apiURL = apiURL.replace('ws', 'http');
 }
-apiURL = `${apiURL || ''}/api/hosts`;
+apiURL = `${apiURL || ''}/api`;
 
 const themeName = (theme) => themeNames[theme];
 
@@ -28,8 +28,8 @@ const mutationKeys = Object.freeze({
   SET_STATUS_MSG: 'SET_STATUS_MSG',
   SET_HOSTS_HEALTH: 'SET_HOSTS_HEALTH',
   SET_HOSTS: 'SET_HOSTS',
-  SET_FILTERED_HOSTS: 'SET_FILTERED_HOSTS',
   SET_HOST_CONFIG: 'SET_HOST_CONFIG',
+  SET_FILTERED_HOSTS: 'SET_FILTERED_HOSTS',
   PUSH_NOTIFICATION: 'PUSH_NOTIFICATION',
   SET_READ_ALL: 'SET_READ_ALL',
 });
@@ -56,6 +56,11 @@ const notifications = Object.freeze({
     type: notificationTypes.WARN,
     title: 'Disconnected',
     desc: 'Disconnected from bridge server',
+  },
+  EFETCH_HOST_CONFIG_FAILED: {
+    type: notificationTypes.ERROR,
+    title: 'Could not fetch host config',
+    desc: 'Could not fetch host config',
   },
 });
 
