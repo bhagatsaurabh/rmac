@@ -1,8 +1,10 @@
 <template>
   <main>
-    <HostDetails class="host-section" :host="host" />
-    <HostConfig class="host-section" :host="host" />
-    <Terminal class="host-section" :host="host" />
+    <div class="static">
+      <HostDetails class="host-section" :host="host" />
+      <HostConfig class="host-section" :host="host" />
+    </div>
+    <Terminal :host="host" />
   </main>
 </template>
 
@@ -21,11 +23,19 @@ const host = computed(() => store.getters.getHostById(route.params.hostid));
 </script>
 
 <style scoped>
+main {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
 section:not(:first-child) {
   margin-top: 1rem;
   border-top: 1px solid var(--c-border-soft);
 }
-
+.host-section:deep(.host-content) {
+  padding: 0 1rem;
+}
 .host-section:deep(header) {
   display: flex;
   align-items: center;
@@ -45,5 +55,29 @@ section:not(:first-child) {
 }
 .host-section:deep(header h2) {
   display: inline-block;
+}
+
+@media (min-width: 768px) {
+}
+@media (min-width: 1024px) {
+  main .static {
+    flex: 1;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center;
+  }
+  main .static .host-section:first-child {
+    flex: 0.4;
+  }
+  main .static .host-section:last-child {
+    flex: 0.6;
+  }
+  section:not(:first-child) {
+    margin-top: 0;
+    border-top: none;
+  }
+  section:last-child {
+    border-right: 1px solid var(--c-border);
+  }
 }
 </style>
