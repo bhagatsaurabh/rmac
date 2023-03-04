@@ -5,9 +5,9 @@
       <h2>Properties</h2>
     </header>
     <div class="host-content">
-      <h3>{{ host.id }}</h3>
       <h3>{{ host.clientName }}</h3>
       <h3>{{ host.hostName }}</h3>
+      <h3>{{ host.id }}</h3>
       <h3>{{ host.health ? 'Online' : 'Offline' }}</h3>
       <h3>{{ host.registered ? 'Registered' : 'Unknown' }}</h3>
     </div>

@@ -31,6 +31,7 @@
   --theme-transition-duration: 0.3s;
   --fx-transition-duration: 0.1s;
   --fx-transition-duration-slow: 0.2s;
+  --fx-transition-duration-slower: 0.4s;
   --theme-color-transition: color var(--theme-transition-duration) linear;
   --theme-border-transition: border var(--theme-transition-duration) linear;
   --theme-bg-transition: background-color var(--theme-transition-duration) linear;
