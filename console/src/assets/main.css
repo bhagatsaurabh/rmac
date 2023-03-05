@@ -1,4 +1,5 @@
 @import './base.css';
+@import '../../node_modules/xterm/css/xterm.css';
 
 #app {
   min-height: 100vh;
@@ -20,4 +21,7 @@
 }
 .mt-0p5 {
   margin-top: 0.5rem;
+}
+.mb-0p5 {
+  margin-bottom: 0.5rem;
 }

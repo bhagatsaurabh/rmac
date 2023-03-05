@@ -4,14 +4,14 @@
       <HostDetails class="host-section" :host="host" />
       <HostConfig class="host-section" :host="host" />
     </div>
-    <Terminal :host="host" />
+    <Terminals :host="host" />
   </main>
 </template>
 
 <script setup>
 import HostConfig from '@/components/HostConfig.vue';
 import HostDetails from '@/components/HostDetails.vue';
-import Terminal from '@/components/Terminal.vue';
+import Terminals from '@/components/Terminals.vue';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useStore } from 'vuex';
