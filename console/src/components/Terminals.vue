@@ -10,7 +10,15 @@
     <Transition name="expand">
       <div v-if="isOpen" class="terminals-content">
         <Commands @command="handleCommand" />
-        <Terminal v-for="term in terminals" :key="term" :id="term" />
+        <div class="terminals-view">
+          <Terminal :id="activeTerminal" />
+          <TerminalNav
+            @select="handleSelect"
+            @add="handleAdd"
+            :terminals="terminals"
+            :active="activeTerminal"
+          />
+        </div>
       </div>
     </Transition>
   </aside>
@@ -22,6 +30,7 @@ import Commands from './Commands.vue';
 import Icon from './Common/Icon.vue';
 import { Transition } from 'vue';
 import Terminal from './Common/Terminal.vue';
+import TerminalNav from './Common/TerminalNav.vue';
 
 defineProps({
   host: {
@@ -32,8 +41,16 @@ defineProps({
 
 const isOpen = ref(false);
 const terminals = ref(1);
+const activeTerminal = ref(1);
 
 const handleCommand = () => {};
+const handleSelect = (id) => {
+  activeTerminal.value = id;
+};
+const handleAdd = () => {
+  terminals.value += 1;
+  handleSelect(terminals.value);
+};
 </script>
 
 <style scoped>
@@ -102,6 +119,13 @@ const handleCommand = () => {};
 .expand-enter-to,
 .expand-leave-from {
   height: min(50vh, 18rem);
+}
+
+.terminals-view {
+  width: 100%;
+  height: calc(100% - 5rem - 3px);
+  display: flex;
+  overflow: hidden;
 }
 
 @media (hover: hover) {
