@@ -1,5 +1,5 @@
 <template>
-  <aside :class="{ terminal: true, open: isOpen }">
+  <aside :class="{ terminals: true, open: isOpen }">
     <button @click="() => (isOpen = !isOpen)" class="header">
       <div class="left">
         <Icon alt="Terminal icon" name="icons/terminal" adaptive :size="1.4" />
@@ -8,13 +8,9 @@
       <Icon class="chevron" alt="Chevron icon" name="icons/right-chevron" adaptive :size="1.4" />
     </button>
     <Transition name="expand">
-      <div v-if="isOpen" class="terminal-content">
-        <Commands />
-        <h3>{{ host.id }}</h3>
-        <h3>{{ host.clientName }}</h3>
-        <h3>{{ host.hostName }}</h3>
-        <h3>{{ host.health ? 'Online' : 'Offline' }}</h3>
-        <h3>{{ host.registered ? 'Registered' : 'Unknown' }}</h3>
+      <div v-if="isOpen" class="terminals-content">
+        <Commands @command="handleCommand" />
+        <Terminal v-for="term in terminals" :key="term" :id="term" />
       </div>
     </Transition>
   </aside>
@@ -25,6 +21,7 @@ import { ref } from 'vue';
 import Commands from './Commands.vue';
 import Icon from './Common/Icon.vue';
 import { Transition } from 'vue';
+import Terminal from './Common/Terminal.vue';
 
 defineProps({
   host: {
@@ -34,17 +31,20 @@ defineProps({
 });
 
 const isOpen = ref(false);
+const terminals = ref(1);
+
+const handleCommand = () => {};
 </script>
 
 <style scoped>
-.terminal {
+.terminals {
   position: sticky;
   bottom: 0;
   box-shadow: 0 -6px 6px -4px var(--c-shadow);
   margin-top: 1rem;
   z-index: 1;
 }
-.terminal .header {
+.terminals .header {
   margin-bottom: 0;
   display: flex;
   align-items: center;
@@ -59,28 +59,28 @@ const isOpen = ref(false);
   cursor: pointer;
   transition: background-color var(--fx-transition-duration) linear;
 }
-.terminal .header .icon-container {
+.terminals .header .icon-container {
   font-size: 0;
   margin-right: 1rem;
 }
-.terminal .header h2 {
+.terminals .header h2 {
   display: inline-block;
 }
-.terminal-content {
+.terminals-content {
   overflow: hidden;
   border-top: 1px solid var(--c-border-soft);
   transition: height var(--fx-transition-duration-slower) ease;
   background-color: var(--c-background);
-  height: min(50vh, 15rem);
+  height: min(50vh, 18rem);
 }
-.terminal .chevron {
+.terminals .chevron {
   transform: rotateZ(-90deg);
   margin-left: 1rem;
   justify-self: end;
   margin-right: 0 !important;
   transition: transform var(--fx-transition-duration-slower) ease;
 }
-.terminal.open .chevron {
+.terminals.open .chevron {
   transform: rotateZ(90deg);
 }
 .header .left {
@@ -91,7 +91,7 @@ const isOpen = ref(false);
 .expand-enter-active,
 .expand-leave-active {
   transition: height var(--fx-transition-duration-slower) ease;
-  height: min(50vh, 15rem);
+  height: min(50vh, 18rem);
 }
 
 .expand-enter-from,
@@ -101,11 +101,11 @@ const isOpen = ref(false);
 
 .expand-enter-to,
 .expand-leave-from {
-  height: min(50vh, 15rem);
+  height: min(50vh, 18rem);
 }
 
 @media (hover: hover) {
-  .terminal .header:hover {
+  .terminals .header:hover {
     background-color: var(--c-background-soft);
   }
 }
