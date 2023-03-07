@@ -6,4 +6,8 @@ const debounce = (func, timeout = 300) => {
   };
 };
 
-export { debounce };
+const timeout = (ms) => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
+export { debounce, timeout };

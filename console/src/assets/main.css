@@ -25,3 +25,6 @@
 .mb-0p5 {
   margin-bottom: 0.5rem;
 }
+.d-inline-block {
+  display: inline-block;
+}
