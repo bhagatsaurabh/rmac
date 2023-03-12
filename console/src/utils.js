@@ -10,4 +10,9 @@ const timeout = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
-export { debounce, timeout };
+const defaultHeaders = () => ({
+  Accept: 'application/json',
+  'Content-Type': 'application/json',
+});
+
+export { debounce, timeout, defaultHeaders };

@@ -2,10 +2,10 @@
   <div :class="['property', state]">
     <div class="name"><slot></slot></div>
     <div class="value">
-      <span class="input">
-        <span v-if="state !== 'editing'">{{ state === 'syncing' ? value : orgValue }}</span>
+      <span :class="{ input: true, disabled: !editable }" tabindex="0" @click="handleEdit">
+        <span v-if="state !== 'editing'">{{ syncing ? value : orgValue }}</span>
         <input
-          @blur.passive="handleBlur"
+          @blur="handleBlur"
           ref="inputEl"
           v-if="state === 'editing'"
           type="text"
@@ -14,21 +14,11 @@
         />
       </span>
       <span class="controls">
-        <span class="edit" v-if="editable">
-          <Button
-            @click="handleEdit"
-            v-if="
-              state === 'idle' || state === 'syncing' || (state === 'editing' && orgValue === value)
-            "
-            icon="edit"
-            :complementary="false"
-          />
-          <Button
-            @click="handleSave"
-            v-if="state === 'editing' && orgValue !== value"
-            icon="save"
-          />
-        </span>
+        <Button
+          @click="handleSave"
+          v-if="editable && (state === 'editing' || state === 'edited') && orgValue !== value"
+          icon="save"
+        />
         <Button
           :class="{ copy: true, copied }"
           @click="handleCopy"
@@ -37,9 +27,9 @@
         />
       </span>
     </div>
-    <span v-if="state === 'updating' || (state === 'syncing' && orgValue !== value)">
+    <span class="update-spinner" v-if="state === 'updating' || (syncing && orgValue !== value)">
       <Spinner />
-      <span>{{ state }}</span>
+      <span>{{ syncing ? 'syncing' : state }}</span>
     </span>
   </div>
 </template>
@@ -68,23 +58,43 @@ const props = defineProps({
 });
 
 // States: Idle -> Editing -> Updating -> Error -> Idle
-//                                     -> Notify: Update sent -> Waiting for Sync -> Idle
+//                                               -> Notify: Update sent -> Waiting for Sync -> Idle
+
 const orgValue = computed(() => store.getters.getHostById(props.id)[props.name]);
 
 const state = ref('idle');
+const syncing = ref(false);
 const value = ref(orgValue.value);
 const copied = ref(false);
 const inputEl = ref(null);
 
 const handleEdit = async () => {
+  if (!props.editable) return;
+
   state.value = 'editing';
   await nextTick();
   inputEl.value?.focus();
 };
 const handleSave = async () => {
   state.value = 'updating';
-  await timeout(2000);
-  state.value = 'syncing';
+  syncing.value = false;
+  const result = await store.dispatch('updateProperty', {
+    id: props.id,
+    prop: { name: props.name, value: value.value },
+  });
+  if (!result) {
+    state.value = 'idle';
+    value.value = orgValue.value;
+  } else {
+    syncing.value = true;
+  }
+};
+const handleBlur = () => {
+  if (value.value === orgValue.value) {
+    state.value = 'idle';
+  } else {
+    state.value = 'edited';
+  }
 };
 let timerHandle;
 const handleCopy = () => {
@@ -95,10 +105,6 @@ const handleCopy = () => {
   timerHandle = setTimeout(() => {
     copied.value = false;
   }, 3000);
-};
-const handleBlur = () => {
-  state.value = 'idle';
-  value.value = orgValue.value;
 };
 
 onBeforeUnmount(() => {
@@ -129,6 +135,9 @@ onBeforeUnmount(() => {
 }
 .property.editing .input {
   box-shadow: 0 0 10px 0 var(--c-shadow);
+}
+.property .input.disabled {
+  background-color: var(--c-background-mute);
 }
 .property .value .input span {
   width: 100%;
@@ -176,6 +185,14 @@ onBeforeUnmount(() => {
 }
 .controls .copy.copied::before {
   animation-name: flash;
+}
+
+.update-spinner span:last-of-type {
+  margin-left: 0.3rem;
+}
+
+.update-spinner:deep(.icon-container) {
+  vertical-align: middle;
 }
 
 @keyframes flash {
