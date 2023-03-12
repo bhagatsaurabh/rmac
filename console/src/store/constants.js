@@ -42,26 +42,36 @@ const notificationTypes = Object.freeze({
 });
 
 const notifications = Object.freeze({
-  ECONN_FAILED: {
+  ECONN_FAILED: () => ({
     type: notificationTypes.ERROR,
     title: 'Connection Failed',
     desc: 'Connection to bridge server failed',
-  },
-  EFETCH_HOSTS_FAILED: {
+  }),
+  EFETCH_HOSTS_FAILED: () => ({
     type: notificationTypes.ERROR,
     title: 'Could not fetch hosts',
     desc: 'Could not fetch hosts',
-  },
-  ICONN_DISCONNECTED: {
+  }),
+  WCONN_DISCONNECTED: () => ({
     type: notificationTypes.WARN,
     title: 'Disconnected',
     desc: 'Disconnected from bridge server',
-  },
-  EFETCH_HOST_CONFIG_FAILED: {
+  }),
+  EFETCH_HOST_CONFIG_FAILED: () => ({
     type: notificationTypes.ERROR,
     title: 'Could not fetch host config',
     desc: 'Could not fetch host config',
-  },
+  }),
+  EUPDATE_HOST_PROP_FAILED: (clientName, name, value) => ({
+    type: notificationTypes.ERROR,
+    title: 'Could not update host property',
+    desc: `Could not update host [${clientName}] property [${name}] to value [${value}]`,
+  }),
+  WHOST_OFFLINE: (clientName) => ({
+    type: notificationTypes.WARN,
+    title: 'Host is offline',
+    desc: `Host [${clientName}] is offline`,
+  }),
 });
 
 export { themes, themeName, mutationKeys, notificationTypes, notifications, apiURL };

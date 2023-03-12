@@ -29,7 +29,7 @@ const actions = {
       commit(mutationKeys.SET_CONNECTED, true);
     } catch (error) {
       commit(mutationKeys.SET_CONNECTED, false);
-      bus.emit('notify', notifications.ECONN_FAILED);
+      bus.emit('notify', notifications.ECONN_FAILED());
     } finally {
       commit(mutationKeys.SET_STATUS_MSG, '');
     }
@@ -39,7 +39,7 @@ const actions = {
 
     disconnect();
     commit(mutationKeys.SET_CONNECTED, false);
-    bus.emit('notify', notifications.ICONN_DISCONNECTED);
+    bus.emit('notify', notifications.WCONN_DISCONNECTED());
   },
 };
 

@@ -1,5 +1,6 @@
 import { apiURL, mutationKeys, notifications } from '@/store/constants';
 import bus from '@/event';
+import { defaultHeaders } from '@/utils';
 
 const state = () => ({
   hosts: [],
@@ -35,7 +36,7 @@ const actions = {
       const data = await (await fetch(`${apiURL}/hosts`)).json();
       commit(mutationKeys.SET_HOSTS, data);
     } catch (error) {
-      bus.emit('notify', { ...notifications.EFETCH_HOSTS_FAILED, desc: error.message });
+      bus.emit('notify', { ...notifications.EFETCH_HOSTS_FAILED(), desc: error.message });
       return false;
     }
     return true;
@@ -90,7 +91,33 @@ const actions = {
       const data = await (await fetch(`${apiURL}/config?id=${id}`)).json();
       commit(mutationKeys.SET_HOST_CONFIG, { id, data });
     } catch (error) {
-      bus.emit('notify', { ...notifications.EFETCH_HOST_CONFIG_FAILED, desc: error.message });
+      bus.emit('notify', { ...notifications.EFETCH_HOST_CONFIG_FAILED(), desc: error.message });
+      return false;
+    }
+    return true;
+  },
+  async updateProperty({ getters, commit }, { id, prop }) {
+    const host = getters.getHostById(id);
+
+    if (!host.health) {
+      bus.emit('notify', notifications.WHOST_OFFLINE(host.clientName));
+      return false;
+    }
+
+    try {
+      const data = await (
+        await fetch(`${apiURL}/hosts/${id}/property`, {
+          method: 'POST',
+          headers: defaultHeaders(),
+          body: JSON.stringify(prop),
+        })
+      ).json();
+      commit(mutationKeys.SET_HOSTS, data);
+    } catch (error) {
+      bus.emit(
+        'notify',
+        notifications.EUPDATE_HOST_PROP_FAILED(host.clientName, prop.name, prop.value)
+      );
       return false;
     }
     return true;
