@@ -26,12 +26,13 @@ const mutationKeys = Object.freeze({
   SET_CONNECTED: 'SET_CONNECTED',
   SET_PING_TIMER: 'SET_PING_TIMER',
   SET_STATUS_MSG: 'SET_STATUS_MSG',
-  SET_HOSTS_HEALTH: 'SET_HOSTS_HEALTH',
+  SET_HOST_HEALTH: 'SET_HOST_HEALTH',
   SET_HOSTS: 'SET_HOSTS',
   SET_HOST_CONFIG: 'SET_HOST_CONFIG',
   SET_FILTERED_HOSTS: 'SET_FILTERED_HOSTS',
   PUSH_NOTIFICATION: 'PUSH_NOTIFICATION',
   SET_READ_ALL: 'SET_READ_ALL',
+  SET_HOST_ID: 'SET_HOST_ID',
 });
 
 const notificationTypes = Object.freeze({
@@ -71,6 +72,11 @@ const notifications = Object.freeze({
     type: notificationTypes.WARN,
     title: 'Host is offline',
     desc: `Host [${clientName}] is offline`,
+  }),
+  IHOST_ID_CHANGED: (clientName) => ({
+    type: notificationTypes.INFO,
+    title: 'Host id changed',
+    desc: `Host id for host [${clientName}] has been changed`,
   }),
 });
 

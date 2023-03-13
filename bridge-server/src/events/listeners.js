@@ -25,7 +25,7 @@ const cleanUpSocket = (socket) => {
 
   if (socket.type === "host") {
     Object.keys(state.consoles).forEach((cid) => {
-      emit(state.consoles[cid], "health", null, null, { [socket.id]: false });
+      emit(state.consoles[cid], "health", null, null, { id: socket.id, health: false });
     });
     removeHost(socket.id);
   } else if (socket.type === "console") {
