@@ -1,6 +1,8 @@
 import router from './router';
 import store from './store';
 import { mutationKeys } from './store/constants';
+import bus from '@/event';
+import { notifications } from './store/constants';
 
 let socket;
 let pingTimer;
@@ -57,7 +59,7 @@ const onMessage = async ({ data }) => {
 
   const message = JSON.parse(data);
   if (message.event === 'health') {
-    store.commit(mutationKeys.SET_HOSTS_HEALTH, message);
+    store.commit(mutationKeys.SET_HOST_HEALTH, message.data);
   } else if (message.event === 'ack') {
     store.commit(mutationKeys.SET_STATUS_MSG, 'Fetching hosts...');
     const result = await store.dispatch('fetchHosts');
@@ -68,6 +70,14 @@ const onMessage = async ({ data }) => {
     }
   } else if (message.event === 'config') {
     store.commit(mutationKeys.SET_HOST_CONFIG, message);
+  } else if (message.event === 'hostid') {
+    store.commit(mutationKeys.SET_HOST_ID, message.data);
+
+    if (router.currentRoute.value.fullPath.includes(message.data.oldId)) {
+      router.push({ name: 'dashboard' });
+      const host = store.getters.getHostById(message.data.newId);
+      bus.emit('notify', notifications.IHOST_ID_CHANGED(host.clientName));
+    }
   }
 };
 

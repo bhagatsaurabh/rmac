@@ -2,8 +2,9 @@ import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import express from "express";
 import bodyParser from "body-parser";
-import { getHosts } from "../store/store.js";
+import { getHosts, state } from "../store/store.js";
 import cors from "cors";
+import { emit } from "../events/handlers.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -15,6 +16,20 @@ if (process.env.PROFILE === "Dev") {
 
 staticServer.get("/api/hosts", async (_req, res) => {
   res.send(await getHosts());
+});
+staticServer.get("/api/hosts/:id/config", (req, res) => {
+  const id = req.params.id;
+  if (!state.configs[id]) {
+    res.status(204).send();
+  } else {
+    res.send(state.configs[id]);
+  }
+});
+staticServer.post("/api/hosts/:id/property", (req, res) => {
+  const id = req.params.id;
+  const data = req.body;
+  emit(state.hosts[id], "command", null, null, `prop ${data.name} ${data.value}}`);
+  res.send();
 });
 
 staticServer.use(express.static(resolve(__dirname, "../../public")));

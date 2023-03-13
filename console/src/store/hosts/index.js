@@ -8,14 +8,14 @@ const state = () => ({
 });
 
 const mutations = {
-  [mutationKeys.SET_HOSTS_HEALTH]: (state, message) => {
-    const updatedHosts = { ...state.hosts };
-    Object.keys(message).forEach((id) => {
-      if (!updatedHosts[id]) {
-        updatedHosts[id] = {};
-      }
-      updatedHosts[id].health = message[id];
-    });
+  [mutationKeys.SET_HOST_HEALTH]: (state, data) => {
+    const updatedHosts = [...state.hosts];
+
+    const host = updatedHosts.find((host) => host.id === data.id);
+    if (host) {
+      host.health = data.health;
+    }
+
     state.hosts = updatedHosts;
   },
   [mutationKeys.SET_HOSTS]: (state, data) => {
@@ -24,9 +24,26 @@ const mutations = {
   [mutationKeys.SET_FILTERED_HOSTS]: (state, data) => {
     state.filteredHosts = data ?? [];
   },
-  [mutationKeys.SET_HOST_CONFIG]: (state, message) => {
+  [mutationKeys.SET_HOST_CONFIG]: (state, { id, data }) => {
     const updatedHosts = [...state.hosts];
-    updatedHosts[message.id] = message.data;
+
+    const host = updatedHosts.find((host) => host.id === id);
+    if (host) {
+      host.config = data;
+    }
+
+    state.hosts = updatedHosts;
+  },
+  [mutationKeys.SET_HOST_ID]: (state, { oldId, newId }) => {
+    const updatedHosts = [...state.hosts];
+
+    const host = updatedHosts.find((host) => host.id === oldId);
+    if (host) {
+      host.id = newId;
+      host.registered = true;
+    }
+
+    state.hosts = updatedHosts;
   },
 };
 
@@ -88,15 +105,18 @@ const actions = {
   },
   async fetchConfig({ commit }, id) {
     try {
-      const data = await (await fetch(`${apiURL}/config?id=${id}`)).json();
-      commit(mutationKeys.SET_HOST_CONFIG, { id, data });
+      const res = await fetch(`${apiURL}/hosts/${id}/config`);
+      if (res.status !== 204) {
+        const data = await res.json();
+        commit(mutationKeys.SET_HOST_CONFIG, { id, data });
+      }
     } catch (error) {
       bus.emit('notify', { ...notifications.EFETCH_HOST_CONFIG_FAILED(), desc: error.message });
       return false;
     }
     return true;
   },
-  async updateProperty({ getters, commit }, { id, prop }) {
+  async updateProperty({ getters }, { id, prop }) {
     const host = getters.getHostById(id);
 
     if (!host.health) {
@@ -105,14 +125,11 @@ const actions = {
     }
 
     try {
-      const data = await (
-        await fetch(`${apiURL}/hosts/${id}/property`, {
-          method: 'POST',
-          headers: defaultHeaders(),
-          body: JSON.stringify(prop),
-        })
-      ).json();
-      commit(mutationKeys.SET_HOSTS, data);
+      await fetch(`${apiURL}/hosts/${id}/property`, {
+        method: 'POST',
+        headers: defaultHeaders(),
+        body: JSON.stringify(prop),
+      });
     } catch (error) {
       bus.emit(
         'notify',

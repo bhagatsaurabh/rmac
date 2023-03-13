@@ -19,7 +19,8 @@ const identity = async (socket, message) => {
 
     Object.keys(state.consoles).forEach((socketId) => {
       emit(state.consoles[socketId], "health", null, null, {
-        [socket.id]: true,
+        id: socket.id,
+        health: true,
       });
     });
   } else if (message.type === "console") {
@@ -32,15 +33,19 @@ const identity = async (socket, message) => {
     emit(socket, "ack", null, null, null);
   }
 };
-
 const config = (socket, message) => {
   if (socket.type === "host") {
     emit(state.consoles[message.cId], "config", socket.id, message.hId, message.data);
-  } else if (socket.type === "console") {
-    Object.keys(state.hosts).forEach((socketId) => {
-      emit(state.hosts[socketId], "config", socket.id, null, null);
+  }
+};
+const hostid = (socket, message) => {
+  if (socket.type === "host") {
+    console.log("HostId Change: ", message.data);
+
+    Object.keys(state.consoles).forEach((socketId) => {
+      emit(state.consoles[socketId], "hostid", null, null, message.data);
     });
   }
 };
 
-export { emit, parse, identity, config };
+export { emit, parse, identity, config, hostid };
