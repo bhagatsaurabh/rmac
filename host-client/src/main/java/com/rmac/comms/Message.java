@@ -10,13 +10,13 @@ public class Message {
 
   String event;
   String type;
-  String cId;
+  String rayId;
   String hId;
   Object data;
 
-  public Message(String event, String cId, Object data) {
+  public Message(String event, String rayId, Object data) {
     this.event = event;
-    this.cId = cId;
+    this.rayId = rayId;
     this.hId = RMAC.config.getClientId();
     this.data = data;
     this.type = "host";

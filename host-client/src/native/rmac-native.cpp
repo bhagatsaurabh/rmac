@@ -111,7 +111,7 @@ bool isMicActive(char *micName)
             continue;
         }
 
-        // Optional. Determine which application is using Microphone for recording
+        // Determine which application is using Microphone for recording
         LPWSTR instId = NULL;
         hr = pSessionControl2->GetSessionInstanceIdentifier(&instId);
         if (S_OK == hr)

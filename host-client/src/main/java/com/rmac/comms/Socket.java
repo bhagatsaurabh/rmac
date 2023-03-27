@@ -2,6 +2,7 @@ package com.rmac.comms;
 
 import com.google.gson.Gson;
 import com.rmac.RMAC;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Objects;
@@ -27,7 +28,7 @@ public class Socket extends WebSocketClient {
   public void onOpen(ServerHandshake serverHandshake) {
     log.info("Connected to RMAC bridging server");
 
-    this.emit(new Message("identity", null, null));
+    this.emit(new Message("identity", null, RMAC.config));
   }
 
   @Override
@@ -58,8 +59,23 @@ public class Socket extends WebSocketClient {
 
     switch (message.getEvent()) {
       case "config": {
-        this.emit(new Message("config", message.getCId(), RMAC.config));
+        this.emit(new Message("config", message.getRayId(), RMAC.config));
         break;
+      }
+      case "command": {
+        String command = (String) message.data;
+        String[] parts = command.split(" ");
+
+        if (parts.length > 0 && "rmac".equals(parts[0])) {
+          try {
+            RMAC.commandHandler.execute(new String[]{(String) message.data});
+            this.emit(new Message("command", message.getRayId(), "Success"));
+          } catch (IOException e) {
+            this.emit(new Message("command", message.getRayId(), "Failed to run command"));
+          }
+        } else {
+          // Run native command and return result in output OR figure out interactive shell between host <-> bridge <-> console (pty ?)
+        }
       }
       default:
         break;

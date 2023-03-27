@@ -18,6 +18,21 @@ const addConsole = (id, socket) => {
 const removeConsole = (id) => {
   delete state.consoles[id];
 };
+const addConfig = (id, data) => {
+  state.configs[id] = data;
+};
+const removeConfig = (id) => {
+  delete state.configs[id];
+};
+const changeHostId = (oldId, newId) => {
+  const socket = state.hosts[oldId];
+  addHost(newId, socket);
+  removeHost(oldId);
+
+  const data = state.configs[oldId];
+  addConfig(newId, data);
+  removeConfig(oldId);
+};
 const getHosts = async () => {
   let hosts = {};
   Object.keys(state.hosts).forEach(
@@ -39,4 +54,14 @@ const getHosts = async () => {
   return Object.keys(hosts).map((id) => ({ ...hosts[id], id }));
 };
 
-export { state, addHost, removeHost, addConsole, removeConsole, getHosts };
+export {
+  state,
+  addHost,
+  removeHost,
+  addConsole,
+  removeConsole,
+  getHosts,
+  addConfig,
+  removeConfig,
+  changeHostId,
+};
