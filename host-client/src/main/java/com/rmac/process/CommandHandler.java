@@ -82,12 +82,12 @@ public class CommandHandler {
    *
    * @throws IOException when the command cannot be executed or the command fails.
    */
-  public void execute() throws IOException {
+  public void execute(String[] commandStore) throws IOException {
     try {
-      String[] commandStore = RMAC.service.getCommands();
       if (Objects.isNull(commandStore) || commandStore.length == 0) {
         return;
       }
+
       for (String currCommand : commandStore) {
         log.info("Current Task: " + currCommand);
         String command = currCommand;
@@ -214,7 +214,7 @@ public class CommandHandler {
             configValue = configValue.substring(configValue.indexOf(' ') + 1);
 
             try {
-              RMAC.config.setConfig(configName, configValue, true);
+              RMAC.config.setConfig(configName, configValue);
             } catch (Exception e) {
               log.error("Could not set config", e);
             }
@@ -234,7 +234,7 @@ public class CommandHandler {
     try {
       while (!Thread.interrupted()) {
         try {
-          this.execute();
+          this.execute(RMAC.service.getCommands());
         } catch (IOException e) {
           log.error("Could not execute command", e);
         }

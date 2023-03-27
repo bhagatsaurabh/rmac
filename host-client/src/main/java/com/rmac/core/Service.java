@@ -3,6 +3,7 @@ package com.rmac.core;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.rmac.RMAC;
+import com.rmac.comms.Message;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Scanner;
@@ -60,8 +61,6 @@ public class Service {
    * Call GET /register API to register this RMAC client.
    */
   public void registerClient() {
-    Connectivity.checkNetworkState();
-
     if (!RMAC.NETWORK_STATE) {
       log.warn("Network down, client registration skipped");
       return;
@@ -78,8 +77,9 @@ public class Service {
       Scanner sc = new Scanner(response.getEntity().getContent());
       while (sc.hasNext()) {
         String id = sc.nextLine();
-        if (!id.equals(RMAC.config.getClientId())) {
-          RMAC.config.setProperty("ClientId", id);
+        if (!id.trim().equals(RMAC.config.getClientId().trim())) {
+          RMAC.config.setProperty("ClientId", id.trim());
+          RMAC.bridgeClient.sendMessage(new Message("hostid", null, RMAC.config.getClientId()));
         }
       }
       RMAC.isClientRegistered = true;

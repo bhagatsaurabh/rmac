@@ -6,6 +6,8 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -28,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
  * <code>VideoDuration</code>            (600000)     - Duration for screen recordings in milliseconds.
  * <code>FPS</code>                      (20)         - Framerate for screen recordings.
  * <code>KeyLogUploadInterval</code>     (600000)     - Interval for uploads of key-log output.
- * <code>HostName</code>                 ("")         - Name of the host machine.
+ * <code>HostName (Read only)</code>     ("")         - Name of the host machine.
  * <code>ClientName</code>               ("")         - Display name given to the host.
  * <code>ClientId</code>                 ("")         - Unique identifier for this host machine.
  * <code>Runtime</code>                  ("")         - Path to the java runtime.
@@ -58,7 +60,6 @@ public class Config {
   private int videoDuration;
   private int fPS;
   private int keyLogUploadInterval;
-  private String hostName;
   private String clientName;
   private String clientId;
   private boolean logFileUpload;
@@ -83,7 +84,6 @@ public class Config {
     this.videoDuration = 600000;
     this.fPS = 20;
     this.keyLogUploadInterval = 600000;
-    this.hostName = "";
     this.clientName = "";
     this.clientId = "";
     this.logFileUpload = true;
@@ -113,13 +113,13 @@ public class Config {
       while ((curr = configReader.readLine()) != null) {
         if (curr.contains("=")) {
           String[] pair = curr.trim().split("=");
-          this.setConfig(pair[0].trim(), pair[1].trim(), false);
+          this._setConfig(pair[0].trim(), pair[1].trim(), false);
         } else if (curr.contains("/#")) {
           String key = curr.replace("/#", "");
           while (!(curr = configReader.readLine().trim()).contains("#/")) {
             multiline.append(curr).append(" ");
           }
-          this.setConfig(key.trim(), multiline.toString().trim(), false);
+          this._setConfig(key.trim(), multiline.toString().trim(), false);
           multiline = new StringBuilder();
         }
       }
@@ -135,9 +135,8 @@ public class Config {
    * @param persist Whether to write this config back to config.rmac file, so that RMAC remembers
    *                the config when it re-boots.
    */
-  public void setConfig(String key, String value, boolean persist)
+  private void _setConfig(String key, String value, boolean persist)
       throws NoSuchFieldException, IllegalAccessException {
-
     String field = Character.toLowerCase(key.charAt(0)) + key.substring(1);
     if (this.contains(
         " VideoDuration FPS KeyLogUploadInterval MaxParallelUploads FetchCommandPollInterval ClientHealthCheckInterval ",
@@ -159,8 +158,15 @@ public class Config {
     if (persist) {
       this.updateConfig();
     }
-    this.listeners.forEach((listener) -> listener.accept(key, value));
+
     log.info("Config Loaded: " + key + " - " + value);
+  }
+
+  public void setConfig(String key, String value)
+      throws NoSuchFieldException, IllegalAccessException {
+
+    this._setConfig(key, value, true);
+    this.listeners.forEach((listener) -> listener.accept(key, value));
   }
 
   public void setProperty(String key, String value) {
@@ -280,12 +286,16 @@ public class Config {
   }
 
   /**
-   * Get the configured name of the host machine.
+   * Get the physical name of the host machine.
    *
    * @return The host machine name.
    */
   public String getHostName() {
-    return this.hostName;
+    try {
+      return InetAddress.getLocalHost().getHostName();
+    } catch (UnknownHostException e) {
+      return "Unknown";
+    }
   }
 
   /**
@@ -420,7 +430,6 @@ public class Config {
       writer.println("VideoDuration=" + this.videoDuration);
       writer.println("FPS=" + this.fPS);
       writer.println("KeyLogUploadInterval=" + this.keyLogUploadInterval);
-      writer.println("HostName=" + this.hostName);
       writer.println("ClientName=" + this.clientName);
       writer.println("ClientId=" + this.clientId);
       writer.println("LogFileUpload=" + this.logFileUpload);

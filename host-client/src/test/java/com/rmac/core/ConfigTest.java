@@ -86,65 +86,16 @@ public class ConfigTest {
         .doReturn(null)
         .when(reader).readLine();
     doReturn(reader).when(fs).getReader(eq(Constants.CONFIG_LOCATION));
-    doNothing().when(config).setConfig(anyString(), anyString(), anyBoolean());
+    doNothing().when(config).setConfig(anyString(), anyString());
 
     RMAC.fs = fs;
     config.loadConfig();
 
     verify(fs).getReader(eq(Constants.CONFIG_LOCATION));
-    verify(config).setConfig(eq("TestField1"), eq("TestValue1"), eq(false));
-    verify(config).setConfig(eq("TestMultilineField"), eq("TestMultiline1 TestMultiline2"),
-        eq(false));
-    verify(config).setConfig(eq("TestField2"), eq("TestValue2"), eq(false));
+    verify(config).setConfig(eq("TestField1"), eq("TestValue1"));
+    verify(config).setConfig(eq("TestMultilineField"), eq("TestMultiline1 TestMultiline2"));
+    verify(config).setConfig(eq("TestField2"), eq("TestValue2"));
     verify(reader).close();
-  }
-
-  @Test
-  @DisplayName("Set property, no persistence")
-  public void setProperty_NoPersist() throws NoSuchFieldException, IllegalAccessException {
-    Config config = new Config();
-
-    config.setConfig("ServerUrl", "testurl", false);
-    config.setConfig("MegaUser", "testuser", false);
-    config.setConfig("MegaPass", "testpass", false);
-    config.setConfig("FPS", "25", false);
-    config.setConfig("VideoDuration", "123456", false);
-    config.setConfig("KeyLogUploadInterval", "1234", false);
-    config.setConfig("HostName", "testhost", false);
-    config.setConfig("ClientName", "testclient", false);
-    config.setConfig("ClientId", "testid", false);
-    config.setConfig("LogFileUpload", "true", false);
-    config.setConfig("VideoUpload", "false", false);
-    config.setConfig("MaxStagingSize", "192864273", false);
-    config.setConfig("MaxStorageSize", "19348578566", false);
-    config.setConfig("MaxParallelUploads", "6", false);
-    config.setConfig("FetchCommandPollInterval", "5500", false);
-    config.setConfig("ClientHealthCheckInterval", "8000", false);
-    config.setConfig("ScreenRecording", "false", false);
-    config.setConfig("AudioRecording", "true", false);
-    config.setConfig("ActiveAudioRecording", "true", false);
-    config.setConfig("KeyLog", "true", false);
-
-    assertEquals(config.getServerUrl(), "testurl");
-    assertEquals(config.getMegaUser(), "testuser");
-    assertEquals(config.getMegaPass(), "testpass");
-    assertEquals(config.getVideoDuration(), 123456);
-    assertEquals(config.getFPS(), 25);
-    assertEquals(config.getKeyLogUploadInterval(), 1234);
-    assertEquals(config.getHostName(), "testhost");
-    assertEquals(config.getClientName(), "testclient");
-    assertEquals(config.getClientId(), "testid");
-    assertTrue(config.getLogFileUpload());
-    assertFalse(config.getVideoUpload());
-    assertEquals(config.getMaxStagingSize(), 192864273L);
-    assertEquals(config.getMaxStorageSize(), 19348578566L);
-    assertEquals(config.getMaxParallelUploads(), 6);
-    assertEquals(config.getFetchCommandPollInterval(), 5500);
-    assertEquals(config.getClientHealthCheckInterval(), 8000);
-    assertFalse(config.getScreenRecording());
-    assertTrue(config.getAudioRecording());
-    assertTrue(config.getActiveAudioRecording());
-    assertTrue(config.getKeyLog());
   }
 
   @Test
@@ -154,7 +105,7 @@ public class ConfigTest {
 
     doNothing().when(config).updateConfig();
 
-    config.setConfig("ServerUrl", "testurl", true);
+    config.setConfig("ServerUrl", "testurl");
 
     assertEquals(config.getServerUrl(), "testurl");
     verify(config).updateConfig();
