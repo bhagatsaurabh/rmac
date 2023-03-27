@@ -26,9 +26,9 @@ staticServer.get("/api/hosts/:id/config", (req, res) => {
   }
 });
 staticServer.post("/api/hosts/:id/property", (req, res) => {
-  const id = req.params.id;
+  const { id } = req.params;
   const data = req.body;
-  emit(state.hosts[id], "command", null, null, `prop ${data.name} ${data.value}}`);
+  emit(state.hosts[id], "command", null, null, `rmac config ${data.name} ${data.value}}`);
   res.send();
 });
 
