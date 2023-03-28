@@ -1,9 +1,9 @@
 <template>
   <div class="infocon-container">
-    <span>
+    <span v-show="!hideLabel">
       <slot name="title"></slot>
     </span>
-    <button @click="showModal = !showModal" :data-title="desc" class="infocon-button">
+    <button @click="infoClickHandler" :data-title="desc" class="infocon-button">
       <Icon alt="Info" name="icons/info" adaptive />
     </button>
     <Modal :title="title" class="info-modal" :show="showModal" @dismiss="showModal = !showModal">
@@ -18,6 +18,13 @@ import { computed, useSlots, ref } from 'vue';
 import Icon from './Icon.vue';
 import Modal from './Modal.vue';
 
+const props = defineProps({
+  hideLabel: {
+    type: Boolean,
+    default: false,
+  },
+});
+
 const slots = useSlots();
 const showModal = ref(false);
 
@@ -27,11 +34,17 @@ const title = computed(() => {
 const desc = computed(() => {
   return slots.desc()[0].children;
 });
+
+const infoClickHandler = () => {
+  if (matchMedia('(max-width: 768px)').matches) {
+    showModal.value = !showModal.value;
+  }
+};
 </script>
 
 <style scoped>
 .infocon-container {
-  display: block !important;
+  display: inline-block !important;
   transition: var(--theme-color-transition);
 }
 
@@ -41,6 +54,7 @@ const desc = computed(() => {
   border: none;
   line-height: 1rem;
   margin-left: 0.5rem;
+  cursor: pointer;
 }
 
 @media (min-width: 768px) {

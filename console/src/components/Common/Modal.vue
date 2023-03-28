@@ -108,12 +108,14 @@ onBeforeUnmount(unregisterGuard);
 }
 
 .modal .content {
-  padding: 0 0.2rem;
+  padding: 0 0.5rem;
+  white-space: break-spaces;
 }
 
 .modal .title {
   font-weight: bold;
   margin-bottom: 1rem;
+  padding: 0 0.5rem;
 }
 
 .close-icon {

@@ -12,7 +12,18 @@
         <Icon alt="Offline icon" name="icons/host-offline" :size="2" adaptive />
         <h2>Host is offline</h2>
       </div>
-      <div v-else class="config"></div>
+      <div v-else class="config">
+        <Property
+          v-for="name in Object.keys(host.config)"
+          :key="name"
+          type="config"
+          :id="host.id"
+          :name="name"
+          editable
+        >
+          {{ name }}
+        </Property>
+      </div>
     </div>
   </section>
 </template>
@@ -21,6 +32,7 @@
 import { ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import Icon from './Common/Icon.vue';
+import Property from './Common/Property.vue';
 import Spinner from './Common/Spinner.vue';
 
 const store = useStore();
@@ -55,5 +67,10 @@ onMounted(async () => {
   opacity: 0.6;
   font-size: 0;
   margin-right: 0.5rem;
+}
+
+.config {
+  width: 100%;
+  overflow-wrap: break-word;
 }
 </style>

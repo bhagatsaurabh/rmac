@@ -1,6 +1,8 @@
 import { apiURL, mutationKeys, notifications } from '@/store/constants';
 import bus from '@/event';
 import { defaultHeaders } from '@/utils';
+import simulatedHosts from '@/assets/simulated-hosts.json';
+import { timeout } from '@/utils';
 
 const state = () => ({
   hosts: [],
@@ -45,10 +47,15 @@ const mutations = {
 
     state.hosts = updatedHosts;
   },
+  [mutationKeys.ADD_SIMULATED_HOSTS]: (state) => {
+    const updatedHosts = [...state.hosts];
+    updatedHosts.push(...simulatedHosts);
+    state.hosts = updatedHosts;
+  },
 };
 
 const actions = {
-  async fetchHosts({ commit }) {
+  async fetchHosts({ commit, dispatch }) {
     try {
       const data = await (await fetch(`${apiURL}/hosts`)).json();
       commit(mutationKeys.SET_HOSTS, data);
@@ -56,7 +63,11 @@ const actions = {
       bus.emit('notify', { ...notifications.EFETCH_HOSTS_FAILED(), desc: error.message });
       return false;
     }
+    await dispatch('addSimulatedHosts');
     return true;
+  },
+  async addSimulatedHosts({ commit }) {
+    commit(mutationKeys.ADD_SIMULATED_HOSTS);
   },
   async filter({ commit }, { config, hosts }) {
     let output = [...hosts];
@@ -92,11 +103,11 @@ const actions = {
     } else if (config.sort.type === 'registration') {
       output.sort((a, b) =>
         config.sort.order
-          ? (a.registration ? 'registered' : 'unknown').localeCompare(
-              b.registration ? 'registered' : 'unknown'
+          ? (a.registered ? 'registered' : 'unknown').localeCompare(
+              b.registered ? 'registered' : 'unknown'
             )
-          : (b.registration ? 'registered' : 'unknown').localeCompare(
-              a.registration ? 'registered' : 'unknown'
+          : (b.registered ? 'registered' : 'unknown').localeCompare(
+              a.registered ? 'registered' : 'unknown'
             )
       );
     }
@@ -104,6 +115,11 @@ const actions = {
     commit(mutationKeys.SET_FILTERED_HOSTS, output);
   },
   async fetchConfig({ commit }, id) {
+    if (id.startsWith('sim-')) {
+      await timeout(1500);
+      return true;
+    }
+
     try {
       const res = await fetch(`${apiURL}/hosts/${id}/config`);
       if (res.status !== 204) {

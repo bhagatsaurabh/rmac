@@ -50,6 +50,15 @@
           Filter
         </Button>
       </span>
+      <span class="simulated">
+        <label class="mr-0p5" for="show-simulated">Show Simulated</label>
+        <input
+          @change="changeHandler"
+          type="checkbox"
+          id="show-simulated"
+          v-model="config.simulated"
+        />
+      </span>
     </div>
     <div :class="{ options: true, open }">
       <div class="options-category">
@@ -60,7 +69,7 @@
         <button
           :ref="(el) => (sortOptions[0] = el)"
           @click="() => sortChangeHandler(0, 'name')"
-          class="sort-option"
+          :class="{ 'sort-option': true, active: config.sort.type === 'name' }"
         >
           <Icon alt="Check icon" name="icons/check" adaptive :size="1.3" />
           <span>Name</span>
@@ -69,18 +78,18 @@
         <button
           :ref="(el) => (sortOptions[1] = el)"
           @click="() => sortChangeHandler(1, 'connection')"
-          class="sort-option"
+          :class="{ 'sort-option': true, active: config.sort.type === 'connection' }"
         >
           <Icon alt="Check icon" name="icons/check" adaptive :size="1.3" />
           <span>Connection</span>
           <p v-if="config.sort.type === 'connection'">
-            {{ config.sort.order ? 'Online first' : 'Offline first' }}
+            {{ config.sort.order ? 'Offline first' : 'Online first' }}
           </p>
         </button>
         <button
           :ref="(el) => (sortOptions[2] = el)"
           @click="() => sortChangeHandler(2, 'registration')"
-          class="sort-option"
+          :class="{ 'sort-option': true, active: config.sort.type === 'registration' }"
         >
           <Icon alt="Check icon" name="icons/check" adaptive :size="1.3" />
           <span>Registration</span>
@@ -159,7 +168,8 @@ import Icon from './Icon.vue';
 const config = ref({
   name: '',
   filter: { connection: [], registration: [] },
-  sort: { type: null, order: true },
+  sort: { type: 'name', order: true },
+  simulated: true,
 });
 const sortOptions = ref([]);
 const isRefreshing = ref(false);
@@ -329,11 +339,24 @@ watch(config, () => {
 .options-category h2 button {
   display: inline-block;
   padding: 0.5rem;
+  margin-top: 0;
 }
 .options-category h2 {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.simulated {
+  display: inline-flex;
+  align-items: center;
+  width: min-content;
+  white-space: nowrap;
+  padding: 0.5rem 0;
+}
+.simulated input {
+  width: 1rem;
+  height: 1rem;
 }
 
 @media (hover: hover) {

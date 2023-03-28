@@ -47,6 +47,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  type: {
+    type: String,
+    required: true,
+  },
   name: {
     type: String,
     required: true,
@@ -60,7 +64,10 @@ const props = defineProps({
 // States: Idle -> Editing -> Updating -> Error -> Idle
 //                                               -> Notify: Update sent -> Waiting for Sync -> Idle
 
-const orgValue = computed(() => store.getters.getHostById(props.id)[props.name]);
+const orgValue = computed(() => {
+  if (props.type === 'global') return store.getters.getHostById(props.id)[props.name];
+  else if (props.type === 'config') return store.getters.getHostById(props.id).config[props.name];
+});
 
 const state = ref('idle');
 const syncing = ref(false);
@@ -153,6 +160,8 @@ onBeforeUnmount(() => {
   width: 100%;
   font-size: 1.1rem;
   padding-left: 0;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+    Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
 }
 .property .value .input input:focus {
   outline: none;

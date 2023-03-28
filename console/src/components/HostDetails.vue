@@ -5,9 +5,9 @@
       <h2>Properties</h2>
     </header>
     <div class="host-content">
-      <Property :id="host.id" name="clientName" editable>Client Name</Property>
-      <Property :id="host.id" name="hostName" editable>Host Name</Property>
-      <Property :id="host.id" name="id">ID</Property>
+      <Property :id="host.id" type="global" name="clientName" editable>Client Name</Property>
+      <Property :id="host.id" type="global" name="hostName">Host Name</Property>
+      <Property :id="host.id" type="global" name="id">ID</Property>
       <div class="statuses">
         <div class="status">
           <span class="field-name">Connectivity:</span>
@@ -27,6 +27,13 @@
           />
           <span>{{ host.registered ? 'Registered' : 'Unknown' }}</span>
         </div>
+        <div>
+          <span class="simulated-tag">Simulated</span>
+          <Info hide-label>
+            <template class="simulated-tag" #title>Simulated Host</template>
+            <template #desc>This is a simulated host, not a real machine ! </template>
+          </Info>
+        </div>
       </div>
     </div>
   </section>
@@ -34,6 +41,7 @@
 
 <script setup>
 import Icon from './Common/Icon.vue';
+import Info from './Common/Info.vue';
 import Property from './Common/Property.vue';
 
 defineProps({
@@ -56,5 +64,12 @@ defineProps({
 .statuses {
   margin-top: 2rem;
   padding: 0 0.5rem;
+}
+.simulated-tag {
+  background-color: #c6c6ff;
+  border-radius: 0.3rem;
+  padding: 0.1rem 0.5rem;
+  margin-top: 0.5rem;
+  color: var(--c-black);
 }
 </style>
