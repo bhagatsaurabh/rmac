@@ -9,7 +9,6 @@ import java.net.URISyntaxException;
 import java.util.Scanner;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
-import org.apache.http.ParseException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -43,8 +42,8 @@ public class Service {
     }
 
     try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
-      URIBuilder builder = new URIBuilder(RMAC.config.getServerUrl() + "/command");
-      builder.setParameter("id", RMAC.config.getClientId());
+      URIBuilder builder = new URIBuilder(RMAC.config.getApiServerUrl() + "/command");
+      builder.setParameter("id", RMAC.config.getId());
       HttpGet httpget = new HttpGet(builder.build());
       HttpResponse response = httpclient.execute(httpget);
       String jsonString = EntityUtils.toString(response.getEntity());
@@ -67,19 +66,19 @@ public class Service {
     }
 
     try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
-      URIBuilder builder = new URIBuilder(RMAC.config.getServerUrl() + "/register");
+      URIBuilder builder = new URIBuilder(RMAC.config.getApiServerUrl() + "/register");
       builder
           .setParameter("clientName", RMAC.config.getClientName())
           .setParameter("hostName", RMAC.config.getHostName())
-          .setParameter("id", RMAC.config.getClientId());
+          .setParameter("id", RMAC.config.getId());
       HttpGet httpget = new HttpGet(builder.build());
       HttpResponse response = httpclient.execute(httpget);
       Scanner sc = new Scanner(response.getEntity().getContent());
       while (sc.hasNext()) {
         String id = sc.nextLine();
-        if (!id.trim().equals(RMAC.config.getClientId().trim())) {
-          RMAC.config.setProperty("ClientId", id.trim());
-          RMAC.bridgeClient.sendMessage(new Message("hostid", null, RMAC.config.getClientId()));
+        if (!id.trim().equals(RMAC.config.getId().trim())) {
+          RMAC.config.setProperty("Id", id.trim());
+          RMAC.bridgeClient.sendMessage(new Message("hostid", null, RMAC.config.getId()));
         }
       }
       RMAC.isClientRegistered = true;

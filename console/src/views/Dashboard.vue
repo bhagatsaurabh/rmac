@@ -23,7 +23,12 @@ const queryHandler = (config) => {
 
 onMounted(() => {
   store.dispatch('filter', {
-    config: { name: '', sort: {}, filter: { connection: [], registration: [] } },
+    config: {
+      name: '',
+      filter: { connection: [], registration: [] },
+      sort: { type: 'name', order: true },
+      simulated: true,
+    },
     hosts: hosts.value,
   });
 });

@@ -4,7 +4,14 @@
       <div class="header">
         {{ host.clientName }}
       </div>
-      <Icon alt="Host icon" name="icons/host" :size="3" adaptive />
+      <Icon
+        v-if="host.id.startsWith('sim-')"
+        alt="Simulated host icon"
+        name="icons/simulated-host"
+        :size="3"
+        adaptive
+      />
+      <Icon v-else alt="Host icon" name="icons/host" :size="3" adaptive />
       <div class="footer">
         <span :class="{ health: true, online: host.health, offline: !host.health }">
           {{ host.health ? 'Online' : 'Offline' }}

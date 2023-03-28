@@ -33,6 +33,7 @@ const mutationKeys = Object.freeze({
   PUSH_NOTIFICATION: 'PUSH_NOTIFICATION',
   SET_READ_ALL: 'SET_READ_ALL',
   SET_HOST_ID: 'SET_HOST_ID',
+  ADD_SIMULATED_HOSTS: 'ADD_SIMULATED_HOSTS',
 });
 
 const notificationTypes = Object.freeze({
