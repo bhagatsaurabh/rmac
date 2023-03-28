@@ -46,8 +46,8 @@ public class ServiceTest {
     CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
     MockedStatic<HttpClients> mockedClient = mockStatic(HttpClients.class);
 
-    doReturn("testurl").when(config).getServerUrl();
-    doReturn("testid").when(config).getClientId();
+    doReturn("testurl").when(config).getApiServerUrl();
+    doReturn("testid").when(config).getId();
     mockedClient.when(HttpClients::createDefault).thenReturn(httpClient);
     when(httpClient.execute(any())).thenThrow(IOException.class);
     connectivity.when(Connectivity::checkNetworkState).thenReturn(true);
@@ -78,8 +78,8 @@ public class ServiceTest {
     when(httpClient.execute(any())).thenReturn(mockResponse);
     when(mockGson.fromJson(anyString(), any())).thenThrow(JsonSyntaxException.class);
 
-    doReturn("testurl").when(config).getServerUrl();
-    doReturn("testid").when(config).getClientId();
+    doReturn("testurl").when(config).getApiServerUrl();
+    doReturn("testid").when(config).getId();
     connectivity.when(Connectivity::checkNetworkState).thenReturn(true);
 
     RMAC.config = config;
@@ -108,8 +108,8 @@ public class ServiceTest {
     mockedUtils.when(() -> EntityUtils.toString(any())).thenReturn("['testcmd1', 'testcmd2']");
     when(httpClient.execute(any())).thenReturn(mockResponse);
 
-    doReturn("testurl").when(config).getServerUrl();
-    doReturn("testid").when(config).getClientId();
+    doReturn("testurl").when(config).getApiServerUrl();
+    doReturn("testid").when(config).getId();
     connectivity.when(Connectivity::checkNetworkState).thenReturn(true);
 
     RMAC.config = config;

@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
  * <code>KeyLogUploadInterval</code>     (600000)     - Interval for uploads of key-log output.
  * <code>HostName (Read only)</code>     ("")         - Name of the host machine.
  * <code>ClientName</code>               ("")         - Display name given to the host.
- * <code>ClientId</code>                 ("")         - Unique identifier for this host machine.
+ * <code>Id</code>                       ("")         - Unique identifier for this host machine.
  * <code>Runtime</code>                  ("")         - Path to the java runtime.
  * <code>LogFileUpload</code>            (true)       - Switch to on/off uploads of key-logs.
  * <code>VideoUpload</code>              (true)       - Switch to on/off uploads of screen recordings.
@@ -53,7 +53,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Config {
 
-  private String serverUrl;
+  private String apiServerUrl;
   private String bridgeServerUrl;
   private String megaUser;
   private String megaPass;
@@ -61,7 +61,7 @@ public class Config {
   private int fPS;
   private int keyLogUploadInterval;
   private String clientName;
-  private String clientId;
+  private String id;
   private boolean logFileUpload;
   private boolean videoUpload;
   private long maxStagingSize;
@@ -77,7 +77,7 @@ public class Config {
   public transient final List<BiConsumer<String, String>> listeners = new ArrayList<>();
 
   public Config() {
-    this.serverUrl = "";
+    this.apiServerUrl = "";
     this.bridgeServerUrl = "";
     this.megaUser = "";
     this.megaPass = "";
@@ -85,7 +85,7 @@ public class Config {
     this.fPS = 20;
     this.keyLogUploadInterval = 600000;
     this.clientName = "";
-    this.clientId = "";
+    this.id = "";
     this.logFileUpload = true;
     this.videoUpload = true;
     this.maxStagingSize = 157286400L;
@@ -210,8 +210,8 @@ public class Config {
    *
    * @return The RMAC Server URL
    */
-  public String getServerUrl() {
-    return this.serverUrl;
+  public String getApiServerUrl() {
+    return this.apiServerUrl;
   }
 
   /**
@@ -312,8 +312,8 @@ public class Config {
    *
    * @return The unique id.
    */
-  public String getClientId() {
-    return this.clientId;
+  public String getId() {
+    return this.id;
   }
 
   /**
@@ -423,7 +423,7 @@ public class Config {
   public void updateConfig() {
     try {
       PrintWriter writer = RMAC.fs.getWriter(Constants.CONFIG_LOCATION);
-      writer.println("ServerUrl=" + this.serverUrl);
+      writer.println("ServerUrl=" + this.apiServerUrl);
       writer.println("BridgeServerUrl=" + this.bridgeServerUrl);
       writer.println("MegaUser=" + this.megaUser);
       writer.println("MegaPass=" + this.megaPass);
@@ -431,7 +431,7 @@ public class Config {
       writer.println("FPS=" + this.fPS);
       writer.println("KeyLogUploadInterval=" + this.keyLogUploadInterval);
       writer.println("ClientName=" + this.clientName);
-      writer.println("ClientId=" + this.clientId);
+      writer.println("Id=" + this.id);
       writer.println("LogFileUpload=" + this.logFileUpload);
       writer.println("VideoUpload=" + this.videoUpload);
       writer.println("MaxStagingSize=" + this.maxStagingSize);

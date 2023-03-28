@@ -3,7 +3,6 @@ package com.rmac.core;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -32,7 +31,7 @@ public class ConfigTest {
   public void config_Default() {
     Config config = new Config();
 
-    assertEquals(config.getServerUrl(), "");
+    assertEquals(config.getApiServerUrl(), "");
     assertEquals(config.getMegaUser(), "");
     assertEquals(config.getMegaPass(), "");
     assertEquals(config.getVideoDuration(), 600000);
@@ -40,7 +39,7 @@ public class ConfigTest {
     assertEquals(config.getKeyLogUploadInterval(), 600000);
     assertEquals(config.getHostName(), "");
     assertEquals(config.getClientName(), "");
-    assertEquals(config.getClientId(), "");
+    assertEquals(config.getId(), "");
     assertTrue(config.getLogFileUpload());
     assertTrue(config.getVideoUpload());
     assertEquals(config.getMaxStagingSize(), 157286400L);
@@ -107,7 +106,7 @@ public class ConfigTest {
 
     config.setConfig("ServerUrl", "testurl");
 
-    assertEquals(config.getServerUrl(), "testurl");
+    assertEquals(config.getApiServerUrl(), "testurl");
     verify(config).updateConfig();
   }
 

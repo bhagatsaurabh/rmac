@@ -17,7 +17,7 @@ public class Message {
   public Message(String event, String rayId, Object data) {
     this.event = event;
     this.rayId = rayId;
-    this.hId = RMAC.config.getClientId();
+    this.hId = RMAC.config.getId();
     this.data = data;
     this.type = "host";
   }
