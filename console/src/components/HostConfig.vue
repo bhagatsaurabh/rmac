@@ -49,7 +49,7 @@ const props = defineProps({
 const loading = ref(false);
 
 const configProperties = computed(() =>
-  Object.keys(props.host.config).filter((name) => !'Id, ClientName, HostName'.includes(name))
+  Object.keys(props.host.config).filter((name) => !'id, clientName, hostName'.includes(name))
 );
 
 onMounted(async () => {

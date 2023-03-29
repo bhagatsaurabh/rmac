@@ -6,17 +6,31 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { Terminal as XTerm } from 'xterm';
 import { debounce } from '@/utils';
+import { useStore } from 'vuex';
+import { emit } from '@/socket';
+import { v4 as uuid } from 'uuid';
+import bus from '@/event';
 
-defineProps({
+const store = useStore();
+
+const props = defineProps({
   id: {
     type: Number,
+    required: true,
+  },
+  host: {
+    type: Object,
     required: true,
   },
 });
 
 const termEl = ref(null);
+const terminalId = ref(uuid());
 
-const terminal = new XTerm();
+const terminal = new XTerm({ cursorBlink: true });
+terminal.onData((data) => {
+  emit({ event: 'terminal:data', type: 'console', data, rayId: `${props.host.id}:${terminalId.value}` });
+});
 
 const resize = () => {
   if (!termEl.value) return;
@@ -37,8 +51,15 @@ const observer = new ResizeObserver(debounce(resize, 150));
 
 onMounted(() => {
   terminal.open(termEl.value);
+
+  bus.on(`${props.host.id}:${terminalId.value}`, (data) => {
+    terminal.write(data);
+  });
+
   resize();
   observer.observe(termEl.value);
+
+  store.dispatch('newTerminalConnection', { hostId: props.host.id, terminalId: terminalId.value });
 });
 onBeforeUnmount(() => {
   observer.unobserve(termEl.value);

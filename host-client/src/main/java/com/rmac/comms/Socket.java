@@ -2,9 +2,12 @@ package com.rmac.comms;
 
 import com.google.gson.Gson;
 import com.rmac.RMAC;
+import com.rmac.core.Terminal;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.java_websocket.client.WebSocketClient;
@@ -15,6 +18,7 @@ import org.java_websocket.handshake.ServerHandshake;
 public class Socket extends WebSocketClient {
 
   public static Gson GSON = new Gson();
+  public Map<String, Terminal> terminals = new HashMap<>();
 
   public Socket(URI serverUri, Draft draft) {
     super(serverUri, draft);
@@ -75,6 +79,19 @@ public class Socket extends WebSocketClient {
           }
         } else {
           // Run native command and return result in output OR figure out interactive shell between host <-> bridge <-> console (pty ?)
+        }
+      }
+      case "terminal:new": {
+        Terminal terminal = new Terminal(message.rayId, this);
+        terminals.put(message.rayId, terminal);
+        terminal.start();
+      }
+      case "terminal:data": {
+        Terminal term = this.terminals.get(message.rayId);
+        try {
+          term.write((String) message.data);
+        } catch (IOException e) {
+          log.error("Terminal Error", e);
         }
       }
       default:

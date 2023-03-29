@@ -11,7 +11,7 @@
       <div v-if="isOpen" class="terminals-content">
         <Commands @command="handleCommand" />
         <div class="terminals-view">
-          <Terminal :id="activeTerminal" />
+          <Terminal :id="activeTerminal" :host="host" />
           <TerminalNav
             @select="handleSelect"
             @add="handleAdd"

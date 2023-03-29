@@ -50,7 +50,7 @@ public class ConstantsTest {
   @DisplayName("Set current location succeeded")
   public void setCurrentLocation_Success() {
     MockedStatic<URLDecoder> mockedDecoder = mockStatic(URLDecoder.class);
-    mockedDecoder.when(() -> URLDecoder.decode(any(), any()))
+    mockedDecoder.when(() -> URLDecoder.decode(anyString(), anyString()))
         .thenReturn("X:\\test\\Live\\");
 
     boolean result = Constants.setCurrentLocation();

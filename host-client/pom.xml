@@ -79,7 +79,23 @@
       <artifactId>Java-WebSocket</artifactId>
       <version>1.5.3</version>
     </dependency>
+    <dependency>
+      <groupId>org.jetbrains.pty4j</groupId>
+      <artifactId>pty4j</artifactId>
+      <version>0.12.10</version>
+    </dependency>
   </dependencies>
+
+  <repositories>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>central</id>
+      <name>bintray</name>
+      <url>https://jcenter.bintray.com</url>
+    </repository>
+  </repositories>
 
   <build>
     <plugins>

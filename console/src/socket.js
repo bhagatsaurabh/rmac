@@ -78,6 +78,8 @@ const onMessage = async ({ data }) => {
       const host = store.getters.getHostById(message.data.newId);
       bus.emit('notify', notifications.IHOST_ID_CHANGED(host.clientName));
     }
+  } else if (message.event === 'terminal:data') {
+    bus.emit(message.rayId, message.data);
   }
 };
 

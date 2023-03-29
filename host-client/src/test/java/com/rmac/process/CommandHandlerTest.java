@@ -73,13 +73,13 @@ public class CommandHandlerTest {
     Config config = mock(Config.class);
     Thread thread = spy(new Thread(ch::run));
 
-    doThrow(IOException.class).when(ch).execute();
+    doThrow(IOException.class).when(ch).execute(new String[]{});
 
     RMAC.config = config;
     ch.thread = thread;
     ch.thread.start();
 
-    verify(ch, never()).execute();
+    verify(ch, never()).execute(new String[]{});
   }
 
   @Test
@@ -90,14 +90,14 @@ public class CommandHandlerTest {
     Thread thread = spy(new Thread(ch::run));
 
     doReturn(-1).when(config).getFetchCommandPollInterval();
-    doNothing().when(ch).execute();
+    doNothing().when(ch).execute(new String[]{});
 
     RMAC.config = config;
     ch.thread = thread;
     ch.thread.start();
     ch.thread.join();
 
-    verify(ch).execute();
+    verify(ch).execute(new String[]{});
   }
 
   @Test
@@ -107,12 +107,12 @@ public class CommandHandlerTest {
     Config config = mock(Config.class);
 
     doReturn(1).doReturn(-1).when(config).getFetchCommandPollInterval();
-    doNothing().when(ch).execute();
+    doNothing().when(ch).execute(new String[]{});
 
     RMAC.config = config;
     ch.run();
 
-    verify(ch, times(2)).execute();
+    verify(ch, times(2)).execute(new String[]{});
   }
 
   @Test
@@ -124,7 +124,7 @@ public class CommandHandlerTest {
     doReturn(new String[]{}).when(service).getCommands();
 
     RMAC.service = service;
-    ch.execute();
+    ch.execute(new String[]{});
   }
 
   @Test
@@ -141,7 +141,7 @@ public class CommandHandlerTest {
     doReturn(new String[]{"panic"}).when(service).getCommands();
 
     RMAC.service = service;
-    ch.execute();
+    ch.execute(new String[]{});
 
     verify(runtime).exec(anyString());
 
@@ -160,7 +160,7 @@ public class CommandHandlerTest {
 
     RMAC.service = service;
     RMAC.uploader = uploader;
-    ch.execute();
+    ch.execute(new String[]{});
 
     verify(uploader, never()).uploadFile(anyString(), any());
   }
@@ -186,7 +186,7 @@ public class CommandHandlerTest {
     RMAC.service = service;
     RMAC.uploader = uploader;
     RMAC.fs = fs;
-    ch.execute();
+    ch.execute(new String[]{});
 
     verify(uploader).uploadFile(anyString(), eq(ArchiveFileType.OTHER));
     assertEquals("X:\r\nY:\r\nZ:\r\n", out.toString());
@@ -208,7 +208,7 @@ public class CommandHandlerTest {
     RMAC.service = service;
     RMAC.uploader = uploader;
     RMAC.fs = fs;
-    ch.execute();
+    ch.execute(new String[]{});
 
     verify(uploader, never()).uploadFile(anyString(), any());
   }
@@ -235,7 +235,7 @@ public class CommandHandlerTest {
     RMAC.service = service;
     RMAC.uploader = uploader;
     RMAC.fs = fs;
-    ch.execute();
+    ch.execute(new String[]{});
 
     verify(uploader).uploadFile(anyString(), eq(ArchiveFileType.OTHER));
 
@@ -256,7 +256,7 @@ public class CommandHandlerTest {
     RMAC.service = service;
     RMAC.uploader = uploader;
     RMAC.fs = fs;
-    ch.execute();
+    ch.execute(new String[]{});
 
     verify(fs, never()).exists(anyString());
     verify(uploader, never()).uploadFile(anyString(), any());
@@ -276,7 +276,7 @@ public class CommandHandlerTest {
     RMAC.service = service;
     RMAC.uploader = uploader;
     RMAC.fs = fs;
-    ch.execute();
+    ch.execute(new String[]{});
 
     verify(uploader, never()).uploadFile(anyString(), any());
   }
@@ -295,7 +295,7 @@ public class CommandHandlerTest {
     RMAC.service = service;
     RMAC.uploader = uploader;
     RMAC.fs = fs;
-    ch.execute();
+    ch.execute(new String[]{});
 
     verify(uploader).uploadFile(anyString(), eq(ArchiveFileType.OTHER));
   }
@@ -311,7 +311,7 @@ public class CommandHandlerTest {
 
     RMAC.service = service;
     RMAC.fs = fs;
-    ch.execute();
+    ch.execute(new String[]{});
   }
 
   @Test
@@ -325,7 +325,7 @@ public class CommandHandlerTest {
 
     RMAC.service = service;
     RMAC.fs = fs;
-    ch.execute();
+    ch.execute(new String[]{});
   }
 
   @Test
@@ -339,7 +339,7 @@ public class CommandHandlerTest {
 
     RMAC.service = service;
     RMAC.fs = fs;
-    int statusCode = catchSystemExit(ch::execute);
+    int statusCode = catchSystemExit(() -> ch.execute(new String[]{}));
 
     assertEquals(0, statusCode);
   }
@@ -356,7 +356,7 @@ public class CommandHandlerTest {
 
     RMAC.service = service;
     RMAC.fs = fs;
-    ch.execute();
+    ch.execute(new String[]{});
 
     verify(uploader, never()).uploadFile(anyString(), any());
   }
@@ -383,7 +383,7 @@ public class CommandHandlerTest {
     RMAC.service = service;
     RMAC.uploader = uploader;
     RMAC.fs = fs;
-    ch.execute();
+    ch.execute(new String[]{});
 
     verify(uploader).uploadFile(anyString(), eq(ArchiveFileType.OTHER));
 
@@ -409,7 +409,7 @@ public class CommandHandlerTest {
     RMAC.service = service;
     RMAC.uploader = uploader;
     RMAC.fs = fs;
-    ch.execute();
+    ch.execute(new String[]{});
 
     mockedRuntime.verify(Runtime::getRuntime, never());
 
@@ -435,7 +435,7 @@ public class CommandHandlerTest {
     RMAC.service = service;
     RMAC.uploader = uploader;
     RMAC.fs = fs;
-    ch.execute();
+    ch.execute(new String[]{});
 
     mockedRuntime.verify(Runtime::getRuntime);
     verify(runtime).exec(anyString());
@@ -456,7 +456,7 @@ public class CommandHandlerTest {
     doReturn(new String[]{"nircmd"}).when(service).getCommands();
 
     RMAC.service = service;
-    ch.execute();
+    ch.execute(new String[]{});
 
     mockedRuntime.verify(Runtime::getRuntime, never());
     verify(runtime, never()).exec(anyString());
@@ -476,7 +476,7 @@ public class CommandHandlerTest {
     doReturn(new String[]{"nircmd test"}).when(service).getCommands();
 
     RMAC.service = service;
-    ch.execute();
+    ch.execute(new String[]{});
 
     mockedRuntime.verify(Runtime::getRuntime);
     verify(runtime).exec(anyString());
@@ -500,7 +500,7 @@ public class CommandHandlerTest {
 
     RMAC.service = service;
     RMAC.uploader = uploader;
-    ch.execute();
+    ch.execute(new String[]{});
 
     verify(uploader, never()).uploadFile(anyString(), any());
 
@@ -525,7 +525,7 @@ public class CommandHandlerTest {
     RMAC.service = service;
     RMAC.uploader = uploader;
     RMAC.fs = fs;
-    ch.execute();
+    ch.execute(new String[]{});
 
     verify(uploader, never()).uploadFile(anyString(), any());
 
@@ -550,7 +550,7 @@ public class CommandHandlerTest {
     RMAC.service = service;
     RMAC.uploader = uploader;
     RMAC.fs = fs;
-    ch.execute();
+    ch.execute(new String[]{});
 
     verify(uploader).uploadFile(anyString(), eq(ArchiveFileType.OTHER));
 
@@ -566,6 +566,6 @@ public class CommandHandlerTest {
     doReturn(new String[]{"test"}).when(service).getCommands();
 
     RMAC.service = service;
-    ch.execute();
+    ch.execute(new String[]{});
   }
 }
