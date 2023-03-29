@@ -2,7 +2,8 @@ import { apiURL, mutationKeys, notifications } from '@/store/constants';
 import bus from '@/event';
 import simulatedHosts from '@/assets/simulated-hosts.json';
 import { timeout, timeoutFn, rand, defaultHeaders } from '@/utils';
-import { onMessage } from '@/socket';
+import { emit, onMessage } from '@/socket';
+import { v4 as uuid } from 'uuid';
 
 const state = () => ({
   hosts: [],
@@ -32,8 +33,8 @@ const mutations = {
     const host = updatedHosts.find((host) => host.id === id);
     if (host) {
       host.config = data;
-      host.clientName = host.config.ClientName;
-      host.hostName = host.config.HostName;
+      host.clientName = host.config.clientName;
+      host.hostName = host.config.hostName;
     }
 
     state.hosts = updatedHosts;
@@ -178,6 +179,9 @@ const actions = {
       return false;
     }
     return true;
+  },
+  async newTerminalConnection(_, { hostId, terminalId }) {
+    emit({ event: 'terminal:new', type: 'console', data: null, rayId: `${hostId}:${terminalId}` });
   },
 };
 

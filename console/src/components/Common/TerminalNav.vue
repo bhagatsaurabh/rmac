@@ -80,6 +80,7 @@ onUpdated(() => {
 @media (min-width: 1024px) {
   .terminals-nav {
     width: 3rem;
+    padding-right: 1rem;
   }
 }
 </style>
