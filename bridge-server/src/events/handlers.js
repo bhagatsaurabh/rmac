@@ -55,5 +55,26 @@ const hostid = (socket, message) => {
     });
   }
 };
+const terminalNew = (socket, message) => {
+  if (socket.type === "console") {
+    const [hostId, terminalId] = message.rayId.split(":");
+    emit(state.hosts[hostId], message.event, `${socket.id}:${terminalId}`, null, null);
+  }
+};
+const terminalData = (socket, message) => {
+  if (socket.type === "host") {
+    const [consoleId, terminalId] = message.rayId.split(":");
+    emit(
+      state.consoles[consoleId],
+      message.event,
+      `${socket.id}:${terminalId}`,
+      null,
+      message.data
+    );
+  } else {
+    const [hostId, terminalId] = message.rayId.split(":");
+    emit(state.hosts[hostId], message.event, `${socket.id}:${terminalId}`, null, message.data);
+  }
+};
 
-export { emit, parse, identity, config, hostid };
+export { emit, parse, identity, config, hostid, terminalNew, terminalData };

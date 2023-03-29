@@ -1,7 +1,7 @@
 import http from "http";
 import { WebSocketServer } from "ws";
 import staticServer from "./static.js";
-import { config, parse, identity, hostid } from "../events/handlers.js";
+import { config, parse, identity, hostid, terminalNew, terminalData } from "../events/handlers.js";
 import { onClose, onError } from "../events/listeners.js";
 
 const server = http.createServer(staticServer);
@@ -27,6 +27,11 @@ socketServer.on("connection", (socket) => {
       config(socket, message);
     } else if (message.event === "hostid") {
       hostid(socket, message);
+    } else if (message.event === "terminal:new") {
+      console.log("new terminal");
+      terminalNew(socket, message);
+    } else if (message.event === "terminal:data") {
+      terminalData(socket, message);
     }
   });
 });
