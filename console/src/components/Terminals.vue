@@ -82,6 +82,7 @@ const handleAdd = () => {
 }
 .terminals .header h2 {
   display: inline-block;
+  color: var(--c-text);
 }
 .terminals-content {
   overflow: hidden;

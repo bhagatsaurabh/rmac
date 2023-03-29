@@ -14,11 +14,12 @@
       </div>
       <div v-else class="config">
         <Property
-          v-for="name in Object.keys(host.config)"
+          v-for="name in configProperties"
           :key="name"
           type="config"
           :id="host.id"
           :name="name"
+          :input-type="configTypes[name]"
           editable
         >
           {{ name }}
@@ -29,11 +30,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useStore } from 'vuex';
 import Icon from './Common/Icon.vue';
 import Property from './Common/Property.vue';
 import Spinner from './Common/Spinner.vue';
+import { configTypes } from '@/utils';
 
 const store = useStore();
 
@@ -45,6 +47,10 @@ const props = defineProps({
 });
 
 const loading = ref(false);
+
+const configProperties = computed(() =>
+  Object.keys(props.host.config).filter((name) => !'Id, ClientName, HostName'.includes(name))
+);
 
 onMounted(async () => {
   loading.value = true;

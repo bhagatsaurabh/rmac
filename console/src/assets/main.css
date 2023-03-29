@@ -28,3 +28,10 @@
 .d-inline-block {
   display: inline-block;
 }
+.vertical-align-sub {
+  vertical-align: sub;
+}
+
+.xterm-viewport {
+  overflow-y: auto !important;
+}

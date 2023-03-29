@@ -27,7 +27,7 @@ const emit = defineEmits(['select', 'add']);
 const navList = ref(null);
 
 onUpdated(() => {
-  document.querySelector('.terminals-nav ul li.active').scrollIntoView();
+  document.querySelector('.terminals-nav ul li.active').scrollIntoView({ block: 'nearest' });
 });
 </script>
 
@@ -35,7 +35,7 @@ onUpdated(() => {
 .terminals-nav {
   width: 2rem;
   height: 100%;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 .terminals-nav ul {
   list-style: none;
@@ -75,6 +75,11 @@ onUpdated(() => {
 @media (hover: hover) {
   .terminals-nav ul li.add button:hover {
     background-color: var(--c-background-soft);
+  }
+}
+@media (min-width: 1024px) {
+  .terminals-nav {
+    width: 3rem;
   }
 }
 </style>

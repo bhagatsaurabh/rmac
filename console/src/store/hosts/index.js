@@ -1,8 +1,8 @@
 import { apiURL, mutationKeys, notifications } from '@/store/constants';
 import bus from '@/event';
-import { defaultHeaders } from '@/utils';
 import simulatedHosts from '@/assets/simulated-hosts.json';
-import { timeout } from '@/utils';
+import { timeout, timeoutFn, rand, defaultHeaders } from '@/utils';
+import { onMessage } from '@/socket';
 
 const state = () => ({
   hosts: [],
@@ -32,6 +32,8 @@ const mutations = {
     const host = updatedHosts.find((host) => host.id === id);
     if (host) {
       host.config = data;
+      host.clientName = host.config.ClientName;
+      host.hostName = host.config.HostName;
     }
 
     state.hosts = updatedHosts;
@@ -86,7 +88,13 @@ const actions = {
         (host) =>
           config.filter.registration.length === 0 ||
           config.filter.registration.includes(host.registration ? 'registered' : 'unknown')
-      );
+      )
+      .filter((host) => {
+        if (host.id.startsWith('sim-')) {
+          return config.simulated;
+        }
+        return true;
+      });
 
     if (config.sort.type === 'name') {
       output.sort((a, b) =>
@@ -138,6 +146,22 @@ const actions = {
     if (!host.health) {
       bus.emit('notify', notifications.WHOST_OFFLINE(host.clientName));
       return false;
+    }
+
+    if (host.id.startsWith('sim-')) {
+      await timeout(200);
+      timeoutFn(
+        () =>
+          onMessage({
+            data: JSON.stringify({
+              event: 'config',
+              id,
+              data: { ...host.config, [prop.name]: prop.value },
+            }),
+          }),
+        rand(1000, 3000)
+      );
+      return true;
     }
 
     try {

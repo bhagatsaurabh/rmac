@@ -2,17 +2,34 @@
   <div :class="['property', state]">
     <div class="name"><slot></slot></div>
     <div class="value">
-      <span :class="{ input: true, disabled: !editable }" tabindex="0" @click="handleEdit">
-        <span v-if="state !== 'editing'">{{ syncing ? value : orgValue }}</span>
-        <input
-          @blur="handleBlur"
-          ref="inputEl"
-          v-if="state === 'editing'"
-          type="text"
-          v-model="value"
-          spellcheck="false"
-        />
-      </span>
+      <template v-if="inputType === 'text' || inputType === 'password' || inputType === 'number'">
+        <span :class="{ input: true, disabled: !editable }" tabindex="0" @click="handleEdit">
+          <span v-if="state !== 'editing'">
+            {{ inputType === 'password' ? '******' : syncing ? value : orgValue }}
+          </span>
+          <input
+            @blur="handleBlur"
+            ref="inputEl"
+            v-if="state === 'editing'"
+            v-model="value"
+            spellcheck="false"
+            :type="inputType"
+            :step="inputType === 'number' ? 1 : null"
+          />
+        </span>
+      </template>
+      <template v-else-if="inputType === 'checkbox'">
+        <span :class="{ input: true, disabled: !editable }" tabindex="0">
+          <Toggle
+            @change="handleBlur"
+            :ref="(instance) => instance?.inputElement"
+            v-model="value"
+            :id="name"
+          >
+            {{ value ? 'Enabled' : 'Disabled' }}
+          </Toggle>
+        </span>
+      </template>
       <span class="controls">
         <Button
           @click="handleSave"
@@ -27,7 +44,7 @@
         />
       </span>
     </div>
-    <span class="update-spinner" v-if="state === 'updating' || (syncing && orgValue !== value)">
+    <span class="update-spinner" v-if="state === 'updating' || syncing">
       <Spinner />
       <span>{{ syncing ? 'syncing' : state }}</span>
     </span>
@@ -35,10 +52,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onBeforeUnmount, nextTick } from 'vue';
+import { ref, computed, onBeforeUnmount, nextTick, watch, capitalize } from 'vue';
 import { useStore } from 'vuex';
 import Button from './Button.vue';
 import Spinner from './Spinner.vue';
+import Toggle from './Toggle.vue';
+// import { capitalize } from '@/utils';
 
 const store = useStore();
 
@@ -58,6 +77,10 @@ const props = defineProps({
   editable: {
     type: Boolean,
     default: false,
+  },
+  inputType: {
+    type: String,
+    default: 'text',
   },
 });
 
@@ -87,14 +110,20 @@ const handleSave = async () => {
   syncing.value = false;
   const result = await store.dispatch('updateProperty', {
     id: props.id,
-    prop: { name: props.name, value: value.value },
+    prop: {
+      name:
+        props.type === 'global' && 'clientName, hostName'.includes(props.name)
+          ? capitalize(props.name)
+          : props.name,
+      value: value.value,
+    },
   });
   if (!result) {
-    state.value = 'idle';
     value.value = orgValue.value;
   } else {
     syncing.value = true;
   }
+  state.value = 'idle';
 };
 const handleBlur = () => {
   if (value.value === orgValue.value) {
@@ -114,6 +143,12 @@ const handleCopy = () => {
   }, 3000);
 };
 
+watch(orgValue, () => {
+  if (syncing.value && orgValue.value === value.value) {
+    syncing.value = false;
+  }
+});
+
 onBeforeUnmount(() => {
   clearTimeout(timerHandle);
 });
@@ -130,6 +165,7 @@ onBeforeUnmount(() => {
 .property .value {
   display: flex;
   align-items: center;
+  justify-content: space-between;
 }
 .property .value .input {
   flex: 1;
@@ -162,6 +198,8 @@ onBeforeUnmount(() => {
   padding-left: 0;
   font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
     Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  color: var(--c-text);
+  background-color: var(--c-background);
 }
 .property .value .input input:focus {
   outline: none;

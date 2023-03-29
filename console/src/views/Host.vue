@@ -30,11 +30,10 @@ main {
 }
 
 section:not(:first-child) {
-  margin-top: 1rem;
   border-top: 1px solid var(--c-border-soft);
 }
 .host-section:deep(.host-content) {
-  padding: 0 1rem;
+  padding: 1rem;
 }
 .host-section:deep(header) {
   display: flex;
@@ -47,7 +46,6 @@ section:not(:first-child) {
   padding: 0.5rem 1rem;
   box-shadow: 0 6px 6px -4px var(--c-shadow);
   z-index: 1;
-  margin-bottom: 1rem;
 }
 .host-section:deep(header .icon-container) {
   font-size: 0;
