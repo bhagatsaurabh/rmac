@@ -52,4 +52,10 @@ onBeforeUnmount(() => {
   background-color: var(--c-black);
   z-index: 2;
 }
+
+@media (min-width: 1024px) {
+  .terminal {
+    width: calc(100% - 3rem);
+  }
+}
 </style>

@@ -51,13 +51,9 @@
         </Button>
       </span>
       <span class="simulated">
-        <label class="mr-0p5" for="show-simulated">Show Simulated</label>
-        <input
-          @change="changeHandler"
-          type="checkbox"
-          id="show-simulated"
-          v-model="config.simulated"
-        />
+        <Toggle @change="changeHandler" id="show-simulated" v-model="config.simulated">
+          Show Simulated
+        </Toggle>
       </span>
     </div>
     <div :class="{ options: true, open }">
@@ -164,6 +160,7 @@ import { watch, ref } from 'vue';
 import Backdrop from './Backdrop.vue';
 import Button from './Button.vue';
 import Icon from './Icon.vue';
+import Toggle from './Toggle.vue';
 
 const config = ref({
   name: '',

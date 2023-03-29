@@ -105,4 +105,4 @@ const heartbeat = () => {
   }, 30000 + 1000);
 };
 
-export { connect, disconnect, emit };
+export { connect, disconnect, emit, onMessage };
