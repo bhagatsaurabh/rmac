@@ -277,6 +277,9 @@ public class RMAC {
    */
   public boolean lockInstance(final String lockFile) {
     try {
+      if (fs.exists(lockFile)) {
+        fs.delete(lockFile);
+      }
       fs.create(lockFile);
       RMAC.randomAccessFile = fs.createRandomAccessFile(lockFile, "rw");
       RMAC.fileLock = RMAC.randomAccessFile.getChannel().tryLock();
