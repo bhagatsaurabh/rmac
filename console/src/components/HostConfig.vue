@@ -8,7 +8,7 @@
       <div v-if="loading" class="config-spinner">
         <Spinner :size="2" />
       </div>
-      <div class="no-config" v-else-if="!host.config">
+      <div class="no-config" v-else-if="!host.config || !host.health">
         <Icon alt="Offline icon" name="icons/host-offline" :size="2" adaptive />
         <h2>Host is offline</h2>
       </div>

@@ -35,3 +35,7 @@
 .xterm-viewport {
   overflow-y: auto !important;
 }
+
+.font-size-2p5 {
+  font-size: 2.5rem;
+}
