@@ -1,6 +1,5 @@
 package com.rmac.comms;
 
-import com.google.gson.Gson;
 import com.rmac.RMAC;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,8 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Message {
-
-  public static Gson gson = new Gson();
 
   String event;
   String type;
@@ -23,10 +20,5 @@ public class Message {
     this.hId = RMAC.config.getId();
     this.data = data;
     this.type = "host";
-  }
-
-  @Override
-  public String toString() {
-    return gson.toJson(this);
   }
 }

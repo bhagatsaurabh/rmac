@@ -23,7 +23,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref, onUpdated } from 'vue';
 import { useStore } from 'vuex';
 import { themes } from '@/store/constants';
 
@@ -62,11 +62,18 @@ const store = useStore();
 const theme = computed(() => store.getters.theme);
 
 const metaUrl = import.meta.url;
-const lightSource = new URL(`/assets/${props.name}.png`, metaUrl).href;
-let darkSource;
+const lightSource = ref(new URL(`/assets/${props.name}.png`, metaUrl).href);
+const darkSource = ref(null);
 if (!props.adaptive && !props.singular) {
-  darkSource = new URL(`/assets/${props.name}-dark.png`, metaUrl).href;
+  darkSource.value = new URL(`/assets/${props.name}-dark.png`, metaUrl).href;
 }
+
+onUpdated(() => {
+  lightSource.value = new URL(`/assets/${props.name}.png`, metaUrl).href;
+  if (!props.adaptive && !props.singular) {
+    darkSource.value = new URL(`/assets/${props.name}-dark.png`, metaUrl).href;
+  }
+});
 </script>
 
 <style scoped>

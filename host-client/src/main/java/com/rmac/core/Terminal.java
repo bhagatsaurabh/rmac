@@ -2,8 +2,10 @@ package com.rmac.core;
 
 import com.pty4j.PtyProcess;
 import com.pty4j.PtyProcessBuilder;
+import com.pty4j.WinSize;
 import com.rmac.comms.Message;
 import com.rmac.comms.Socket;
+import com.rmac.utils.Pair;
 import com.rmac.utils.PipeStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,6 +15,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -23,10 +30,14 @@ public class Terminal {
   public PtyProcess process;
   public String id;
   public Socket socket;
+  public Pair<Integer, Integer> initialDimension;
 
-  public Terminal(String id, Socket socket) {
+  public ScheduledExecutorService killScheduler;
+
+  public Terminal(String id, Socket socket, Pair<Integer, Integer> initialDimension) {
     this.id = id;
     this.socket = socket;
+    this.initialDimension = initialDimension;
     this.createThread();
 
     Map<String, String> env = new HashMap<>(System.getenv());
@@ -47,15 +58,16 @@ public class Terminal {
   public void run() {
     try {
       process = builder.start();
-      // process.setWinSize(new WinSize(255, 16));
 
-      OutputStream os = process.getOutputStream();
+      if (Objects.nonNull(this.initialDimension)) {
+        process.setWinSize(
+            new WinSize(this.initialDimension.getFirst(), this.initialDimension.getSecond()));
+      }
       InputStream is = process.getInputStream();
 
       byte[] buffer = new byte[1024];
       int len;
       while ((len = is.read(buffer)) >= 0) {
-        // os.write(buffer, 0, len);
         socket.emit(new Message(
             "terminal:data",
             this.id,
@@ -63,20 +75,24 @@ public class Terminal {
         ));
       }
 
-      /*PipeStream osPipe = PipeStream.make(System.in, os);
-      PipeStream isPipe = PipeStream.make(is, System.out);
-
-      osPipe.start();
-      isPipe.start();*/
-
       process.waitFor();
     } catch (InterruptedException | IOException e) {
       log.warn("Terminal Stopped", e);
+    } finally {
+      socket.terminals.remove(this.id);
+      log.info("Terminal Closed");
     }
   }
 
-  public void shutdown() {
+  public void shutdown(boolean emit) {
+    if (emit) {
+      this.socket.emit(new Message("terminal:close", this.id, null));
+    }
+    if (Objects.nonNull(this.killScheduler) && !this.killScheduler.isTerminated()) {
+      this.killScheduler.shutdownNow();
+    }
     process.destroy();
+
   }
 
   public void write(String data) throws IOException {
@@ -85,5 +101,13 @@ public class Terminal {
     }
 
     this.process.getOutputStream().write(data.getBytes());
+  }
+
+  public void orphaned() {
+    this.killScheduler = Executors.newScheduledThreadPool(1);
+    killScheduler.schedule(() -> {
+      this.shutdown(false);
+      killScheduler.shutdown();
+    }, 60, TimeUnit.SECONDS);
   }
 }

@@ -79,6 +79,11 @@ const notifications = Object.freeze({
     title: 'Host id changed',
     desc: `Host id for host [${clientName}] has been changed`,
   }),
+  WTERMINAL_DISCONNECTED: (index) => ({
+    type: notificationTypes.WARN,
+    title: 'Terminal disconnected',
+    desc: `Terminal [${index}] has been disconnected`,
+  }),
 });
 
 export { themes, themeName, mutationKeys, notificationTypes, notifications, apiURL };

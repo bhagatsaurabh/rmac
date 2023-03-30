@@ -2,8 +2,8 @@
   <nav class="terminals-nav">
     <ul ref="navList">
       <li class="add"><button @click="emit('add')">+</button></li>
-      <li v-for="id in terminals" :class="{ active: id === active }">
-        <button @click="emit('select', id)">{{ id }}</button>
+      <li v-for="(id, index) in terminals" :class="{ active: id === active }">
+        <button @click="emit('select', id)">{{ index + 1 }}</button>
       </li>
     </ul>
   </nav>
@@ -14,11 +14,11 @@ import { onUpdated, ref } from 'vue';
 
 defineProps({
   terminals: {
-    type: Number,
-    default: 1,
+    type: Array,
+    required: true,
   },
   active: {
-    type: Number,
+    type: String,
     required: true,
   },
 });
@@ -27,7 +27,7 @@ const emit = defineEmits(['select', 'add']);
 const navList = ref(null);
 
 onUpdated(() => {
-  document.querySelector('.terminals-nav ul li.active').scrollIntoView({ block: 'nearest' });
+  document.querySelector('.terminals-nav ul li.active')?.scrollIntoView({ block: 'nearest' });
 });
 </script>
 
@@ -36,6 +36,7 @@ onUpdated(() => {
   width: 2rem;
   height: 100%;
   overflow-y: auto;
+  border-left: 1px solid var(--c-border);
 }
 .terminals-nav ul {
   list-style: none;

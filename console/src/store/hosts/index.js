@@ -180,8 +180,11 @@ const actions = {
     }
     return true;
   },
-  async newTerminalConnection(_, { hostId, terminalId }) {
-    emit({ event: 'terminal:new', type: 'console', data: null, rayId: `${hostId}:${terminalId}` });
+  async openTerminal(_, { hostId, terminalId }) {
+    emit({ event: 'terminal:open', type: 'console', data: null, rayId: `${hostId}:${terminalId}` });
+  },
+  async closeTerminal(_, { hostId, terminalId }) {
+    emit({ event: 'terminal:close', type: 'console', data: null, rayId: `${hostId}:${terminalId}` });
   },
 };
 

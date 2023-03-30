@@ -11,7 +11,16 @@
       <div v-if="isOpen" class="terminals-content">
         <Commands @command="handleCommand" />
         <div class="terminals-view">
-          <Terminal :id="activeTerminal" :host="host" />
+          <div v-if="terminals.length === 0" class="no-terminal">
+            <pre>Connect a new terminal with <span class="font-size-2p5">+</span> icon</pre>
+          </div>
+          <Terminal
+            v-for="id in terminals"
+            :key="id"
+            :id="id"
+            v-show="id === activeTerminal"
+            :host="host"
+          />
           <TerminalNav
             @select="handleSelect"
             @add="handleAdd"
@@ -25,35 +34,69 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onBeforeUnmount } from 'vue';
 import Commands from './Commands.vue';
 import Icon from './Common/Icon.vue';
 import { Transition } from 'vue';
 import Terminal from './Common/Terminal.vue';
 import TerminalNav from './Common/TerminalNav.vue';
+import { v4 as uuid } from 'uuid';
+import { useStore } from 'vuex';
+import bus from '@/event';
+import { notifications } from '@/store/constants';
 
-defineProps({
+const props = defineProps({
   host: {
     type: Object,
     required: true,
   },
 });
 
+const store = useStore();
+
 const isOpen = ref(false);
-const terminals = ref(1);
-const activeTerminal = ref(1);
+const defaultTermId = uuid();
+const terminals = ref([defaultTermId]);
+const activeTerminal = ref(defaultTermId);
 
 const handleCommand = () => {};
 const handleSelect = (id) => {
   activeTerminal.value = id;
 };
 const handleAdd = () => {
-  terminals.value += 1;
-  handleSelect(terminals.value);
+  const newTermId = uuid();
+  terminals.value = [...terminals.value, newTermId];
+  handleSelect(newTermId);
 };
+
+bus.on('terminal:close', async (rayId) => {
+  const [hostId, terminalId] = rayId.split(':');
+  if (hostId === props.host.id && terminals.value.includes(terminalId)) {
+    const index = terminals.value.indexOf(terminalId);
+    const updatedTerminals = [...terminals.value];
+    updatedTerminals.splice(index, 1);
+    terminals.value = updatedTerminals;
+    bus.emit('notify', notifications.WTERMINAL_DISCONNECTED(index + 1));
+  }
+});
+
+onBeforeUnmount(() => {
+  terminals.value.forEach((terminalId) => {
+    store.dispatch('closeTerminal', { hostId: props.host.id, terminalId });
+  });
+});
 </script>
 
 <style scoped>
+.no-terminal {
+  width: calc(100% - 2rem);
+  height: 100%;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
+}
 .terminals {
   position: sticky;
   bottom: 0;
@@ -132,6 +175,12 @@ const handleAdd = () => {
 @media (hover: hover) {
   .terminals .header:hover {
     background-color: var(--c-background-soft);
+  }
+}
+
+@media (min-width: 1024px) {
+  .no-terminal {
+    width: calc(100% - 3rem);
   }
 }
 </style>

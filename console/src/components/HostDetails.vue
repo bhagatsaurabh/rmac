@@ -27,7 +27,7 @@
           />
           <span>{{ host.registered ? 'Registered' : 'Unknown' }}</span>
         </div>
-        <div>
+        <div v-if="host.id.startsWith('sim-')">
           <span class="simulated-tag">Simulated</span>
           <Info hide-label>
             <template class="simulated-tag" #title>Simulated Host</template>

@@ -5,17 +5,17 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { Terminal as XTerm } from 'xterm';
+import { FitAddon } from 'xterm-addon-fit';
 import { debounce } from '@/utils';
 import { useStore } from 'vuex';
 import { emit } from '@/socket';
-import { v4 as uuid } from 'uuid';
 import bus from '@/event';
 
 const store = useStore();
 
 const props = defineProps({
   id: {
-    type: Number,
+    type: String,
     required: true,
   },
   host: {
@@ -25,41 +25,40 @@ const props = defineProps({
 });
 
 const termEl = ref(null);
-const terminalId = ref(uuid());
 
 const terminal = new XTerm({ cursorBlink: true });
+const fitAddon = new FitAddon();
+terminal.loadAddon(fitAddon);
+
 terminal.onData((data) => {
-  emit({ event: 'terminal:data', type: 'console', data, rayId: `${props.host.id}:${terminalId.value}` });
+  emit({
+    event: 'terminal:data',
+    type: 'console',
+    data,
+    rayId: `${props.host.id}:${props.id}`,
+  });
+});
+terminal.onResize((e) => {
+  emit({
+    event: 'terminal:resize',
+    type: 'console',
+    data: e,
+    rayId: `${props.host.id}:${props.id}`,
+  });
 });
 
-const resize = () => {
-  if (!termEl.value) return;
-
-  const computedStyle = window.getComputedStyle(termEl.value);
-  const availableHeight = parseInt(computedStyle.getPropertyValue('height'));
-  const availableWidth = parseInt(computedStyle.getPropertyValue('width'));
-  const cellHeight = terminal._core._renderService.dimensions.css.cell.height;
-  const cellWidth = terminal._core._renderService.dimensions.css.cell.width;
-
-  terminal.resize(
-    Math.max(1, Math.floor(availableWidth / cellWidth)),
-    Math.max(1, Math.floor(availableHeight / cellHeight))
-  );
-};
-
-const observer = new ResizeObserver(debounce(resize, 150));
+const observer = new ResizeObserver(debounce(() => termEl.value && fitAddon.fit(), 150));
 
 onMounted(() => {
   terminal.open(termEl.value);
+  fitAddon.fit();
+  observer.observe(termEl.value);
 
-  bus.on(`${props.host.id}:${terminalId.value}`, (data) => {
+  bus.on(`${props.host.id}:${props.id}`, (data) => {
     terminal.write(data);
   });
 
-  resize();
-  observer.observe(termEl.value);
-
-  store.dispatch('newTerminalConnection', { hostId: props.host.id, terminalId: terminalId.value });
+  store.dispatch('openTerminal', { hostId: props.host.id, terminalId: props.id });
 });
 onBeforeUnmount(() => {
   observer.unobserve(termEl.value);
