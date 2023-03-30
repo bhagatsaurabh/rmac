@@ -80,6 +80,8 @@ const onMessage = async ({ data }) => {
     }
   } else if (message.event === 'terminal:data') {
     bus.emit(message.rayId, message.data);
+  } else if (message.event === 'terminal:close') {
+    bus.emit(message.event, message.rayId);
   }
 };
 
