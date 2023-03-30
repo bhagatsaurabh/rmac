@@ -146,4 +146,10 @@ public class BridgeClient {
       }
     }
   }
+
+  public void shutdown() {
+    if (Objects.nonNull(this.socket)) {
+      this.socket.terminals.forEach((id, terminal) -> terminal.shutdown(true));
+    }
+  }
 }

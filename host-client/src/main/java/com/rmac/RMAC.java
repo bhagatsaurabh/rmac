@@ -230,6 +230,7 @@ public class RMAC {
     commandHandler.shutdown();
     screenRecorder.shutdown();
     keyLog.shutdown();
+    bridgeClient.shutdown();
 
     log.warn("Shutting down JNH...");
     GlobalScreen.removeNativeKeyListener(KeyRecorder.nativeKeyListener);

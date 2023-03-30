@@ -1,8 +1,10 @@
 package com.rmac.comms;
 
 import com.google.gson.Gson;
+import com.pty4j.WinSize;
 import com.rmac.RMAC;
 import com.rmac.core.Terminal;
+import com.rmac.utils.Pair;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -44,6 +46,8 @@ public class Socket extends WebSocketClient {
   public void onClose(int i, String s, boolean b) {
     log.warn("Connection closed to RMAC bridging server");
 
+    this.terminals.forEach((id, terminal) -> terminal.orphaned());
+
     if (Objects.isNull(RMAC.bridgeClient.thread)) {
       RMAC.bridgeClient.reconnect();
     }
@@ -55,7 +59,9 @@ public class Socket extends WebSocketClient {
   }
 
   public void emit(Message message) {
-    this.send(GSON.toJson(message));
+    if (this.isOpen()) {
+      this.send(GSON.toJson(message));
+    }
   }
 
   public void parse(String data) {
@@ -80,19 +86,51 @@ public class Socket extends WebSocketClient {
         } else {
           // Run native command and return result in output OR figure out interactive shell between host <-> bridge <-> console (pty ?)
         }
+        break;
       }
-      case "terminal:new": {
-        Terminal terminal = new Terminal(message.rayId, this);
-        terminals.put(message.rayId, terminal);
-        terminal.start();
+      case "terminal:open": {
+        if (!terminals.containsKey(message.rayId)) {
+          Terminal terminal = new Terminal(message.rayId, this, null);
+          terminals.put(message.rayId, terminal);
+          terminal.start();
+        }
+        log.info("Active Terminals: {}", terminals.size());
+        break;
       }
       case "terminal:data": {
+        if (!terminals.containsKey(message.rayId)) {
+          return;
+        }
+
         Terminal term = this.terminals.get(message.rayId);
         try {
           term.write((String) message.data);
         } catch (IOException e) {
           log.error("Terminal Error", e);
         }
+        break;
+      }
+      case "terminal:resize": {
+        if (terminals.containsKey(message.rayId)) {
+          String[] dimensions = ((String) message.data).split(":");
+
+          Terminal term = this.terminals.get(message.rayId);
+          if (Objects.isNull(term.process)) {
+            term.initialDimension = new Pair<>(Integer.parseInt(dimensions[0]),
+                Integer.parseInt(dimensions[1]));
+          } else {
+            term.process.setWinSize(
+                new WinSize(Integer.parseInt(dimensions[0]), Integer.parseInt(dimensions[1])));
+          }
+        }
+        break;
+      }
+      case "terminal:close": {
+        if (terminals.containsKey(message.rayId)) {
+          terminals.get(message.rayId).shutdown(false);
+        }
+        log.info("Active Terminals: {}", terminals.size());
+        break;
       }
       default:
         break;
