@@ -55,8 +55,17 @@ const hostid = (socket, message) => {
     });
   }
 };
-const terminalNew = (socket, message) => {
+const terminalOpen = (socket, message) => {
   if (socket.type === "console") {
+    const [hostId, terminalId] = message.rayId.split(":");
+    emit(state.hosts[hostId], message.event, `${socket.id}:${terminalId}`, null, null);
+  }
+};
+const terminalClose = (socket, message) => {
+  if (socket.type === "host") {
+    const [consoleId, terminalId] = message.rayId.split(":");
+    emit(state.consoles[consoleId], message.event, `${socket.id}:${terminalId}`, null, null);
+  } else {
     const [hostId, terminalId] = message.rayId.split(":");
     emit(state.hosts[hostId], message.event, `${socket.id}:${terminalId}`, null, null);
   }
@@ -76,5 +85,27 @@ const terminalData = (socket, message) => {
     emit(state.hosts[hostId], message.event, `${socket.id}:${terminalId}`, null, message.data);
   }
 };
+const terminalResize = (socket, message) => {
+  if (socket.type === "console") {
+    const [hostId, terminalId] = message.rayId.split(":");
+    emit(
+      state.hosts[hostId],
+      message.event,
+      `${socket.id}:${terminalId}`,
+      null,
+      `${message.data.cols}:${message.data.rows}`
+    );
+  }
+};
 
-export { emit, parse, identity, config, hostid, terminalNew, terminalData };
+export {
+  emit,
+  parse,
+  identity,
+  config,
+  hostid,
+  terminalOpen,
+  terminalClose,
+  terminalData,
+  terminalResize,
+};
