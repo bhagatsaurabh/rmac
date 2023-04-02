@@ -10,6 +10,7 @@ import {
   terminalData,
   terminalResize,
   terminalClose,
+  command,
 } from "../events/handlers.js";
 import { onClose, onError } from "../events/listeners.js";
 
@@ -44,6 +45,8 @@ socketServer.on("connection", (socket) => {
       terminalResize(socket, message);
     } else if (message.event === "terminal:close") {
       terminalClose(socket, message);
+    } else if (message.event === "command") {
+      command(socket, message);
     }
   });
 });

@@ -53,6 +53,13 @@ const getHosts = async () => {
 
   return Object.keys(hosts).map((id) => ({ ...hosts[id], id }));
 };
+const getRegisteredHost = async (id) => {
+  const snap = await db.ref(id).once("value");
+  if (snap.exists()) {
+    return snap.val();
+  }
+  return null;
+};
 
 export {
   state,
@@ -64,4 +71,5 @@ export {
   addConfig,
   removeConfig,
   changeHostId,
+  getRegisteredHost,
 };

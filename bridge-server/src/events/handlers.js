@@ -97,6 +97,12 @@ const terminalResize = (socket, message) => {
     );
   }
 };
+const command = (socket, message) => {
+  if (socket.type === "console") {
+    const hostId = message.rayId;
+    emit(state.hosts[hostId], message.event, null, null, message.data);
+  }
+};
 
 export {
   emit,
@@ -108,4 +114,5 @@ export {
   terminalClose,
   terminalData,
   terminalResize,
+  command,
 };
