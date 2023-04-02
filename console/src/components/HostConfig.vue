@@ -30,12 +30,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useStore } from 'vuex';
 import Icon from './Common/Icon.vue';
 import Property from './Common/Property.vue';
 import Spinner from './Common/Spinner.vue';
 import { configTypes } from '@/utils';
+import bus from '@/event';
+import { notifications } from '@/store/constants';
 
 const store = useStore();
 
@@ -57,6 +59,20 @@ onMounted(async () => {
   await store.dispatch('fetchConfig', props.host.id);
   loading.value = false;
 });
+
+watch(
+  () => props.host.health,
+  async (newVal, oldVal) => {
+    if (newVal && !oldVal) {
+      bus.emit('notify', notifications.IHOST_ONLINE());
+    }
+    if (newVal && !props.host.config) {
+      loading.value = true;
+      await store.dispatch('fetchConfig', props.host.id);
+      loading.value = false;
+    }
+  }
+);
 </script>
 
 <style scoped>

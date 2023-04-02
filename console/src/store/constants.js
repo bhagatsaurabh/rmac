@@ -84,6 +84,21 @@ const notifications = Object.freeze({
     title: 'Terminal disconnected',
     desc: `Terminal [${index}] has been disconnected`,
   }),
+  ESEND_COMMAND_FAILED: (error) => ({
+    type: notificationTypes.ERROR,
+    title: 'Could not send command to host',
+    desc: error.message,
+  }),
+  ISEND_COMMAND_SUCCESS: () => ({
+    type: notificationTypes.INFO,
+    title: 'Command sent to host',
+    desc: 'Command sent to host',
+  }),
+  IHOST_ONLINE: () => ({
+    type: notificationTypes.INFO,
+    title: 'Host is online',
+    desc: 'Host is online',
+  }),
 });
 
 export { themes, themeName, mutationKeys, notificationTypes, notifications, apiURL };

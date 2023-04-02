@@ -3,7 +3,6 @@ import bus from '@/event';
 import simulatedHosts from '@/assets/simulated-hosts.json';
 import { timeout, timeoutFn, rand, defaultHeaders } from '@/utils';
 import { emit, onMessage } from '@/socket';
-import { v4 as uuid } from 'uuid';
 
 const state = () => ({
   hosts: [],
@@ -181,10 +180,48 @@ const actions = {
     return true;
   },
   async openTerminal(_, { hostId, terminalId }) {
+    if (hostId.startsWith('sim-')) {
+      return;
+    }
     emit({ event: 'terminal:open', type: 'console', data: null, rayId: `${hostId}:${terminalId}` });
   },
   async closeTerminal(_, { hostId, terminalId }) {
-    emit({ event: 'terminal:close', type: 'console', data: null, rayId: `${hostId}:${terminalId}` });
+    if (hostId.startsWith('sim-')) {
+      return;
+    }
+
+    emit({
+      event: 'terminal:close',
+      type: 'console',
+      data: null,
+      rayId: `${hostId}:${terminalId}`,
+    });
+  },
+  async sendCommand({ state }, { hostId, command }) {
+    if (hostId.startsWith('sim-')) {
+      await timeoutFn(() => {
+        bus.emit('notify', notifications.ISEND_COMMAND_SUCCESS());
+      }, rand(1000, 2000));
+      return;
+    }
+
+    if (state.hosts.find((host) => host.id === hostId)?.health) {
+      emit({ event: 'command', type: 'console', data: command, rayId: hostId });
+    } else {
+      try {
+        const res = await fetch(`${apiURL}/hosts/${hostId}/command`, {
+          method: 'POST',
+          body: JSON.stringify({ command }),
+          headers: { 'Content-Type': 'application/json' },
+        });
+        if (res.status < 200 || res.status > 299) {
+          throw await res.json();
+        }
+        bus.emit('notify', notifications.ISEND_COMMAND_SUCCESS());
+      } catch (error) {
+        bus.emit('notify', notifications.ESEND_COMMAND_FAILED(error));
+      }
+    }
   },
 };
 

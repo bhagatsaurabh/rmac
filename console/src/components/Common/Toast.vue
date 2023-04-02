@@ -29,6 +29,7 @@ defineProps({
   box-shadow: 0 0 10px 0px var(--c-shadow);
   border: 1px solid var(--c-box-border);
   border-radius: 0.5rem;
+  overflow-wrap: break-word;
 }
 .toast em {
   vertical-align: middle;
@@ -36,5 +37,12 @@ defineProps({
 
 .toast:deep(.icon) {
   margin-right: 0.5rem;
+}
+
+@media (min-width: 1024px) {
+  .toast {
+    width: 50vw;
+    left: 25vw;
+  }
 }
 </style>

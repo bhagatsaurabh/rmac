@@ -11,6 +11,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft;
@@ -20,7 +21,7 @@ import org.java_websocket.handshake.ServerHandshake;
 public class Socket extends WebSocketClient {
 
   public static Gson GSON = new Gson();
-  public Map<String, Terminal> terminals = new HashMap<>();
+  public Map<String, Terminal> terminals = new ConcurrentHashMap<>();
 
   public Socket(URI serverUri, Draft draft) {
     super(serverUri, draft);
@@ -76,15 +77,12 @@ public class Socket extends WebSocketClient {
         String command = (String) message.data;
         String[] parts = command.split(" ");
 
-        if (parts.length > 0 && "rmac".equals(parts[0])) {
+        if (parts.length > 0) {
           try {
             RMAC.commandHandler.execute(new String[]{(String) message.data});
-            this.emit(new Message("command", message.getRayId(), "Success"));
           } catch (IOException e) {
-            this.emit(new Message("command", message.getRayId(), "Failed to run command"));
+            log.error("Socket:command", e);
           }
-        } else {
-          // Run native command and return result in output OR figure out interactive shell between host <-> bridge <-> console (pty ?)
         }
         break;
       }

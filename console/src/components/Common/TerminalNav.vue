@@ -19,7 +19,7 @@ defineProps({
   },
   active: {
     type: String,
-    required: true,
+    required: false,
   },
 });
 
