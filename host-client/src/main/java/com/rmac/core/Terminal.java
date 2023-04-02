@@ -31,6 +31,7 @@ public class Terminal {
   public String id;
   public Socket socket;
   public Pair<Integer, Integer> initialDimension;
+  public boolean emitClose = true;
 
   public ScheduledExecutorService killScheduler;
 
@@ -79,20 +80,20 @@ public class Terminal {
     } catch (InterruptedException | IOException e) {
       log.warn("Terminal Stopped", e);
     } finally {
-      socket.terminals.remove(this.id);
+      if (this.emitClose && this.socket.isOpen()) {
+        this.socket.emit(new Message("terminal:close", this.id, null));
+      }
       log.info("Terminal Closed");
     }
   }
 
-  public void shutdown(boolean emit) {
-    if (emit) {
-      this.socket.emit(new Message("terminal:close", this.id, null));
-    }
+  public void shutdown(boolean emitClose) {
     if (Objects.nonNull(this.killScheduler) && !this.killScheduler.isTerminated()) {
       this.killScheduler.shutdownNow();
     }
-    process.destroy();
-
+    socket.terminals.remove(this.id);
+    this.emitClose = emitClose;
+    this.process.destroy();
   }
 
   public void write(String data) throws IOException {
@@ -106,7 +107,7 @@ public class Terminal {
   public void orphaned() {
     this.killScheduler = Executors.newScheduledThreadPool(1);
     killScheduler.schedule(() -> {
-      this.shutdown(false);
+      this.process.destroy();
       killScheduler.shutdown();
     }, 60, TimeUnit.SECONDS);
   }

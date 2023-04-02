@@ -40,11 +40,9 @@ public class BridgeClient {
   }
 
   public void networkHandler(boolean state) {
-    if (state) {
-      if (State.WAITING == this.thread.getState()) {
-        synchronized (this.thread) {
-          this.thread.notify();
-        }
+    if (state && Objects.nonNull(this.thread) && State.WAITING == this.thread.getState()) {
+      synchronized (this.thread) {
+        this.thread.notify();
       }
     }
   }
@@ -149,7 +147,9 @@ public class BridgeClient {
 
   public void shutdown() {
     if (Objects.nonNull(this.socket)) {
-      this.socket.terminals.forEach((id, terminal) -> terminal.shutdown(true));
+      this.socket.terminals.forEach((id, terminal) -> {
+        terminal.shutdown(true);
+      });
     }
   }
 }
