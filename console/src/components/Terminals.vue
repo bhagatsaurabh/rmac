@@ -7,19 +7,25 @@
       </div>
       <Icon class="chevron" alt="Chevron icon" name="icons/right-chevron" adaptive :size="1.4" />
     </button>
-    <Transition name="expand">
-      <div v-if="isOpen" class="terminals-content">
-        <Commands @command="handleCommand" />
-        <div class="terminals-view">
+    <Transition name="expand" @enter="() => terminals.length === 0 && handleAdd()">
+      <div v-show="isOpen" class="terminals-content">
+        <Commands :host="host" />
+        <div v-if="!host.health" class="no-host">
+          <Icon alt="Offline icon" name="icons/host-offline" :size="2" adaptive />
+          <h2>Host is offline</h2>
+        </div>
+        <div v-else class="terminals-view">
           <div v-if="terminals.length === 0" class="no-terminal">
             <pre>Connect a new terminal with <span class="font-size-2p5">+</span> icon</pre>
           </div>
           <Terminal
-            v-for="id in terminals"
+            v-for="(id, index) in terminals"
             :key="id"
             :id="id"
             v-show="id === activeTerminal"
             :host="host"
+            :idx="index"
+            @close="() => removeTerminal(id)"
           />
           <TerminalNav
             @select="handleSelect"
@@ -34,14 +40,13 @@
 </template>
 
 <script setup>
-import { ref, onBeforeUnmount } from 'vue';
+import { ref } from 'vue';
 import Commands from './Commands.vue';
 import Icon from './Common/Icon.vue';
 import { Transition } from 'vue';
 import Terminal from './Common/Terminal.vue';
 import TerminalNav from './Common/TerminalNav.vue';
 import { v4 as uuid } from 'uuid';
-import { useStore } from 'vuex';
 import bus from '@/event';
 import { notifications } from '@/store/constants';
 
@@ -52,14 +57,10 @@ const props = defineProps({
   },
 });
 
-const store = useStore();
-
 const isOpen = ref(false);
-const defaultTermId = uuid();
-const terminals = ref([defaultTermId]);
-const activeTerminal = ref(defaultTermId);
+const terminals = ref([]);
+const activeTerminal = ref('');
 
-const handleCommand = () => {};
 const handleSelect = (id) => {
   activeTerminal.value = id;
 };
@@ -71,20 +72,21 @@ const handleAdd = () => {
 
 bus.on('terminal:close', async (rayId) => {
   const [hostId, terminalId] = rayId.split(':');
-  if (hostId === props.host.id && terminals.value.includes(terminalId)) {
+  if (hostId === props.host.id) {
+    removeTerminal(terminalId);
+  }
+});
+
+const removeTerminal = (terminalId) => {
+  if (terminals.value.includes(terminalId)) {
     const index = terminals.value.indexOf(terminalId);
     const updatedTerminals = [...terminals.value];
     updatedTerminals.splice(index, 1);
     terminals.value = updatedTerminals;
     bus.emit('notify', notifications.WTERMINAL_DISCONNECTED(index + 1));
+    activeTerminal.value = terminals.value[index + 1] ?? terminals.value[0];
   }
-});
-
-onBeforeUnmount(() => {
-  terminals.value.forEach((terminalId) => {
-    store.dispatch('closeTerminal', { hostId: props.host.id, terminalId });
-  });
-});
+};
 </script>
 
 <style scoped>
@@ -96,6 +98,11 @@ onBeforeUnmount(() => {
   justify-content: center;
   align-items: center;
   font-size: 1.5rem;
+}
+.no-terminal pre {
+  padding: 0 1rem;
+  white-space: break-spaces;
+  text-align: center;
 }
 .terminals {
   position: sticky;
@@ -167,9 +174,24 @@ onBeforeUnmount(() => {
 
 .terminals-view {
   width: 100%;
-  height: calc(100% - 5rem - 3px);
+  height: calc(100% - 5rem);
   display: flex;
   overflow: hidden;
+}
+
+.no-host {
+  width: 100%;
+  height: calc(100% - 5rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-wrap: break-word;
+}
+
+.no-host:deep(.icon-container) {
+  opacity: 0.6;
+  font-size: 0;
+  margin-right: 0.5rem;
 }
 
 @media (hover: hover) {

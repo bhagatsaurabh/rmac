@@ -16,7 +16,9 @@
         <span :class="{ health: true, online: host.health, offline: !host.health }">
           {{ host.health ? 'Online' : 'Offline' }}
         </span>
-        <span class="tag">{{ host.registered ? 'Registered' : 'Unknown' }}</span>
+        <span :class="['tag', host.registered ? 'registered' : 'unknown']">
+          {{ host.registered ? 'Registered' : 'Unknown' }}
+        </span>
       </div>
     </div>
   </RouterLink>
@@ -86,6 +88,13 @@ defineProps({
   font-style: italic;
   padding: 0 0.3rem;
   border-radius: 0.4rem;
+}
+
+.tag.registered {
+  background-color: green;
+}
+.tag.unknown {
+  background-color: #b3b30d;
 }
 
 @media (hover: hover) {
