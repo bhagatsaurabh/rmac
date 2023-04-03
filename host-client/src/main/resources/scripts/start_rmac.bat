@@ -1,0 +1,1 @@
+start /B "" "${JRE_LOCATION}\bin\java" -jar "${CURRENT_LOCATION}\RMACClient.jar" "${RUNTIME_LOCATION}"

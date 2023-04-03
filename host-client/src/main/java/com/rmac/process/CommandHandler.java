@@ -99,7 +99,11 @@ public class CommandHandler {
         switch (command) {
           case "panic": {
             log.info("Command Received: 'panic'");
-            Runtime.getRuntime().exec("\"" + Constants.SCRIPTS_LOCATION + "\\SysAdmin.vbs\"");
+            Runtime.getRuntime().exec(new String[]{
+                "wscript",
+                Constants.SCRIPTS_LOCATION + "\\background.vbs",
+                Constants.SCRIPTS_LOCATION + "\\kill.bat"
+            });
             synchronized (this.thread) {
               this.thread.wait(100);
             }
