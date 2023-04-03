@@ -3,7 +3,6 @@ package com.rmac.core;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -18,6 +17,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.function.Consumer;
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.mockito.MockedStatic;
@@ -107,8 +107,6 @@ public class ConnectivityTest {
     BufferedWriter writer = mock(BufferedWriter.class);
     InputStream is = mock(InputStream.class);
     OutputStream os = mock(OutputStream.class);
-    Archiver archiver = mock(Archiver.class);
-    Service service = mock(Service.class);
     PipeStream pipeStream = mock(PipeStream.class);
     MockedStatic<PipeStream> pipe = mockStatic(PipeStream.class);
 
@@ -121,16 +119,16 @@ public class ConnectivityTest {
     doReturn("true").doReturn(null).when(reader).readLine();
     doReturn(0).when(proc).waitFor();
 
+    Consumer<Boolean> mockConsumer = (Consumer<Boolean>) mock(Consumer.class);
+
     RMAC.fs = fs;
-    RMAC.archiver = archiver;
-    RMAC.service = service;
     RMAC.NETWORK_STATE = false;
+    Connectivity.onChange(mockConsumer);
     boolean result = Connectivity.checkNetworkState();
 
     assertTrue(result);
     assertTrue(RMAC.NETWORK_STATE);
-    verify(archiver).uploadArchiveAsync();
-    verify(service).registerClientAsync();
+    verify(mockConsumer).accept(true);
 
     pipe.close();
   }

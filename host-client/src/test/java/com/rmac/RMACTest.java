@@ -20,17 +20,18 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.read.ListAppender;
+import com.rmac.comms.BridgeClient;
+import com.rmac.comms.IPC;
 import com.rmac.core.Archiver;
-import com.rmac.process.CommandHandler;
 import com.rmac.core.Config;
 import com.rmac.core.FileUploader;
-import com.rmac.process.KernelDump;
-import com.rmac.process.KeyLog;
 import com.rmac.core.KeyRecorder;
-import com.rmac.process.ScreenRecorder;
 import com.rmac.core.ScriptFiles;
 import com.rmac.core.Service;
-import com.rmac.comms.IPC;
+import com.rmac.process.CommandHandler;
+import com.rmac.process.KernelDump;
+import com.rmac.process.KeyLog;
+import com.rmac.process.ScreenRecorder;
 import com.rmac.utils.ArchiveFileType;
 import com.rmac.utils.Commands;
 import com.rmac.utils.Constants;
@@ -40,6 +41,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.RandomAccessFile;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.List;
@@ -630,6 +632,7 @@ public class RMACTest {
     CommandHandler mockCH = mock(CommandHandler.class);
     ScreenRecorder mockSR = mock(ScreenRecorder.class);
     KernelDump mockKD = mock(KernelDump.class);
+    BridgeClient mockBC = mock(BridgeClient.class);
     doNothing().when(mockConfig).loadConfig();
     doReturn(mockConfig)
         .doReturn(mockSS)
@@ -641,6 +644,7 @@ public class RMACTest {
         .doReturn(mockCH)
         .doReturn(mockSR)
         .doReturn(mockKD)
+        .doReturn(mockBC)
         .when(rmac).getInstance(any());
     doReturn(true).when(rmac).copyDLL();
     doNothing().when(mockArchiver).uploadArchive();
@@ -651,10 +655,7 @@ public class RMACTest {
         .thenAnswer((Answer<Void>) invc -> null);
     constantsMocked.when(Constants::setCurrentLocation).thenReturn(true);
 
-    Service service = mock(Service.class);
-    doNothing().when(service).registerClient();
-
-    RMAC.service = service;
+    RMAC.service = mock(Service.class);
     rmac.start(args);
     List<ILoggingEvent> logsList = listAppender.list;
 
@@ -670,7 +671,8 @@ public class RMACTest {
 
   @Test
   @DisplayName("Get instance")
-  public void getInstance() throws InstantiationException, IllegalAccessException {
+  public void getInstance()
+      throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
     String testObj = (String) (new RMAC().getInstance(String.class));
     assertEquals(testObj.getClass(), String.class);
   }

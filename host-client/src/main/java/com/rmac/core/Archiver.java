@@ -5,7 +5,6 @@ import com.rmac.utils.ArchiveFileType;
 import com.rmac.utils.Constants;
 import com.rmac.utils.Utils;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -37,6 +36,9 @@ public class Archiver {
   public Archiver() {
     this.verifyFolders();
 
+    /* Listen for network state change and upload all the archives stored in pending archives location (/archives/pending) when
+     * network state changes from down to up.
+     */
     Connectivity.onChange(state -> {
       if (state) {
         this.uploadArchiveAsync();
@@ -195,7 +197,7 @@ public class Archiver {
     try {
       RMAC.fs
           .list(Constants.CURRENT_LOCATION)
-          .filter(path -> path.getFileName().endsWith(".mkv"))
+          .filter(path -> path.getFileName().toString().toLowerCase().endsWith(".mkv"))
           .forEach(path -> RMAC.archiver.moveToArchive(
               path.toAbsolutePath().toString(), ArchiveFileType.SCREEN
           ));

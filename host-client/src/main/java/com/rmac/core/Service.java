@@ -16,14 +16,20 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
 /**
- * Service to call RMAC Server REST APIs
+ * Service to call RMAC API Server endpoints.
  */
 @Slf4j
 public class Service {
 
   public static Gson GSON = new Gson();
 
+  /**
+   * Initialize the service.
+   */
   public Service() {
+    /* Listen for network state change and trigger RMAC Host registration with API Server
+     * when network is back up and not already registered.
+     */
     Connectivity.onChange(state -> {
       if (state && !RMAC.isClientRegistered) {
         this.registerClientAsync();
@@ -87,6 +93,9 @@ public class Service {
     }
   }
 
+  /**
+   * Call GET /register API to register this RMAC client asynchronously.
+   */
   public Thread registerClientAsync() {
     Thread t = new Thread(() -> RMAC.service.registerClient());
     t.start();

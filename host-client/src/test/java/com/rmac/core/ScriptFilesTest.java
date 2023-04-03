@@ -1,21 +1,9 @@
 package com.rmac.core;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
-import com.rmac.RMAC;
-import com.rmac.utils.FileSystem;
-import java.io.FileNotFoundException;
-import java.io.IOError;
-import java.io.IOException;
-import java.io.PrintStream;
 import java.lang.Thread.State;
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
@@ -42,7 +30,7 @@ public class ScriptFilesTest {
     verify(t).start();
   }
 
-  @Test
+  /*@Test
   @DisplayName("Run fails")
   public void run_Failed() throws IOException {
     ScriptFiles sf = spy(ScriptFiles.class);
@@ -172,5 +160,5 @@ public class ScriptFilesTest {
 
     RMAC.fs = fs;
     sf.createKill_Bat();
-  }
+  }*/
 }

@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
@@ -23,7 +22,6 @@ import com.rmac.utils.Constants;
 import com.rmac.utils.FileSystem;
 import com.rmac.utils.Utils;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 import java.util.zip.ZipOutputStream;
@@ -274,6 +272,7 @@ public class ArchiverTest {
     MockedStatic<Utils> utils = mockStatic(Utils.class);
 
     utils.when(Utils::getTimestamp).thenReturn("0000-00-00-00-00-00");
+    doReturn(true).when(fs).exists(anyString());
     doAnswer(invc -> Stream.of(Paths.get("X:\\test\\Live\\test.mkv"))).when(fs)
         .list(anyString());
 
@@ -283,7 +282,10 @@ public class ArchiverTest {
     RMAC.archiver = archiver;
     archiver.cleanUp();
 
-    verify(archiver).moveToArchive(eq(Constants.TEMP_LOCATION + "\\Key-0000-00-00-00-00-00.txt"),
+    verify(archiver, times(1)).moveToArchive(eq("X:\\test\\Live\\test.mkv"),
+        eq(ArchiveFileType.SCREEN));
+    verify(archiver, times(1)).moveToArchive(
+        eq(Constants.TEMP_LOCATION + "\\Key-0000-00-00-00-00-00.txt"),
         eq(ArchiveFileType.KEY));
 
     utils.close();

@@ -5,11 +5,9 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
- * Utility methods.
+ * Common methods.
  */
 public class Utils {
 
@@ -56,6 +54,12 @@ public class Utils {
     return process;
   }
 
+  /**
+   * Run a task asynchronously.
+   *
+   * @param runnable The runnable task.
+   * @return The running task's thread.
+   */
   public static Thread async(Runnable runnable) {
     Thread t = new Thread(runnable);
     t.start();

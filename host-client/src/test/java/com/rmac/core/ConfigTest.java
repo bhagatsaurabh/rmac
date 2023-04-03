@@ -9,6 +9,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -20,9 +21,11 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.util.function.BiConsumer;
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
+import org.mockito.MockedStatic;
 
 public class ConfigTest {
 
@@ -31,13 +34,18 @@ public class ConfigTest {
   public void config_Default() {
     Config config = new Config();
 
+    InetAddress mockedLocalHost = mock(InetAddress.class);
+    MockedStatic<InetAddress> mockedInetAddr = mockStatic(InetAddress.class);
+    mockedInetAddr.when(InetAddress::getLocalHost).thenReturn(mockedLocalHost);
+    doReturn("XYZABC").when(mockedLocalHost).getHostName();
+
     assertEquals(config.getApiServerUrl(), "");
     assertEquals(config.getMegaUser(), "");
     assertEquals(config.getMegaPass(), "");
     assertEquals(config.getVideoDuration(), 600000);
     assertEquals(config.getFPS(), 20);
     assertEquals(config.getKeyLogUploadInterval(), 600000);
-    assertEquals(config.getHostName(), "");
+    assertEquals(config.getHostName(), "XYZABC");
     assertEquals(config.getClientName(), "");
     assertEquals(config.getId(), "");
     assertTrue(config.getLogFileUpload());
@@ -50,6 +58,8 @@ public class ConfigTest {
     assertTrue(config.getAudioRecording());
     assertFalse(config.getActiveAudioRecording());
     assertEquals(config.getClientHealthCheckInterval(), 3000);
+
+    mockedInetAddr.close();
   }
 
   @Test
@@ -76,12 +86,13 @@ public class ConfigTest {
     BufferedReader reader = mock(BufferedReader.class);
 
     doReturn(true).when(fs).exists(eq(Constants.CONFIG_LOCATION));
-    doReturn("TestField1=TestValue1")
-        .doReturn("/#TestMultilineField")
+    doReturn("VideoDuration=60000")
+        .doReturn("/#ApiServerUrl")
         .doReturn("TestMultiline1")
         .doReturn("TestMultiline2")
         .doReturn("#/")
-        .doReturn("TestField2=TestValue2")
+        .doReturn("VideoUpload=false")
+        .doReturn("MaxStagingSize=123456789")
         .doReturn(null)
         .when(reader).readLine();
     doReturn(reader).when(fs).getReader(eq(Constants.CONFIG_LOCATION));
@@ -91,9 +102,10 @@ public class ConfigTest {
     config.loadConfig();
 
     verify(fs).getReader(eq(Constants.CONFIG_LOCATION));
-    verify(config).setConfig(eq("TestField1"), eq("TestValue1"));
-    verify(config).setConfig(eq("TestMultilineField"), eq("TestMultiline1 TestMultiline2"));
-    verify(config).setConfig(eq("TestField2"), eq("TestValue2"));
+    assertEquals(config.getVideoDuration(), 60000);
+    assertEquals(config.getApiServerUrl(), "TestMultiline1 TestMultiline2");
+    assertFalse(config.getVideoUpload());
+    assertEquals(config.getMaxStagingSize(), 123456789L);
     verify(reader).close();
   }
 
@@ -104,7 +116,7 @@ public class ConfigTest {
 
     doNothing().when(config).updateConfig();
 
-    config.setConfig("ServerUrl", "testurl");
+    config.setConfig("ApiServerUrl", "testurl");
 
     assertEquals(config.getApiServerUrl(), "testurl");
     verify(config).updateConfig();

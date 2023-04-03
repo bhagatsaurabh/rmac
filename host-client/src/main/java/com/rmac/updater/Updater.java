@@ -2,22 +2,15 @@ package com.rmac.updater;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.RandomAccessFile;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
@@ -29,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
  * Main entry/exit point for RMACUpdater.
  * <br>
  * Whenever this process starts, it connects with the currently active RMAC client process running
- * on this host machine and checks for updates by calling RMAC Server api, if there are no updates,
+ * on this host machine and checks for updates by calling RMAC API Server, if there are no updates,
  * this process starts monitoring RMAC client's health.
  * <br><br>
  * Performs following tasks in sequence:
