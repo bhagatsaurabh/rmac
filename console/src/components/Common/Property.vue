@@ -57,7 +57,6 @@ import { useStore } from 'vuex';
 import Button from './Button.vue';
 import Spinner from './Spinner.vue';
 import Toggle from './Toggle.vue';
-// import { capitalize } from '@/utils';
 
 const store = useStore();
 
@@ -111,10 +110,7 @@ const handleSave = async () => {
   const result = await store.dispatch('updateProperty', {
     id: props.id,
     prop: {
-      name:
-        props.type === 'global' && 'clientName, hostName'.includes(props.name)
-          ? capitalize(props.name)
-          : props.name,
+      name: capitalize(props.name),
       value: value.value,
     },
   });
