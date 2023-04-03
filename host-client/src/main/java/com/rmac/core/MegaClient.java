@@ -6,10 +6,7 @@ import com.rmac.utils.NoopOutputStream;
 import com.rmac.utils.PipeStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
@@ -208,6 +205,13 @@ public class MegaClient {
     return !command.isAPIError.get();
   }
 
+  /**
+   * Start the process defined by the process builder.
+   *
+   * @param builder The process builder.
+   * @return Reference to the started process.
+   * @throws IOException If process start fails.
+   */
   public Process startProcess(ProcessBuilder builder) throws IOException {
     return builder.start();
   }

@@ -8,8 +8,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -43,6 +41,11 @@ public class MegaCommand {
         .toArray(String[]::new);
   }
 
+  /**
+   * Starts a new process for MEGAcmd to execute the specified command.
+   *
+   * @throws IOException If command execution fails.
+   */
   public void execute() throws IOException {
     ProcessBuilder builder = new ProcessBuilder(args);
     builder.directory(new File(Constants.MEGACMD_LOCATION));
@@ -88,12 +91,26 @@ public class MegaCommand {
     }
   }
 
+  /**
+   * Run the specified MEGAcmd command.
+   *
+   * @param command The command to execute.
+   * @return The MegaCommand instance running the command.
+   * @throws IOException If command execution fails.
+   */
   public static MegaCommand run(String[] command) throws IOException {
     MegaCommand cmd = new MegaCommand(command);
     cmd.execute();
     return cmd;
   }
 
+  /**
+   * Start the process defined by the process builder.
+   *
+   * @param builder The process builder.
+   * @return Reference to the started process.
+   * @throws IOException If process start fails.
+   */
   public Process startProcess(ProcessBuilder builder) throws IOException {
     return builder.start();
   }
