@@ -4,25 +4,42 @@ import com.rmac.RMAC;
 import com.rmac.core.Connectivity;
 import java.lang.Thread.State;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
 import lombok.extern.slf4j.Slf4j;
 import org.java_websocket.enums.ReadyState;
 
+/**
+ * A client to handle communications between this RMAC Host and the RMAC Bridge Server, this socket
+ * connection is always-up.
+ */
 @Slf4j
 public class BridgeClient {
 
   public Thread thread;
   public Socket socket;
 
+  /**
+   * Maximum no. of re-tries to attempt for connection to RMAC Bridge Server
+   */
   public static int MAX_RETRIES = 5;
+  /**
+   * Cooldown in milliseconds if a connection attempt fails
+   */
   public static int CONNECT_COOLDOWN = 3000;
+  /**
+   * Cooldown in milliseconds if maximum no. of re-tries has been exhausted
+   */
   public static int RECONNECT_COOLDOWN = 60000;
+  /**
+   * Queued messages as a result of network down or connection not being ready
+   */
   public static Queue<Message> bufferedMessages = new LinkedList<>();
 
+  /**
+   * Initializes a BridgeClient instance in a separate thread but does not start immediately.
+   */
   public BridgeClient() {
     try {
       this.socket = new Socket(RMAC.config.getBridgeServerUrl());
@@ -34,11 +51,16 @@ public class BridgeClient {
     this.thread = new Thread(this::run, "BridgeClient");
 
     Connectivity.onChange(this::networkHandler);
-    RMAC.config.onChange((key, value) -> {
-      this.sendMessage(new Message("config", null, RMAC.config));
-    });
+    RMAC.config.onChange(
+        (key, value) -> this.sendMessage(new Message("config", null, RMAC.config)));
   }
 
+  /**
+   * Resumes the thread if network is back up again (if the thread is waiting in-definitely as a
+   * result of network down).
+   *
+   * @param state The current network state <br/> (true = Network up | false = Network down)
+   */
   public void networkHandler(boolean state) {
     if (state && Objects.nonNull(this.thread) && State.WAITING == this.thread.getState()) {
       synchronized (this.thread) {
@@ -47,12 +69,21 @@ public class BridgeClient {
     }
   }
 
+  /**
+   * Starts the BridgeClient's instance thread, as a result starts attempting connection to RMAC
+   * Bridge Server
+   */
   public void start() {
     if (Objects.nonNull(this.thread)) {
       this.thread.start();
     }
   }
 
+  /**
+   * <p>Attempts forever to connect to RMAC Bridge Server until the connection is successful, waits
+   * in-definitely if network is down, and waits definitely if in cooldown.</p> <br/>
+   * <p>Sends any buffered messages to the Bridge Server as soon as the connection is up.</p>
+   */
   public void run() {
     int attempt = 1;
 
@@ -74,6 +105,11 @@ public class BridgeClient {
     this.thread = null;
   }
 
+  /**
+   * Attempts to establish a connection to RMAC Bridge Server.
+   *
+   * @return result <br/> (true = succeeded | false = failed)
+   */
   public boolean connect() {
     if (this.socket.isOpen()) {
       return true;
@@ -96,11 +132,17 @@ public class BridgeClient {
     return result;
   }
 
+  /**
+   * Creates a new thread for this instance for re-connection to Bridge Server.
+   */
   public void reconnect() {
     this.thread = new Thread(this::run);
     this.thread.start();
   }
 
+  /**
+   * Suspends the BridgeClient connection thread in-definitely.
+   */
   public void waitIndefinite() {
     try {
       synchronized (this.thread) {
@@ -111,6 +153,11 @@ public class BridgeClient {
     }
   }
 
+  /**
+   * Suspends the BridgeClient connection thread definitely.
+   *
+   * @param cooldown Cooldown period in milliseconds.
+   */
   public void waitDefinite(int cooldown) {
     try {
       synchronized (this.thread) {
@@ -121,9 +168,15 @@ public class BridgeClient {
     }
   }
 
+  /**
+   * Sends a message to the RMAC Bridge Server, messages are buffered if connection is not
+   * established or is not up.
+   *
+   * @param message The Message to send.
+   */
   public void sendMessage(Message message) {
     if (!this.isReady()) {
-      // Signal: 'hostid' should not be buffered
+      // Signal: 'hostid' should not be buffered.
       if ("hostid".equals(message.type)) {
         return;
       }
@@ -133,10 +186,18 @@ public class BridgeClient {
     }
   }
 
+  /**
+   * Gets the RMAC Bridge Server connection status.
+   *
+   * @return status <br/> (true = connected | false = not connected)
+   */
   public boolean isReady() {
     return this.socket.isOpen();
   }
 
+  /**
+   * Process all buffered messages in queue and send to Bridge Server.
+   */
   public void unloadBuffer() {
     if (this.isReady()) {
       while (bufferedMessages.peek() != null) {
@@ -145,6 +206,9 @@ public class BridgeClient {
     }
   }
 
+  /**
+   * Close all open terminal connections to this RMAC Host
+   */
   public void shutdown() {
     if (Objects.nonNull(this.socket)) {
       this.socket.terminals.forEach((id, terminal) -> {

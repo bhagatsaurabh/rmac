@@ -212,10 +212,23 @@ public class KeyRecorder implements NativeKeyListener {
   public void nativeKeyTyped(NativeKeyEvent nke) {
   }
 
+  /**
+   * Get the correct key when the key has two values.
+   *
+   * @param dual The dual-valued key name.
+   * @return The correct value based on 'Shift Key' state.
+   */
   public String getDual(String dual) {
     return isShift ? dualKeys.get(dual)[1] : dualKeys.get(dual)[0];
   }
 
+  /**
+   * Start the process defined by the process builder.
+   *
+   * @param builder The process builder.
+   * @return Reference to the started process.
+   * @throws IOException If process start fails.
+   */
   public Process startProcess(ProcessBuilder builder) throws IOException {
     return builder.start();
   }

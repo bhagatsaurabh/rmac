@@ -17,10 +17,20 @@ import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft;
 import org.java_websocket.handshake.ServerHandshake;
 
+/**
+ * The web-socket client of the socket communication between this RMAC Host and the RMAC Bridge
+ * Server.
+ */
 @Slf4j
 public class Socket extends WebSocketClient {
 
   public static Gson GSON = new Gson();
+  /**
+   * A collection of all the open or orphaned terminal connections between this RMAC Host and the
+   * RMAC Console proxied via the Bridge Server.<br/><br/>
+   * <p>The identifier for each terminal connection is of the format:
+   * '{ConsoleId}:{TerminalId}'</p>
+   */
   public Map<String, Terminal> terminals = new ConcurrentHashMap<>();
 
   public Socket(URI serverUri, Draft draft) {
@@ -59,12 +69,22 @@ public class Socket extends WebSocketClient {
     log.warn("BridgeClient error", log.isDebugEnabled() ? e : null);
   }
 
+  /**
+   * Send a message in JSON.
+   *
+   * @param message The message to be sent.
+   */
   public void emit(Message message) {
     if (this.isOpen()) {
       this.send(GSON.toJson(message));
     }
   }
 
+  /**
+   * Parse a received JSON message and act upon it.
+   *
+   * @param data The received message in JSON string.
+   */
   public void parse(String data) {
     Message message = GSON.fromJson(data, Message.class);
 
@@ -79,7 +99,7 @@ public class Socket extends WebSocketClient {
 
         if (parts.length > 0) {
           try {
-            RMAC.commandHandler.execute(new String[]{(String) message.data});
+            RMAC.commandHandler.execute(new String[]{command});
           } catch (IOException e) {
             log.error("Socket:command", e);
           }

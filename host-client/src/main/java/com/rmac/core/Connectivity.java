@@ -17,9 +17,6 @@ import lombok.extern.slf4j.Slf4j;
  * <br><br>
  * Triggers upload for all the archives stored in pending archives location (/archives/pending) when
  * network state changes from down to up.
- * <br><br>
- * Triggers RMAC host registration when network state changes from down to up and when this RMAC
- * client is not already registered.
  */
 @Slf4j
 public class Connectivity {
@@ -71,6 +68,11 @@ public class Connectivity {
     return false;
   }
 
+  /**
+   * Listen for network state changes.
+   *
+   * @param callback The callback to be called when network state changes.
+   */
   public static void onChange(Consumer<Boolean> callback) {
     listeners.add(callback);
   }

@@ -165,6 +165,11 @@ public class Archiver {
     }
   }
 
+  /**
+   * Asynchronously archive and upload the staging directories.
+   *
+   * @return The thread.
+   */
   public Thread uploadArchiveAsync() {
     Thread t = new Thread(() -> RMAC.archiver.uploadArchive());
     t.start();

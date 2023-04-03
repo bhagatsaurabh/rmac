@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
  * Configuration properties:
  * <br>
  * <pre>
- * <code>ServerUrl</code>                ("")         - RMAC Server URL.
+ * <code>ApiServerUrl</code>             ("")         - RMAC API Server URL.
  * <code>MegaUser</code>                 ("")         - Username for MEGA account.
  * <code>MegaPass</code>                 ("")         - Password for MEGA account.
  * <code>VideoDuration</code>            (600000)     - Duration for screen recordings in milliseconds.
@@ -208,9 +208,9 @@ public class Config {
   }
 
   /**
-   * Get the RMAC Server URL
+   * Get the RMAC API Server URL
    *
-   * @return The RMAC Server URL
+   * @return The RMAC API Server URL
    */
   public String getApiServerUrl() {
     return this.apiServerUrl;
@@ -425,7 +425,7 @@ public class Config {
   public void updateConfig() {
     try {
       PrintWriter writer = RMAC.fs.getWriter(Constants.CONFIG_LOCATION);
-      writer.println("ServerUrl=" + this.apiServerUrl);
+      writer.println("ApiServerUrl=" + this.apiServerUrl);
       writer.println("BridgeServerUrl=" + this.bridgeServerUrl);
       writer.println("MegaUser=" + this.megaUser);
       writer.println("MegaPass=" + this.megaPass);
@@ -462,6 +462,13 @@ public class Config {
     this.listeners.add(callback);
   }
 
+  /**
+   * Whether the substring is present in the source string.
+   *
+   * @param source    The source string.
+   * @param subString The sub-string.
+   * @return result <br/> (true = present | false = not-present)
+   */
   public boolean contains(String source, String subString) {
     String pattern = "\\s+" + subString + "\\s+";
     Pattern p = Pattern.compile(pattern);
