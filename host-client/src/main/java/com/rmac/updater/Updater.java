@@ -146,7 +146,7 @@ public class Updater {
       BufferedReader configReader = fs.getReader(configPath + "\\config.rmac");
       String curr;
       while ((curr = configReader.readLine()) != null) {
-        if (curr.contains("ServerUrl")) {
+        if (curr.contains("ApiServerUrl")) {
           String[] pair = curr.trim().split("=");
           SERVER_URL = pair[1].trim();
         } else if (curr.contains("ClientHealthCheckInterval")) {

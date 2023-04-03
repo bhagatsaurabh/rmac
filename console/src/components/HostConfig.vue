@@ -22,7 +22,7 @@
           :input-type="configTypes[name]"
           editable
         >
-          {{ name }}
+          {{ capitalize(name) }}
         </Property>
       </div>
     </div>
@@ -30,7 +30,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed, watch, capitalize } from 'vue';
 import { useStore } from 'vuex';
 import Icon from './Common/Icon.vue';
 import Property from './Common/Property.vue';

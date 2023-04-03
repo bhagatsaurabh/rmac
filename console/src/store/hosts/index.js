@@ -26,10 +26,10 @@ const mutations = {
   [mutationKeys.SET_FILTERED_HOSTS]: (state, data) => {
     state.filteredHosts = data ?? [];
   },
-  [mutationKeys.SET_HOST_CONFIG]: (state, { id, data }) => {
+  [mutationKeys.SET_HOST_CONFIG]: (state, { hId, data }) => {
     const updatedHosts = [...state.hosts];
 
-    const host = updatedHosts.find((host) => host.id === id);
+    const host = updatedHosts.find((host) => host.id === hId);
     if (host) {
       host.config = data;
       host.clientName = host.config.clientName;
@@ -132,7 +132,7 @@ const actions = {
       const res = await fetch(`${apiURL}/hosts/${id}/config`);
       if (res.status !== 204) {
         const data = await res.json();
-        commit(mutationKeys.SET_HOST_CONFIG, { id, data });
+        commit(mutationKeys.SET_HOST_CONFIG, { hId: id, data });
       }
     } catch (error) {
       bus.emit('notify', { ...notifications.EFETCH_HOST_CONFIG_FAILED(), desc: error.message });
@@ -212,7 +212,7 @@ const actions = {
         const res = await fetch(`${apiURL}/hosts/${hostId}/command`, {
           method: 'POST',
           body: JSON.stringify({ command }),
-          headers: { 'Content-Type': 'application/json' },
+          headers: defaultHeaders(),
         });
         if (res.status < 200 || res.status > 299) {
           throw await res.json();
