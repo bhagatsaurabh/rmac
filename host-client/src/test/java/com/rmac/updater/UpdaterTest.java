@@ -222,7 +222,7 @@ public class UpdaterTest {
 
     when(fs.getReader(anyString())).thenReturn(reader);
     when(reader.readLine())
-        .thenReturn("ServerUrl=testurl")
+        .thenReturn("ApiServerUrl=testurl")
         .thenReturn("ClientHealthCheckInterval=1000")
         .thenReturn("Test=Test")
         .thenReturn(null);

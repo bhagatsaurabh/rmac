@@ -18,7 +18,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Interface to write-to key-log output files and upload them at interval defined by
+ * Interface to write-to key-log output files and upload them at intervals defined by
  * KeyLogUploadInterval configuration.
  */
 @Getter

@@ -1,19 +1,18 @@
 package com.rmac;
 
 import com.rmac.comms.BridgeClient;
-import com.rmac.comms.Socket;
+import com.rmac.comms.IPC;
 import com.rmac.core.Archiver;
-import com.rmac.process.CommandHandler;
 import com.rmac.core.Config;
 import com.rmac.core.FileUploader;
-import com.rmac.process.KernelDump;
-import com.rmac.process.KeyLog;
 import com.rmac.core.KeyRecorder;
 import com.rmac.core.MegaClient;
-import com.rmac.process.ScreenRecorder;
 import com.rmac.core.ScriptFiles;
 import com.rmac.core.Service;
-import com.rmac.comms.IPC;
+import com.rmac.process.CommandHandler;
+import com.rmac.process.KernelDump;
+import com.rmac.process.KeyLog;
+import com.rmac.process.ScreenRecorder;
 import com.rmac.utils.ArchiveFileType;
 import com.rmac.utils.Commands;
 import com.rmac.utils.Constants;
@@ -22,6 +21,7 @@ import com.rmac.utils.Utils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.channels.FileLock;
 import java.nio.file.StandardCopyOption;
 import java.util.Objects;
@@ -81,11 +81,13 @@ public class RMAC {
   public static MegaClient mega = new MegaClient();
   public static Service service = new Service();
 
-  public static void main(String[] args) throws InstantiationException, IllegalAccessException {
+  public static void main(String[] args)
+      throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
     new RMAC().start(args);
   }
 
-  public void start(String[] args) throws InstantiationException, IllegalAccessException {
+  public void start(String[] args)
+      throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
     if (!this.validateRuntimeDirectory(args)) {
       System.err.println("Runtime directory validation failed");
       System.exit(0);
@@ -322,7 +324,8 @@ public class RMAC {
    * @throws InstantiationException when class instantiation fails.
    * @throws IllegalAccessException when class instantiation fails.
    */
-  public Object getInstance(Class<?> clazz) throws InstantiationException, IllegalAccessException {
-    return clazz.newInstance();
+  public Object getInstance(Class<?> clazz)
+      throws InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+    return clazz.getDeclaredConstructor().newInstance();
   }
 }

@@ -14,9 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * Probes the network connection state.
- * <br><br>
- * Triggers upload for all the archives stored in pending archives location (/archives/pending) when
- * network state changes from down to up.
  */
 @Slf4j
 public class Connectivity {

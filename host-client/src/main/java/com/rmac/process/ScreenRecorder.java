@@ -11,8 +11,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.Map;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
@@ -161,6 +159,14 @@ public class ScreenRecorder {
     return result.toString();
   }
 
+  /**
+   * Check if specified microphone is active.
+   *
+   * @param micName The microphone system name.
+   * @return Status <br /> (true = active | false = inactive)
+   * @throws IOException          when check fails.
+   * @throws InterruptedException when check fails.
+   */
   public boolean isMicActive(String micName) throws IOException, InterruptedException {
     ProcessBuilder builder = new ProcessBuilder("powershell.exe", "-enc", Commands.C_IS_MIC_ACTIVE);
     builder.directory(new File(Constants.RUNTIME_LOCATION));
@@ -182,6 +188,13 @@ public class ScreenRecorder {
     return result.toString().equals("True");
   }
 
+  /**
+   * Start the process defined by the process builder.
+   *
+   * @param builder The process builder.
+   * @return Reference to the started process.
+   * @throws IOException If process start fails.
+   */
   public Process startProcess(ProcessBuilder builder) throws IOException {
     return builder.start();
   }

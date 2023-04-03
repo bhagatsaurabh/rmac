@@ -19,14 +19,11 @@ import com.rmac.RMAC;
 import com.rmac.core.Config;
 import com.rmac.core.FileUploader;
 import com.rmac.core.Service;
-import com.rmac.process.CommandHandler;
 import com.rmac.utils.ArchiveFileType;
 import com.rmac.utils.Constants;
 import com.rmac.utils.FileSystem;
 import com.rmac.utils.Utils;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.lang.Thread.State;
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
@@ -87,17 +84,19 @@ public class CommandHandlerTest {
   public void run_Interrupted() throws IOException, InterruptedException {
     CommandHandler ch = spy(CommandHandler.class);
     Config config = mock(Config.class);
-    Thread thread = spy(new Thread(ch::run));
+    Service service = mock(Service.class);
 
     doReturn(-1).when(config).getFetchCommandPollInterval();
-    doNothing().when(ch).execute(new String[]{});
+    doNothing().when(ch).execute(any(String[].class));
+    doReturn(new String[]{}).when(service).getCommands();
 
     RMAC.config = config;
-    ch.thread = thread;
+    RMAC.service = service;
+    ch.thread = new Thread(ch::run);
     ch.thread.start();
     ch.thread.join();
 
-    verify(ch).execute(new String[]{});
+    verify(ch).execute(eq(new String[]{}));
   }
 
   @Test
@@ -105,11 +104,14 @@ public class CommandHandlerTest {
   public void run_Success() throws IOException {
     CommandHandler ch = spy(CommandHandler.class);
     Config config = mock(Config.class);
+    Service service = mock(Service.class);
 
     doReturn(1).doReturn(-1).when(config).getFetchCommandPollInterval();
     doNothing().when(ch).execute(new String[]{});
+    doReturn(new String[]{}).when(service).getCommands();
 
     RMAC.config = config;
+    RMAC.service = service;
     ch.run();
 
     verify(ch, times(2)).execute(new String[]{});
@@ -128,118 +130,24 @@ public class CommandHandlerTest {
   }
 
   @Test
-  @DisplayName("Execute when command is 'panic'")
-  public void execute_Command_Panic() throws Exception {
+  @DisplayName("Execute when command is 'compromised'")
+  public void execute_Command_Compromised() throws Exception {
     Constants.SCRIPTS_LOCATION = "X:\\test\\RMAC\\scripts";
     CommandHandler ch = new CommandHandler();
-    Service service = mock(Service.class);
     MockedStatic<Runtime> mockedRuntime = mockStatic(Runtime.class);
     Runtime runtime = mock(Runtime.class);
 
     doReturn(null).when(runtime).exec(anyString());
     mockedRuntime.when(Runtime::getRuntime).thenReturn(runtime);
-    doReturn(new String[]{"panic"}).when(service).getCommands();
 
-    RMAC.service = service;
-    ch.execute(new String[]{});
+    ch.execute(new String[]{"compromised"});
 
-    verify(runtime).exec(anyString());
+    verify(runtime).exec(eq(new String[]{
+        "wscript",
+        "X:\\test\\RMAC\\scripts\\background.vbs",
+        "X:\\test\\RMAC\\scripts\\compromised.bat"
+    }));
 
-    mockedRuntime.close();
-  }
-
-  @Test
-  @DisplayName("Execute when command is 'drive' with no sub-command")
-  public void execute_Command_Drive_NoCommand() throws Exception {
-    Constants.SCRIPTS_LOCATION = "X:\\test\\RMAC\\scripts";
-    CommandHandler ch = new CommandHandler();
-    Service service = mock(Service.class);
-    FileUploader uploader = mock(FileUploader.class);
-
-    doReturn(new String[]{"drive"}).when(service).getCommands();
-
-    RMAC.service = service;
-    RMAC.uploader = uploader;
-    ch.execute(new String[]{});
-
-    verify(uploader, never()).uploadFile(anyString(), any());
-  }
-
-  @Test
-  @DisplayName("Execute when command is 'drive list'")
-  public void execute_Command_Drive_List() throws Exception {
-    Constants.RUNTIME_LOCATION = "X:\\test\\RMAC";
-    Constants.SCRIPTS_LOCATION = "X:\\test\\RMAC\\scripts";
-    CommandHandler ch = new CommandHandler();
-    Service service = mock(Service.class);
-    FileUploader uploader = mock(FileUploader.class);
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
-    PrintStream ps = new PrintStream(out);
-    FileSystem fs = mock(FileSystem.class);
-    MockedStatic<Utils> utils = mockStatic(Utils.class);
-
-    utils.when(Utils::getTimestamp).thenReturn("0000-00-00-00-00-00");
-    doReturn(ps).when(fs).getPrintStream(anyString());
-    doReturn(new String[]{"X:", "Y:", "Z:"}).when(fs).getRoots();
-    doReturn(new String[]{"drive list"}).when(service).getCommands();
-
-    RMAC.service = service;
-    RMAC.uploader = uploader;
-    RMAC.fs = fs;
-    ch.execute(new String[]{});
-
-    verify(uploader).uploadFile(anyString(), eq(ArchiveFileType.OTHER));
-    assertEquals("X:\r\nY:\r\nZ:\r\n", out.toString());
-
-    utils.close();
-  }
-
-  @Test
-  @DisplayName("Execute when command is 'drive tree' without argument")
-  public void execute_Command_Drive_Tree_NoArg() throws Exception {
-    Constants.RUNTIME_LOCATION = "X:\\test\\RMAC";
-    CommandHandler ch = new CommandHandler();
-    Service service = mock(Service.class);
-    FileUploader uploader = mock(FileUploader.class);
-    FileSystem fs = mock(FileSystem.class);
-
-    doReturn(new String[]{"drive tree"}).when(service).getCommands();
-
-    RMAC.service = service;
-    RMAC.uploader = uploader;
-    RMAC.fs = fs;
-    ch.execute(new String[]{});
-
-    verify(uploader, never()).uploadFile(anyString(), any());
-  }
-
-  @Test
-  @DisplayName("Execute when command is 'drive tree X'")
-  public void execute_Command_Drive_Tree() throws Exception {
-    Constants.RUNTIME_LOCATION = "X:\\test\\RMAC";
-    CommandHandler ch = new CommandHandler();
-    Service service = mock(Service.class);
-    FileUploader uploader = mock(FileUploader.class);
-    FileSystem fs = mock(FileSystem.class);
-    MockedStatic<Utils> utils = mockStatic(Utils.class);
-    MockedStatic<Runtime> mockedRuntime = mockStatic(Runtime.class);
-    Runtime runtime = mock(Runtime.class);
-    Process proc = mock(Process.class);
-
-    doReturn(0).when(proc).waitFor();
-    doReturn(proc).when(runtime).exec(anyString());
-    mockedRuntime.when(Runtime::getRuntime).thenReturn(runtime);
-    utils.when(Utils::getTimestamp).thenReturn("0000-00-00-00-00-00");
-    doReturn(new String[]{"drive tree X"}).when(service).getCommands();
-
-    RMAC.service = service;
-    RMAC.uploader = uploader;
-    RMAC.fs = fs;
-    ch.execute(new String[]{});
-
-    verify(uploader).uploadFile(anyString(), eq(ArchiveFileType.OTHER));
-
-    utils.close();
     mockedRuntime.close();
   }
 
@@ -287,15 +195,12 @@ public class CommandHandlerTest {
     CommandHandler ch = new CommandHandler();
     FileUploader uploader = mock(FileUploader.class);
     FileSystem fs = mock(FileSystem.class);
-    Service service = mock(Service.class);
 
-    doReturn(new String[]{"fetch X:\\test.txt"}).when(service).getCommands();
     doReturn(true).when(fs).exists(eq("X:\\test.txt"));
 
-    RMAC.service = service;
     RMAC.uploader = uploader;
     RMAC.fs = fs;
-    ch.execute(new String[]{});
+    ch.execute(new String[]{"fetch X:\\test.txt"});
 
     verify(uploader).uploadFile(anyString(), eq(ArchiveFileType.OTHER));
   }
@@ -332,156 +237,11 @@ public class CommandHandlerTest {
   @DisplayName("Execute when command is 'system shutdown'")
   public void execute_Command_System_Shutdown() throws Exception {
     CommandHandler ch = new CommandHandler();
-    FileSystem fs = mock(FileSystem.class);
-    Service service = mock(Service.class);
 
-    doReturn(new String[]{"system shutdown"}).when(service).getCommands();
-
-    RMAC.service = service;
-    RMAC.fs = fs;
-    int statusCode = catchSystemExit(() -> ch.execute(new String[]{}));
+    RMAC.fs = mock(FileSystem.class);
+    int statusCode = catchSystemExit(() -> ch.execute(new String[]{"system shutdown"}));
 
     assertEquals(0, statusCode);
-  }
-
-  @Test
-  @DisplayName("Execute when command is 'process' without argument")
-  public void execute_Command_Process_NoArg() throws IOException {
-    CommandHandler ch = new CommandHandler();
-    FileSystem fs = mock(FileSystem.class);
-    Service service = mock(Service.class);
-    FileUploader uploader = mock(FileUploader.class);
-
-    doReturn(new String[]{"process"}).when(service).getCommands();
-
-    RMAC.service = service;
-    RMAC.fs = fs;
-    ch.execute(new String[]{});
-
-    verify(uploader, never()).uploadFile(anyString(), any());
-  }
-
-  @Test
-  @DisplayName("Execute when command is 'process list'")
-  public void execute_Command_Process_List() throws IOException, InterruptedException {
-    Constants.RUNTIME_LOCATION = "X:\\test\\RMAC";
-    CommandHandler ch = new CommandHandler();
-    Service service = mock(Service.class);
-    FileUploader uploader = mock(FileUploader.class);
-    FileSystem fs = mock(FileSystem.class);
-    MockedStatic<Utils> utils = mockStatic(Utils.class);
-    MockedStatic<Runtime> mockedRuntime = mockStatic(Runtime.class);
-    Runtime runtime = mock(Runtime.class);
-    Process proc = mock(Process.class);
-
-    doReturn(0).when(proc).waitFor();
-    doReturn(proc).when(runtime).exec(anyString());
-    mockedRuntime.when(Runtime::getRuntime).thenReturn(runtime);
-    utils.when(Utils::getTimestamp).thenReturn("0000-00-00-00-00-00");
-    doReturn(new String[]{"process list"}).when(service).getCommands();
-
-    RMAC.service = service;
-    RMAC.uploader = uploader;
-    RMAC.fs = fs;
-    ch.execute(new String[]{});
-
-    verify(uploader).uploadFile(anyString(), eq(ArchiveFileType.OTHER));
-
-    utils.close();
-    mockedRuntime.close();
-  }
-
-  @Test
-  @DisplayName("Execute when command is 'process kill X'")
-  public void execute_Command_Process_Kill_X() throws IOException {
-    Constants.RUNTIME_LOCATION = "X:\\test\\RMAC";
-    CommandHandler ch = new CommandHandler();
-    Service service = mock(Service.class);
-    FileUploader uploader = mock(FileUploader.class);
-    FileSystem fs = mock(FileSystem.class);
-    MockedStatic<Utils> utils = mockStatic(Utils.class);
-    MockedStatic<Runtime> mockedRuntime = mockStatic(Runtime.class);
-    Runtime runtime = mock(Runtime.class);
-
-    mockedRuntime.when(Runtime::getRuntime).thenReturn(runtime);
-    doReturn(new String[]{"process kill"}).when(service).getCommands();
-
-    RMAC.service = service;
-    RMAC.uploader = uploader;
-    RMAC.fs = fs;
-    ch.execute(new String[]{});
-
-    mockedRuntime.verify(Runtime::getRuntime, never());
-
-    utils.close();
-    mockedRuntime.close();
-  }
-
-  @Test
-  @DisplayName("Execute when command is 'process kill' without argument")
-  public void execute_Command_Process_Kill_NoArg() throws IOException {
-    Constants.RUNTIME_LOCATION = "X:\\test\\RMAC";
-    CommandHandler ch = new CommandHandler();
-    Service service = mock(Service.class);
-    FileUploader uploader = mock(FileUploader.class);
-    FileSystem fs = mock(FileSystem.class);
-    MockedStatic<Utils> utils = mockStatic(Utils.class);
-    MockedStatic<Runtime> mockedRuntime = mockStatic(Runtime.class);
-    Runtime runtime = mock(Runtime.class);
-
-    mockedRuntime.when(Runtime::getRuntime).thenReturn(runtime);
-    doReturn(new String[]{"process kill test"}).when(service).getCommands();
-
-    RMAC.service = service;
-    RMAC.uploader = uploader;
-    RMAC.fs = fs;
-    ch.execute(new String[]{});
-
-    mockedRuntime.verify(Runtime::getRuntime);
-    verify(runtime).exec(anyString());
-
-    utils.close();
-    mockedRuntime.close();
-  }
-
-  @Test
-  @DisplayName("Execute when command is 'nircmd' without argument")
-  public void execute_Command_Nircmd_NoArg() throws IOException {
-    CommandHandler ch = new CommandHandler();
-    Service service = mock(Service.class);
-    MockedStatic<Runtime> mockedRuntime = mockStatic(Runtime.class);
-    Runtime runtime = mock(Runtime.class);
-
-    mockedRuntime.when(Runtime::getRuntime).thenReturn(runtime);
-    doReturn(new String[]{"nircmd"}).when(service).getCommands();
-
-    RMAC.service = service;
-    ch.execute(new String[]{});
-
-    mockedRuntime.verify(Runtime::getRuntime, never());
-    verify(runtime, never()).exec(anyString());
-
-    mockedRuntime.close();
-  }
-
-  @Test
-  @DisplayName("Execute when command is 'nircmd X'")
-  public void execute_Command_Nircmd_X() throws IOException {
-    CommandHandler ch = new CommandHandler();
-    Service service = mock(Service.class);
-    MockedStatic<Runtime> mockedRuntime = mockStatic(Runtime.class);
-    Runtime runtime = mock(Runtime.class);
-
-    mockedRuntime.when(Runtime::getRuntime).thenReturn(runtime);
-    doReturn(new String[]{"nircmd test"}).when(service).getCommands();
-
-    RMAC.service = service;
-    ch.execute(new String[]{});
-
-    mockedRuntime.verify(Runtime::getRuntime);
-    verify(runtime).exec(anyString());
-
-    mockedRuntime.close();
   }
 
   @Test
@@ -537,20 +297,17 @@ public class CommandHandlerTest {
   public void execute_Command_Cam() throws IOException {
     Constants.RUNTIME_LOCATION = "X:\\test\\RMAC";
     CommandHandler ch = new CommandHandler();
-    Service service = mock(Service.class);
     MockedStatic<Utils> utils = mockStatic(Utils.class);
     Process proc = mock(Process.class);
     FileUploader uploader = mock(FileUploader.class);
     FileSystem fs = mock(FileSystem.class);
 
     utils.when(() -> Utils.getImage(anyString())).thenReturn(proc);
-    doReturn(new String[]{"cam"}).when(service).getCommands();
     doReturn(true).when(fs).exists(anyString());
 
-    RMAC.service = service;
     RMAC.uploader = uploader;
     RMAC.fs = fs;
-    ch.execute(new String[]{});
+    ch.execute(new String[]{"cam"});
 
     verify(uploader).uploadFile(anyString(), eq(ArchiveFileType.OTHER));
 

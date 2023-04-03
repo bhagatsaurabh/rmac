@@ -3,7 +3,6 @@ package com.rmac.utils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -17,6 +16,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.mockito.MockedStatic;
@@ -49,6 +49,7 @@ public class UtilsTest {
     Calendar calMock = spy(Calendar.getInstance());
     MockedStatic<Calendar> mockedCal = mockStatic(Calendar.class);
     mockedCal.when(Calendar::getInstance).thenReturn(calMock);
+    mockedCal.when(() -> Calendar.getInstance(any(Locale.class))).thenReturn(calMock);
     mockedCal.when(() -> Calendar.getInstance(any(), any())).thenReturn(calMock);
     when(calMock.getTime()).thenReturn(date);
 

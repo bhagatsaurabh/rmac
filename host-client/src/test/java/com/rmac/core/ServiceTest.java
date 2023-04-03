@@ -25,6 +25,9 @@ public class ServiceTest {
   @Test
   @DisplayName("Get commands when network is down")
   public void getCommands_NetworkDown() {
+    // Because of weird static class initialization issue: Class not found
+    RMAC.config = null;
+
     MockedStatic<Connectivity> connectivity = mockStatic(Connectivity.class);
     Service service = new Service();
 
