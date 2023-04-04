@@ -2,7 +2,6 @@ package com.rmac.utils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -18,11 +17,8 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.FileAttribute;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.Scanner;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import java.util.zip.ZipOutputStream;
@@ -191,5 +187,9 @@ public class FileSystem {
 
   public Process startProcess(ProcessBuilder builder) throws IOException {
     return builder.start();
+  }
+
+  public Scanner scanner(InputStream is) {
+    return new Scanner(is);
   }
 }

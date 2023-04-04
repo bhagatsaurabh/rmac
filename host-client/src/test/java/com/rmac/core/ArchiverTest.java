@@ -23,6 +23,7 @@ import com.rmac.utils.FileSystem;
 import com.rmac.utils.Utils;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.stream.Stream;
 import java.util.zip.ZipOutputStream;
 import org.junit.Test;
@@ -250,8 +251,10 @@ public class ArchiverTest {
     Constants.CURRENT_LOCATION = "X:\\test\\Live";
     FileSystem fs = mock(FileSystem.class);
 
+    doReturn(true).when(fs).exists(anyString());
     doThrow(IOException.class).when(fs).list(anyString());
-    doThrow(IOException.class).when(fs).move(anyString(), anyString(), any());
+    doThrow(IOException.class).when(fs)
+        .move(anyString(), anyString(), eq(StandardCopyOption.REPLACE_EXISTING));
 
     RMAC.fs = fs;
     Archiver archiver = spy(Archiver.class);
@@ -385,5 +388,15 @@ public class ArchiverTest {
 
     verify(fs, times(2)).copy(anyString(), eq(zos));
     verify(fs).deleteAll(anyString());
+  }
+
+  @Test
+  @DisplayName("Upload archives when network changes from down to up")
+  public void uploadArchives_Network_Change() {
+    RMAC.fs = mock(FileSystem.class);
+    Archiver archiver = spy(Archiver.class);
+    Connectivity.listeners.forEach(listener -> listener.accept(true));
+
+    verify(archiver).uploadArchiveAsync();
   }
 }

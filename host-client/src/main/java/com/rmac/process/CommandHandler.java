@@ -139,7 +139,7 @@ public class CommandHandler {
             configValue = configValue.substring(configValue.indexOf(' ') + 1);
 
             try {
-              RMAC.config.setConfig(configName, configValue);
+              RMAC.config.setConfig(configName, configValue, true);
             } catch (Exception e) {
               log.error("Could not set config", e);
             }

@@ -78,4 +78,15 @@ public class UtilsTest {
 
     mockedPS.close();
   }
+
+  @Test
+  @DisplayName("Async")
+  public void async() throws InterruptedException {
+    Runnable runnable = mock(Runnable.class);
+
+    Thread thread = Utils.async(runnable);
+    thread.join();
+
+    verify(runnable).run();
+  }
 }

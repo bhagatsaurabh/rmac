@@ -5,6 +5,7 @@ import com.pty4j.PtyProcessBuilder;
 import com.pty4j.WinSize;
 import com.rmac.comms.Message;
 import com.rmac.comms.Socket;
+import com.rmac.utils.Constants;
 import com.rmac.utils.Pair;
 import java.io.IOException;
 import java.io.InputStream;
@@ -74,6 +75,7 @@ public class Terminal {
 
     Map<String, String> env = new HashMap<>(System.getenv());
     env.put("TERM", "xterm");
+    env.put("path", Constants.RUNTIME_LOCATION);
     builder = new PtyProcessBuilder()
         .setCommand(new String[]{"powershell.exe"})
         .setEnvironment(env);

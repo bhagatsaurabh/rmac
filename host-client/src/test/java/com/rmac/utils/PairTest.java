@@ -11,8 +11,11 @@ public class PairTest {
   @DisplayName("Pair")
   public void createPair() {
     Pair<String, Integer> pair = new Pair<>("Test", 635);
+    pair.setFirst("Test1");
+    pair.setSecond(729);
 
-    assertEquals("Test", pair.getFirst());
-    assertEquals(635L, (long) pair.getSecond());
+    assertEquals("Test1", pair.getFirst());
+    assertEquals(729L, (long) pair.getSecond());
   }
+
 }

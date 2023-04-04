@@ -4,7 +4,8 @@ import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Probes the health of running RMAC client process and restarts it if unhealthy for 1 minute.
+ * Probes the health of running RMAC client process and restarts it if unhealthy for more than 1
+ * minute.
  */
 @Slf4j
 public class Monitor {

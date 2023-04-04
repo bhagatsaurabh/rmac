@@ -8,22 +8,27 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.lang.Thread.State;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MonitorTest {
+
+  @After
+  public void resetAllMocks() {
+    Mockito.reset();
+  }
 
   @Test
   @DisplayName("Initialize monitor")
@@ -87,7 +92,7 @@ public class MonitorTest {
   @DisplayName("Run Monitor when health is up and sleep is interrupted")
   public void run_HealthUp_Interrupted() throws InterruptedException {
     Monitor monitor = spy(Monitor.class);
-    when(monitor.healthCheck()).thenReturn(true);
+    doReturn(true).when(monitor).healthCheck();
 
     monitor.start();
     new Thread(() -> monitor.thread.interrupt()).start();
@@ -97,16 +102,17 @@ public class MonitorTest {
   }
 
   @Test
-  @DisplayName("Run Monitor when health is down and threshold is reaches")
+  @DisplayName("Run Monitor when health is down and threshold is reached")
   public void run_HealthDown_Threshold_NotReached() throws InterruptedException {
     Monitor monitor = spy(Monitor.class);
     when(monitor.healthCheck()).thenReturn(false);
 
+    Updater.HEALTH_CHECK_INTERVAL = -1;
     monitor.thread.start();
-    new Thread(() -> monitor.thread.interrupt()).start();
     monitor.thread.join();
 
     assertNotEquals(Long.MAX_VALUE, monitor.healthCheckFailStart);
+    Mockito.reset(monitor);
   }
 
   @Test
@@ -149,8 +155,8 @@ public class MonitorTest {
     when(mockClock.millis()).thenReturn(123456789L, 123456789L + 60000L);
 
     Updater mockUpdater = mock(Updater.class);
-    when(mockUpdater.stopRMAC()).thenReturn(true);
-    when(mockUpdater.startRMAC()).thenReturn(true);
+    doReturn(true).when(mockUpdater).startRMAC();
+    doReturn(true).when(mockUpdater).stopRMAC();
     when(mockUpdater.getInstance(eq(SocketClient.class))).thenReturn(mockSC2);
 
     Monitor monitor = spy(Monitor.class);
