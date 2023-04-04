@@ -1,12 +1,38 @@
 package com.rmac.core;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.rmac.RMAC;
+import com.rmac.utils.Constants;
+import com.rmac.utils.FileSystem;
+import com.rmac.utils.Utils;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.lang.Thread.State;
+import java.lang.reflect.Field;
+import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Stream;
+import org.apache.commons.text.StringSubstitutor;
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
+import org.mockito.MockedStatic;
 
 public class ScriptFilesTest {
 
@@ -30,135 +56,128 @@ public class ScriptFilesTest {
     verify(t).start();
   }
 
-  /*@Test
+  @Test
   @DisplayName("Run fails")
-  public void run_Failed() throws IOException {
-    ScriptFiles sf = spy(ScriptFiles.class);
+  public void run_Failed() throws IllegalAccessException {
+    MockedStatic<Utils> mockUtils = mockStatic(Utils.class);
+    Field mockField = mock(Field.class);
 
-    doNothing().when(sf).createKillFFMPEG_Bat();
-    doNothing().when(sf).createRun32_Vbs();
-    doNothing().when(sf).createStartRMAC_Bat();
-    doNothing().when(sf).createRestartRMAC_Bat();
-    doNothing().when(sf).createSysAdmin_Vbs();
+    doThrow(IllegalAccessException.class).when(mockField).get(eq(null));
+    mockUtils.when(() -> Utils.getFields(any(Class.class))).thenReturn(new Field[]{mockField});
 
-    doThrow(IOException.class).when(sf).createSystemIndexer_Vbs();
-    sf.run();
+    ScriptFiles scriptFiles = spy(ScriptFiles.class);
+    scriptFiles.run();
 
-    verify(sf, never()).createKill_Bat();
+    verify(scriptFiles, times(0)).copyScript(anyString());
+    verify(scriptFiles, times(0)).copyScript(anyString(), any(StringSubstitutor.class));
+
+    mockUtils.close();
   }
 
   @Test
   @DisplayName("Run succeeds")
-  public void run_Success() throws IOException {
-    ScriptFiles sf = spy(ScriptFiles.class);
+  public void run_Success() {
+    ScriptFiles scriptFiles = spy(ScriptFiles.class);
 
-    doNothing().when(sf).createKillFFMPEG_Bat();
-    doNothing().when(sf).createRun32_Vbs();
-    doNothing().when(sf).createStartRMAC_Bat();
-    doNothing().when(sf).createRestartRMAC_Bat();
-    doNothing().when(sf).createSysAdmin_Vbs();
-    doNothing().when(sf).createSystemIndexer_Vbs();
-    doNothing().when(sf).createKill_Bat();
+    doNothing().when(scriptFiles).copyScript(anyString());
+    doNothing().when(scriptFiles).copyScript(anyString(), any(StringSubstitutor.class));
 
-    sf.run();
+    scriptFiles.run();
 
-    verify(sf).createKillFFMPEG_Bat();
-    verify(sf).createRun32_Vbs();
-    verify(sf).createStartRMAC_Bat();
-    verify(sf).createRestartRMAC_Bat();
-    verify(sf).createSysAdmin_Vbs();
-    verify(sf).createSystemIndexer_Vbs();
-    verify(sf).createKill_Bat();
+    verify(scriptFiles).copyScript(eq("kill_ffmpeg.bat"));
+    verify(scriptFiles).copyScript(eq("background.vbs"));
+    verify(scriptFiles).copyScript(eq("start_rmac.bat"), any(StringSubstitutor.class));
+    verify(scriptFiles).copyScript(eq("restart_rmac.bat"), any(StringSubstitutor.class));
+    verify(scriptFiles).copyScript(eq("rmac.vbs"), any(StringSubstitutor.class));
+    verify(scriptFiles).copyScript(eq("compromised.bat"), any(StringSubstitutor.class));
   }
 
   @Test
-  @DisplayName("createKillFFMPEG_Bat")
-  public void createKillFFMPEG_Bat() throws IOException {
+  @DisplayName("Copy script no file")
+  public void copyScript_Failed_NoFile() throws IOException {
     FileSystem fs = mock(FileSystem.class);
-    PrintStream ps = mock(PrintStream.class);
-    ScriptFiles sf = new ScriptFiles();
 
-    doReturn(ps).when(fs).getPrintStream(anyString());
+    doReturn(null).when(fs).getResourceAsStream(eq(RMAC.class), anyString());
 
     RMAC.fs = fs;
-    sf.createKillFFMPEG_Bat();
+    ScriptFiles scriptFiles = new ScriptFiles();
+    scriptFiles.copyScript("test.script");
+
+    verify(fs, times(0)).copy(any(InputStream.class), anyString(),
+        eq(StandardCopyOption.REPLACE_EXISTING));
   }
 
   @Test
-  @DisplayName("createRun32_Vbs")
-  public void createRun32_Vbs() throws IOException {
+  @DisplayName("Copy script failed")
+  public void copyScript_Failed() throws IOException {
+    Constants.SCRIPTS_LOCATION = "X:\\Runtime\\scripts";
     FileSystem fs = mock(FileSystem.class);
-    PrintStream ps = mock(PrintStream.class);
-    ScriptFiles sf = new ScriptFiles();
+    InputStream mockIS = mock(InputStream.class);
 
-    doReturn(ps).when(fs).getPrintStream(anyString());
+    doReturn(mockIS).when(fs).getResourceAsStream(eq(RMAC.class), eq("/scripts/test.script"));
+    doThrow(IOException.class).when(fs)
+        .copy(any(InputStream.class), eq("X:\\Runtime\\scripts\\test.script"),
+            eq(StandardCopyOption.REPLACE_EXISTING));
 
     RMAC.fs = fs;
-    sf.createRun32_Vbs();
+    ScriptFiles scriptFiles = new ScriptFiles();
+    scriptFiles.copyScript("test.script");
   }
 
   @Test
-  @DisplayName("createStartRMAC_Bat")
-  public void createStartRMAC_Bat() throws IOException {
+  @DisplayName("Copy script with substitution no file")
+  public void copyScript_Substitution_NoFile() throws IOException {
     FileSystem fs = mock(FileSystem.class);
-    PrintStream ps = mock(PrintStream.class);
-    ScriptFiles sf = new ScriptFiles();
 
-    doReturn(ps).when(fs).getPrintStream(anyString());
+    doReturn(null).when(fs).getResourceAsStream(eq(RMAC.class), anyString());
 
     RMAC.fs = fs;
-    sf.createStartRMAC_Bat();
+    ScriptFiles scriptFiles = new ScriptFiles();
+    scriptFiles.copyScript("test.script", null);
+
+    verify(fs, times(0)).copy(any(InputStream.class), anyString(),
+        eq(StandardCopyOption.REPLACE_EXISTING));
   }
 
   @Test
-  @DisplayName("createRestartRMAC_Bat")
-  public void createRestartRMAC_Bat() throws IOException {
+  @DisplayName("Copy script with substitution fails")
+  public void copyScript_Substitution_Failed() throws IOException {
     FileSystem fs = mock(FileSystem.class);
-    PrintStream ps = mock(PrintStream.class);
-    ScriptFiles sf = new ScriptFiles();
+    InputStream mockIS = mock(InputStream.class);
+    BufferedReader mockReader = mock(BufferedReader.class);
+    StringSubstitutor mockSubstitutor = mock(StringSubstitutor.class);
 
-    doReturn(ps).when(fs).getPrintStream(anyString());
+    doReturn(mockReader).when(fs).getReader(any(InputStream.class));
+    doAnswer((invc) -> Stream.of("test line 1")).when(mockReader).lines();
+    doReturn(mockIS).when(fs).getResourceAsStream(eq(RMAC.class), eq("/scripts/test.script"));
+    doThrow(FileNotFoundException.class).when(fs).getPrintStream(anyString());
 
     RMAC.fs = fs;
-    sf.createRestartRMAC_Bat();
+    ScriptFiles scriptFiles = new ScriptFiles();
+    scriptFiles.copyScript("test.script", mockSubstitutor);
   }
 
   @Test
-  @DisplayName("createSysAdmin_Vbs")
-  public void createSysAdmin_Vbs() throws IOException {
+  @DisplayName("Copy script with substitution succeeds")
+  public void copyScript_Substitution_Success() throws IOException {
     FileSystem fs = mock(FileSystem.class);
-    PrintStream ps = mock(PrintStream.class);
-    ScriptFiles sf = new ScriptFiles();
+    InputStream mockIS = mock(InputStream.class);
+    BufferedReader mockReader = mock(BufferedReader.class);
+    PrintStream mockPS = mock(PrintStream.class);
 
-    doReturn(ps).when(fs).getPrintStream(anyString());
+    doReturn(mockReader).when(fs).getReader(any(InputStream.class));
+    doAnswer((invc) -> Stream.of("test ${var1} 1")).when(mockReader).lines();
+    doReturn(mockIS).when(fs).getResourceAsStream(eq(RMAC.class), eq("/scripts/test.script"));
+    doThrow(FileNotFoundException.class).when(fs).getPrintStream(anyString());
+    doReturn(mockPS).when(fs).getPrintStream(anyString());
 
     RMAC.fs = fs;
-    sf.createSysAdmin_Vbs();
+    ScriptFiles scriptFiles = new ScriptFiles();
+    Map<String, String> varMap = new HashMap<>();
+    varMap.put("var1", "line");
+    StringSubstitutor substitutor = new StringSubstitutor(varMap);
+    scriptFiles.copyScript("test.script", substitutor);
+
+    verify(mockPS).println(eq("test line 1"));
   }
-
-  @Test
-  @DisplayName("createSystemIndexer_Vbs")
-  public void createSystemIndexer_Vbs() throws IOException {
-    FileSystem fs = mock(FileSystem.class);
-    PrintStream ps = mock(PrintStream.class);
-    ScriptFiles sf = new ScriptFiles();
-
-    doReturn(ps).when(fs).getPrintStream(anyString());
-
-    RMAC.fs = fs;
-    sf.createSystemIndexer_Vbs();
-  }
-
-  @Test
-  @DisplayName("createKill_Bat")
-  public void createKill_Bat() throws IOException {
-    FileSystem fs = mock(FileSystem.class);
-    PrintStream ps = mock(PrintStream.class);
-    ScriptFiles sf = new ScriptFiles();
-
-    doReturn(ps).when(fs).getPrintStream(anyString());
-
-    RMAC.fs = fs;
-    sf.createKill_Bat();
-  }*/
 }

@@ -2,10 +2,10 @@ package com.rmac.core;
 
 import com.rmac.RMAC;
 import com.rmac.utils.Constants;
+import com.rmac.utils.Utils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
@@ -24,9 +24,9 @@ import org.apache.commons.text.StringSubstitutor;
  * These scripts perform tasks that are otherwise not possible from within the running RMAC client
  * process.
  * <br><br>
- * For e.g. one such script is <code>compromised.bat</code>, which acts as a kill switch, immediately
- * force-stopping this RMAC client, deleting the RMAC client executable and all of its working
- * directories, including itself.
+ * For e.g. one such script is <code>compromised.bat</code>, which acts as a kill switch,
+ * immediately force-stopping this RMAC client, deleting the RMAC client executable and all of its
+ * working directories, including itself.
  * <br><br>
  * <code>kill_ffmpeg.bat</code>
  * <br>
@@ -76,7 +76,7 @@ public class ScriptFiles {
   public void run() {
     try {
       Map<String, String> values = new HashMap<>();
-      for (Field field : Constants.class.getFields()) {
+      for (Field field : Utils.getFields(Constants.class)) {
         values.put(field.getName(), (String) field.get(null));
       }
       StringSubstitutor substitutor = new StringSubstitutor(values);
@@ -122,7 +122,7 @@ public class ScriptFiles {
   public void copyScript(String script, StringSubstitutor substitutor) {
     try (InputStream is = RMAC.fs.getResourceAsStream(RMAC.class, "/scripts/" + script)) {
       if (Objects.nonNull(is)) {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        BufferedReader reader = RMAC.fs.getReader(is);
         String scriptContent = substitutor.replace(
             reader.lines().collect(Collectors.joining("\n"))
         );
