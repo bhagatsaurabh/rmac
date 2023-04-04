@@ -2,6 +2,7 @@ package com.rmac.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Map;
@@ -64,5 +65,15 @@ public class Utils {
     Thread t = new Thread(runnable);
     t.start();
     return t;
+  }
+
+  /**
+   * Get class fields using reflection.
+   *
+   * @param clazz The class type
+   * @return Class fields
+   */
+  public static Field[] getFields(Class<?> clazz) {
+    return clazz.getFields();
   }
 }
