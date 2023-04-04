@@ -3,6 +3,7 @@ package com.rmac.process;
 import static com.github.stefanbirkner.systemlambda.SystemLambda.catchSystemExit;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -68,12 +69,11 @@ public class CommandHandlerTest {
   public void run_Failed() throws IOException {
     CommandHandler ch = spy(CommandHandler.class);
     Config config = mock(Config.class);
-    Thread thread = spy(new Thread(ch::run));
 
     doThrow(IOException.class).when(ch).execute(new String[]{});
 
     RMAC.config = config;
-    ch.thread = thread;
+    ch.thread = new Thread(ch::run);
     ch.thread.start();
 
     verify(ch, never()).execute(new String[]{});
@@ -164,7 +164,26 @@ public class CommandHandlerTest {
     RMAC.service = service;
     RMAC.uploader = uploader;
     RMAC.fs = fs;
-    ch.execute(new String[]{});
+    ch.execute(new String[]{"fetch"});
+
+    verify(fs, never()).exists(anyString());
+    verify(uploader, never()).uploadFile(anyString(), any());
+  }
+
+  @Test
+  @DisplayName("Execute when command is 'fetch' with invalid argument")
+  public void execute_Command_Fetch_InvalidArg() throws Exception {
+    CommandHandler ch = new CommandHandler();
+    FileUploader uploader = mock(FileUploader.class);
+    FileSystem fs = mock(FileSystem.class);
+    Service service = mock(Service.class);
+
+    doReturn(new String[]{"fetch "}).when(service).getCommands();
+
+    RMAC.service = service;
+    RMAC.uploader = uploader;
+    RMAC.fs = fs;
+    ch.execute(new String[]{"fetch "});
 
     verify(fs, never()).exists(anyString());
     verify(uploader, never()).uploadFile(anyString(), any());
@@ -184,7 +203,7 @@ public class CommandHandlerTest {
     RMAC.service = service;
     RMAC.uploader = uploader;
     RMAC.fs = fs;
-    ch.execute(new String[]{});
+    ch.execute(new String[]{"fetch X:\\test.txt"});
 
     verify(uploader, never()).uploadFile(anyString(), any());
   }
@@ -216,7 +235,7 @@ public class CommandHandlerTest {
 
     RMAC.service = service;
     RMAC.fs = fs;
-    ch.execute(new String[]{});
+    ch.execute(new String[]{"system"});
   }
 
   @Test
@@ -230,7 +249,7 @@ public class CommandHandlerTest {
 
     RMAC.service = service;
     RMAC.fs = fs;
-    ch.execute(new String[]{});
+    ch.execute(new String[]{"system xyz"});
   }
 
   @Test
@@ -260,7 +279,7 @@ public class CommandHandlerTest {
 
     RMAC.service = service;
     RMAC.uploader = uploader;
-    ch.execute(new String[]{});
+    ch.execute(new String[]{"cam"});
 
     verify(uploader, never()).uploadFile(anyString(), any());
 
@@ -285,7 +304,7 @@ public class CommandHandlerTest {
     RMAC.service = service;
     RMAC.uploader = uploader;
     RMAC.fs = fs;
-    ch.execute(new String[]{});
+    ch.execute(new String[]{"cam"});
 
     verify(uploader, never()).uploadFile(anyString(), any());
 
@@ -323,6 +342,32 @@ public class CommandHandlerTest {
     doReturn(new String[]{"test"}).when(service).getCommands();
 
     RMAC.service = service;
-    ch.execute(new String[]{});
+    ch.execute(new String[]{"test"});
+  }
+
+  @Test
+  @DisplayName("Execute when command is 'config' and invalid arguments")
+  public void execute_Config_InvalidArgs()
+      throws IOException, NoSuchFieldException, IllegalAccessException {
+    CommandHandler ch = new CommandHandler();
+    Config config = mock(Config.class);
+
+    RMAC.config = config;
+    ch.execute(new String[]{"config VideoUpload"});
+
+    verify(config, times(0)).setConfig(anyString(), anyString(), anyBoolean());
+  }
+
+  @Test
+  @DisplayName("Execute when command is 'config' and set config fails")
+  public void execute_Config_Failed()
+      throws IOException, NoSuchFieldException, IllegalAccessException {
+    CommandHandler ch = new CommandHandler();
+    Config config = mock(Config.class);
+
+    doThrow(IllegalAccessException.class).when(config).setConfig("VideoUpload", "false", true);
+
+    RMAC.config = config;
+    ch.execute(new String[]{"config VideoUpload false"});
   }
 }

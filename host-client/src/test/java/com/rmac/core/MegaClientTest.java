@@ -5,11 +5,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -24,7 +23,6 @@ import com.rmac.utils.FileSystem;
 import com.rmac.utils.PipeStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -356,7 +354,7 @@ public class MegaClientTest {
     MegaCommand command = mock(MegaCommand.class);
     command.process = mock(Process.class);
 
-    doReturn(false).when(command.process).waitFor(anyInt(), any());
+    doReturn(false).when(command.process).waitFor(anyLong(), any());
     doReturn(command).when(mockClient).executeCommand(any());
 
     RMAC.mega = mockClient;
@@ -366,7 +364,7 @@ public class MegaClientTest {
   }
 
   @Test
-  @DisplayName("Is logged failed")
+  @DisplayName("Is logged in failed")
   public void isLoggedIn_Fails() throws InterruptedException {
     MegaClient mockClient = mock(MegaClient.class);
     MegaClient client = spy(MegaClient.class);
@@ -374,7 +372,7 @@ public class MegaClientTest {
     Process proc = mock(Process.class);
     command.isAPIError = new AtomicBoolean(false);
 
-    doReturn(false).when(proc).waitFor(anyInt(), eq(TimeUnit.SECONDS));
+    doReturn(false).when(proc).waitFor(anyLong(), eq(TimeUnit.SECONDS));
     doReturn(command).when(mockClient).executeCommand(anyString());
 
     command.process = proc;
@@ -382,5 +380,43 @@ public class MegaClientTest {
     boolean result = client.isLoggedIn();
 
     assertFalse(result);
+  }
+
+  @Test
+  @DisplayName("Is logged in interrupted")
+  public void isLoggedIn_Interrupted() throws InterruptedException {
+    MegaClient mockClient = mock(MegaClient.class);
+    MegaClient client = spy(MegaClient.class);
+    MegaCommand command = mock(MegaCommand.class);
+    Process proc = mock(Process.class);
+    command.isAPIError = new AtomicBoolean(false);
+
+    doThrow(InterruptedException.class).when(proc).waitFor(anyLong(), eq(TimeUnit.SECONDS));
+    doReturn(command).when(mockClient).executeCommand(anyString());
+
+    command.process = proc;
+    RMAC.mega = mockClient;
+    boolean result = client.isLoggedIn();
+
+    assertFalse(result);
+  }
+
+  @Test
+  @DisplayName("Is logged in succeeded")
+  public void isLoggedIn_Success() throws InterruptedException {
+    MegaClient mockClient = mock(MegaClient.class);
+    MegaClient client = spy(MegaClient.class);
+    MegaCommand command = mock(MegaCommand.class);
+    Process proc = mock(Process.class);
+    command.isAPIError = new AtomicBoolean(false);
+
+    doReturn(true).when(proc).waitFor(anyLong(), eq(TimeUnit.SECONDS));
+    doReturn(command).when(mockClient).executeCommand(anyString());
+
+    command.process = proc;
+    RMAC.mega = mockClient;
+    boolean result = client.isLoggedIn();
+
+    assertTrue(result);
   }
 }

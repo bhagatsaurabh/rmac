@@ -79,7 +79,7 @@ public class Service {
           .setParameter("id", RMAC.config.getId());
       HttpGet httpget = new HttpGet(builder.build());
       HttpResponse response = httpclient.execute(httpget);
-      Scanner sc = new Scanner(response.getEntity().getContent());
+      Scanner sc = RMAC.fs.scanner(response.getEntity().getContent());
       while (sc.hasNext()) {
         String id = sc.nextLine();
         if (!id.trim().equals(RMAC.config.getId().trim())) {

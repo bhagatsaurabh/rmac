@@ -421,6 +421,7 @@ public class RMACTest {
     RandomAccessFile mockRAF = mock(RandomAccessFile.class);
     FileChannel mockFileChannel = mock(FileChannel.class);
     FileLock mockFileLock = mock(FileLock.class);
+    when(mockFs.exists("X:\\test\\test.lock")).thenReturn(true);
     when(mockFs.createRandomAccessFile("X:\\test\\test.lock", "rw")).thenReturn(mockRAF);
     when(mockRAF.getChannel()).thenReturn(mockFileChannel);
     when(mockFileChannel.tryLock()).thenReturn(mockFileLock);

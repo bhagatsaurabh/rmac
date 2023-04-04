@@ -164,10 +164,10 @@ public class Config {
     log.info("Config Loaded: " + key + " - " + value);
   }
 
-  public void setConfig(String key, String value)
+  public void setConfig(String key, String value, boolean persist)
       throws NoSuchFieldException, IllegalAccessException {
 
-    this._setConfig(key, value, true);
+    this._setConfig(key, value, persist);
     this.listeners.forEach((listener) -> listener.accept(key, value));
   }
 

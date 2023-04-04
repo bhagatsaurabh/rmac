@@ -3,6 +3,7 @@ package com.rmac.core;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -22,6 +23,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.function.BiConsumer;
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
@@ -96,7 +98,7 @@ public class ConfigTest {
         .doReturn(null)
         .when(reader).readLine();
     doReturn(reader).when(fs).getReader(eq(Constants.CONFIG_LOCATION));
-    doNothing().when(config).setConfig(anyString(), anyString());
+    doNothing().when(config).setConfig(anyString(), anyString(), anyBoolean());
 
     RMAC.fs = fs;
     config.loadConfig();
@@ -116,7 +118,7 @@ public class ConfigTest {
 
     doNothing().when(config).updateConfig();
 
-    config.setConfig("ApiServerUrl", "testurl");
+    config.setConfig("ApiServerUrl", "testurl", true);
 
     assertEquals(config.getApiServerUrl(), "testurl");
     verify(config).updateConfig();
@@ -207,5 +209,42 @@ public class ConfigTest {
 
     verify(writer).flush();
     verify(writer).close();
+  }
+
+  @Test
+  @DisplayName("Get host name")
+  public void getHostName() {
+    MockedStatic<InetAddress> mockInetAddr = mockStatic(InetAddress.class);
+
+    mockInetAddr.when(InetAddress::getLocalHost).thenThrow(UnknownHostException.class);
+    Config config = new Config();
+
+    String result = config.getHostName();
+
+    assertEquals("Unknown", result);
+
+    mockInetAddr.close();
+  }
+
+  @Test
+  @DisplayName("Get bridge server url when https")
+  public void getBridgeServerUrl_Https() throws NoSuchFieldException, IllegalAccessException {
+    Config config = new Config();
+    config.setConfig("BridgeServerUrl", "https://test.abc.co", false);
+
+    String result = config.getBridgeServerUrl();
+
+    assertEquals("wss://test.abc.co", result);
+  }
+
+  @Test
+  @DisplayName("Get bridge server url when http")
+  public void getBridgeServerUrl_Http() throws NoSuchFieldException, IllegalAccessException {
+    Config config = new Config();
+    config.setConfig("BridgeServerUrl", "http://test.abc.co", false);
+
+    String result = config.getBridgeServerUrl();
+
+    assertEquals("ws://test.abc.co", result);
   }
 }
