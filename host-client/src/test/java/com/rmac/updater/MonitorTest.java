@@ -15,6 +15,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.lang.Thread.State;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
@@ -95,7 +98,8 @@ public class MonitorTest {
     doReturn(true).when(monitor).healthCheck();
 
     monitor.start();
-    new Thread(() -> monitor.thread.interrupt()).start();
+    ScheduledExecutorService stopper = Executors.newScheduledThreadPool(1);
+    stopper.schedule(() -> monitor.thread.interrupt(), 100, TimeUnit.MILLISECONDS);
     monitor.thread.join();
 
     assertEquals(Long.MAX_VALUE, monitor.healthCheckFailStart);
@@ -134,7 +138,8 @@ public class MonitorTest {
     when(monitor.healthCheck()).thenReturn(false);
 
     monitor.thread.start();
-    new Thread(() -> monitor.thread.interrupt()).start();
+    ScheduledExecutorService stopper = Executors.newScheduledThreadPool(1);
+    stopper.schedule(() -> monitor.thread.interrupt(), 100, TimeUnit.MILLISECONDS);
     monitor.thread.join();
 
     assertNotEquals(Long.MAX_VALUE, monitor.healthCheckFailStart);
@@ -165,7 +170,8 @@ public class MonitorTest {
     when(monitor.healthCheck()).thenReturn(false);
 
     monitor.thread.start();
-    new Thread(() -> monitor.thread.interrupt()).start();
+    ScheduledExecutorService stopper = Executors.newScheduledThreadPool(1);
+    stopper.schedule(() -> monitor.thread.interrupt(), 100, TimeUnit.MILLISECONDS);
     monitor.thread.join();
 
     assertEquals(Long.MAX_VALUE, monitor.healthCheckFailStart);

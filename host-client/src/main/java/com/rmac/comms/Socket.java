@@ -159,4 +159,8 @@ public class Socket extends WebSocketClient {
         break;
     }
   }
+
+  public static Socket create(String url) throws URISyntaxException {
+    return new Socket(url);
+  }
 }
