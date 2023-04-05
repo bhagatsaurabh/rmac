@@ -40,4 +40,8 @@ public class Message {
     this.data = data;
     this.type = "host";
   }
+
+  public static Message create(String event, String rayId, Object data) {
+    return new Message(event, rayId, data);
+  }
 }

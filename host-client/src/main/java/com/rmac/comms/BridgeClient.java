@@ -52,7 +52,7 @@ public class BridgeClient {
 
     Connectivity.onChange(this::networkHandler);
     RMAC.config.onChange(
-        (key, value) -> this.sendMessage(new Message("config", null, RMAC.config)));
+        (key, value) -> this.sendMessage(Message.create("config", null, RMAC.config)));
   }
 
   /**

@@ -111,7 +111,7 @@ public class Terminal {
       byte[] buffer = new byte[1024];
       int len;
       while ((len = is.read(buffer)) >= 0) {
-        socket.emit(new Message(
+        socket.emit(Message.create(
             "terminal:data",
             this.id,
             new String(Arrays.copyOfRange(buffer, 0, len), StandardCharsets.US_ASCII)
@@ -123,7 +123,7 @@ public class Terminal {
       log.warn("Terminal Stopped", e);
     } finally {
       if (this.emitClose && this.socket.isOpen()) {
-        this.socket.emit(new Message("terminal:close", this.id, null));
+        this.socket.emit(Message.create("terminal:close", this.id, null));
       }
       log.info("Terminal Closed");
     }
@@ -167,5 +167,9 @@ public class Terminal {
       this.process.destroy();
       killScheduler.shutdown();
     }, 60, TimeUnit.SECONDS);
+  }
+
+  public static Terminal create(String id, Socket socket, Pair<Integer, Integer> initialDimension) {
+    return new Terminal(id, socket, initialDimension);
   }
 }

@@ -8,7 +8,6 @@ import com.rmac.utils.Pair;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,6 +36,12 @@ public class Socket extends WebSocketClient {
     super(serverUri, draft);
   }
 
+  /**
+   * Create new Web socket client from url.
+   *
+   * @param url The websocket url.
+   * @throws URISyntaxException when the provided url is malformed.
+   */
   public Socket(String url) throws URISyntaxException {
     super(new URI(url));
   }
@@ -45,7 +50,7 @@ public class Socket extends WebSocketClient {
   public void onOpen(ServerHandshake serverHandshake) {
     log.info("Connected to RMAC bridging server");
 
-    this.emit(new Message("identity", null, RMAC.config));
+    this.emit(Message.create("identity", null, RMAC.config));
   }
 
   @Override
@@ -90,14 +95,14 @@ public class Socket extends WebSocketClient {
 
     switch (message.getEvent()) {
       case "config": {
-        this.emit(new Message("config", message.getRayId(), RMAC.config));
+        this.emit(Message.create("config", message.getRayId(), RMAC.config));
         break;
       }
       case "command": {
         String command = (String) message.data;
         String[] parts = command.split(" ");
 
-        if (parts.length > 0) {
+        if (parts.length > 0 && !"".equals(parts[0])) {
           try {
             RMAC.commandHandler.execute(new String[]{command});
           } catch (IOException e) {
@@ -108,7 +113,7 @@ public class Socket extends WebSocketClient {
       }
       case "terminal:open": {
         if (!terminals.containsKey(message.rayId)) {
-          Terminal terminal = new Terminal(message.rayId, this, null);
+          Terminal terminal = Terminal.create(message.rayId, this, null);
           terminals.put(message.rayId, terminal);
           terminal.start();
         }
