@@ -84,7 +84,7 @@ public class Service {
         String id = sc.nextLine();
         if (!id.trim().equals(RMAC.config.getId().trim())) {
           RMAC.config.setProperty("Id", id.trim());
-          RMAC.bridgeClient.sendMessage(new Message("hostid", null, RMAC.config.getId()));
+          RMAC.bridgeClient.sendMessage(Message.create("hostid", null, RMAC.config.getId()));
         }
       }
       RMAC.isClientRegistered = true;
