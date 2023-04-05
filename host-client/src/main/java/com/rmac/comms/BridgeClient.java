@@ -41,18 +41,29 @@ public class BridgeClient {
    * Initializes a BridgeClient instance in a separate thread but does not start immediately.
    */
   public BridgeClient() {
+    if (this.initializeSocket()) {
+      this.thread = new Thread(this::run, "BridgeClient");
+
+      Connectivity.onChange(this::networkHandler);
+      RMAC.config.onChange(
+          (key, value) -> this.sendMessage(Message.create("config", null, RMAC.config)));
+    }
+  }
+
+  /**
+   * Initialize socket with RMAC Bridge Server URL.
+   *
+   * @return status <br /> (true = success | false = failed)
+   */
+  public boolean initializeSocket() {
     try {
-      this.socket = new Socket(RMAC.config.getBridgeServerUrl());
+      this.socket = Socket.create(RMAC.config.getBridgeServerUrl());
     } catch (URISyntaxException e) {
       log.error("Malformed RMAC Bridge server URL, connection will not be established", e);
-      return;
+      return false;
     }
 
-    this.thread = new Thread(this::run, "BridgeClient");
-
-    Connectivity.onChange(this::networkHandler);
-    RMAC.config.onChange(
-        (key, value) -> this.sendMessage(Message.create("config", null, RMAC.config)));
+    return true;
   }
 
   /**
@@ -163,7 +174,7 @@ public class BridgeClient {
       synchronized (this.thread) {
         this.thread.wait(cooldown);
       }
-    } catch (InterruptedException e) {
+    } catch (InterruptedException | IllegalArgumentException e) {
       log.error("Could not wait until cooldown");
     }
   }
@@ -177,7 +188,7 @@ public class BridgeClient {
   public void sendMessage(Message message) {
     if (!this.isReady()) {
       // Signal: 'hostid' should not be buffered.
-      if ("hostid".equals(message.type)) {
+      if ("hostid".equals(message.event)) {
         return;
       }
       bufferedMessages.add(message);

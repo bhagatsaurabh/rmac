@@ -386,7 +386,7 @@ public class ArchiverTest {
     archiver.createNewArchive("X:\\test\\Live\\archives\\screen",
         "X:\\test\\Live\\archives\\pending");
 
-    verify(fs).copy(anyString(), eq(zos));
+    verify(fs, times(2)).copy(anyString(), eq(zos));
     verify(fs).deleteAll(anyString());
   }
 
