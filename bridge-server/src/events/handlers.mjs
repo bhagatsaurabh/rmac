@@ -1,5 +1,5 @@
 import { v4 as uuid } from "uuid";
-import { addConfig, addConsole, addHost, changeHostId, state } from "../store/store.js";
+import { addConfig, addConsole, addHost, changeHostId, state } from "../store/store.mjs";
 
 const emit = (socket, event, rayId, hId, data) => {
   socket?.send(JSON.stringify({ event, rayId, hId, data }));

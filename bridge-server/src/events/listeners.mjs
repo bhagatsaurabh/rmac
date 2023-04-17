@@ -1,6 +1,6 @@
 import WebSocket from "ws";
-import { removeConsole, removeHost, state } from "../store/store.js";
-import { emit } from "./handlers.js";
+import { removeConsole, removeHost, state } from "../store/store.mjs";
+import { emit } from "./handlers.mjs";
 
 const onClose = (socket) => {
   cleanUpSocket(socket);

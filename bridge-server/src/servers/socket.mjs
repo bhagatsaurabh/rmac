@@ -1,6 +1,6 @@
 import http from "http";
 import { WebSocketServer } from "ws";
-import staticServer from "./static.js";
+import staticServer from "./static.mjs";
 import {
   config,
   parse,
@@ -11,8 +11,8 @@ import {
   terminalResize,
   terminalClose,
   command,
-} from "../events/handlers.js";
-import { onClose, onError } from "../events/listeners.js";
+} from "../events/handlers.mjs";
+import { onClose, onError } from "../events/listeners.mjs";
 
 const server = http.createServer(staticServer);
 const socketServer = new WebSocketServer({ server });
