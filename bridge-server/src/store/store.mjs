@@ -1,4 +1,4 @@
-import { db } from "../config/firebase.js";
+import { db } from "../config/firebase.mjs";
 
 const state = {
   hosts: {},

@@ -1,10 +1,10 @@
 import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import express from "express";
-import { getHosts, getRegisteredHost, state } from "../store/store.js";
+import { getHosts, getRegisteredHost, state } from "../store/store.mjs";
 import cors from "cors";
-import { emit } from "../events/handlers.js";
-import { db } from "../config/firebase.js";
+import { emit } from "../events/handlers.mjs";
+import { db } from "../config/firebase.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -58,23 +58,3 @@ staticServer.get("*", (_req, res) => {
 });
 
 export default staticServer;
-
-/*
-if (!req.query.id) {
-            throw new APIError(errors.CLIENT_ID_NOT_PROVIDED);
-        }
-        if (!Array.isArray(req.body)) {
-            throw new APIError(errors.BAD_COMMANDS_FORMAT);
-        }
-
-        const dataSnap = await db.ref(req.query.id).get();
-        if (dataSnap.exists()) {
-            const commandsSnap = await db.ref(req.query.id).child('commands').get();
-            let commands = commandsSnap.exists() ? commandsSnap.val() : [];
-            commands = [...commands, ...req.body];
-            await db.ref(req.query.id).child('commands').set(commands);
-            return res.status(200).send('Commands updated');
-        } else {
-            throw new APIError(errors.CLIENT_ID_NOT_FOUND);
-        }
-*/
