@@ -41,7 +41,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import Commands from './Commands.vue';
+import Commands from './Commands/Commands.vue';
 import Icon from './Common/Icon.vue';
 import { Transition } from 'vue';
 import Terminal from './Common/Terminal.vue';
