@@ -23,9 +23,9 @@
 
 <script setup>
 import { themeName, themes } from '@/store/constants';
-import { computed, watch, ref, onMounted } from 'vue';
+import { computed, watch, ref } from 'vue';
 import { useStore } from 'vuex';
-import Icon from './Icon/Icon.vue';
+import Icon from '../Icon/Icon.vue';
 
 const store = useStore();
 

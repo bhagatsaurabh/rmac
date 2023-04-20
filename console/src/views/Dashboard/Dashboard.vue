@@ -6,8 +6,8 @@
 </template>
 
 <script setup>
-import SearchFilter from '@/components/Common/SearchFilter.vue';
-import HostList from '@/components/HostList.vue';
+import SearchFilter from '@/components/Common/SearchFilter/SearchFilter.vue';
+import HostList from '@/components/HostList/HostList.vue.js';
 import { computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 

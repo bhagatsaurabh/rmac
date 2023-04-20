@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
-import Launch from '@/views/Launch.vue';
-import Dashboard from '@/views/Dashboard.vue';
-import Host from '@/views/Host.vue';
+import Launch from '@/views/Launch/Launch.vue';
+import Dashboard from '@/views/Dashboard/Dashboard.vue';
+import Host from '@/views/Host/Host.vue';
 import store from '@/store';
 
 const connectionGuard = (_to, _from, next) => {

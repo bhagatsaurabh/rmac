@@ -40,9 +40,9 @@
 </template>
 
 <script setup>
-import Icon from './Common/Icon/Icon.vue';
-import Info from './Common/Info/Info.vue';
-import Property from './Common/Property/Property.vue';
+import Icon from '../Common/Icon/Icon.vue';
+import Info from '../Common/Info/Info.vue';
+import Property from '../Common/Property/Property.vue';
 
 defineProps({
   host: {

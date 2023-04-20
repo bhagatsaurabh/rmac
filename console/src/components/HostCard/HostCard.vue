@@ -25,7 +25,7 @@
 </template>
 
 <script setup>
-import Icon from './Common/Icon/Icon.vue';
+import Icon from '../Common/Icon/Icon.vue';
 
 defineProps({
   host: {
