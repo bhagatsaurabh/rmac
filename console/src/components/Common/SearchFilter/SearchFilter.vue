@@ -155,12 +155,14 @@
 </template>
 
 <script setup>
-import store from '@/store';
 import { watch, ref } from 'vue';
-import Backdrop from './Backdrop/Backdrop.vue';
-import Button from './Button/Button.vue';
-import Icon from './Icon/Icon.vue';
-import Toggle from './Toggle/Toggle.vue';
+import { useStore } from 'vuex';
+import Backdrop from '../Backdrop/Backdrop.vue';
+import Button from '../Button/Button.vue';
+import Icon from '../Icon/Icon.vue';
+import Toggle from '../Toggle/Toggle.vue';
+
+const store = useStore();
 
 const config = ref({
   name: '',

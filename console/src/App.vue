@@ -23,7 +23,7 @@ import { useStore } from 'vuex';
 import { onBeforeUnmount, computed } from 'vue';
 
 import { themes } from '@/store/constants';
-import ThemeSelector from '@/components/Common/ThemeSelector.vue';
+import ThemeSelector from '@/components/Common/ThemeSelector/ThemeSelector.vue';
 import Footer from './components/Common/Footer/Footer.vue';
 import Notifications from './components/Common/Notifications/Notifications.vue';
 import Header from './components/Common/Header/Header.vue';

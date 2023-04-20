@@ -6,8 +6,9 @@
         class="control-disconnect"
         icon="disconnect"
         icon-left
-        >Disconnect</Button
       >
+        Disconnect
+      </Button>
     </div>
     <div class="terminal-status">
       <span>Terminal {{ idx + 1 }}: </span>
@@ -18,13 +19,13 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
+import { useStore } from 'vuex';
 import { Terminal as XTerm } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
+import Button from '../Button/Button.vue';
 import { debounce, rand } from '@/utils';
-import { useStore } from 'vuex';
 import { emit } from '@/socket';
 import bus from '@/event';
-import Button from './Button/Button.vue';
 
 const store = useStore();
 
