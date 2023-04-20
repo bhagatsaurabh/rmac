@@ -18,8 +18,8 @@
 <script setup>
 import { ref } from 'vue';
 import { useStore } from 'vuex';
-import Button from '../Common/Button.vue';
-import Spinner from '../Common/Spinner.vue';
+import Button from '../Common/Button/Button.vue';
+import Spinner from '../Common/Spinner/Spinner.vue';
 
 const store = useStore();
 

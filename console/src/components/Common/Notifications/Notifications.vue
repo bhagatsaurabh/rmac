@@ -10,7 +10,7 @@
     </header>
     <section>
       <Notification v-for="ntfcn in notifications" :data="ntfcn" />
-      <div v-if="notifications.length === 0" class="empty">
+      <div v-if="(notifications ?? []).length === 0" class="empty">
         <Icon alt="Empty icon" name="icons/empty" adaptive :size="2" />
         Empty
       </div>
@@ -24,14 +24,14 @@
 <script setup>
 import { computed, ref, watch, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
-import Icon from './Icon.vue';
+import Icon from '../Icon/Icon.vue';
 import { useRouter } from 'vue-router';
 
-import Notification from './Notification.vue';
-import Button from './Button.vue';
+import Notification from '../Notification/Notification.vue';
+import Button from '../Button/Button.vue';
 import bus from '@/event';
-import Toast from './Toast.vue';
-import Backdrop from './Backdrop.vue';
+import Toast from '../Toast/Toast.vue';
+import Backdrop from '../Backdrop/Backdrop.vue';
 
 const store = useStore();
 const notifications = computed(() => store.state.notifications.data);

@@ -42,10 +42,10 @@
 <script setup>
 import { ref } from 'vue';
 import Commands from './Commands/Commands.vue';
-import Icon from './Common/Icon.vue';
+import Icon from './Common/Icon/Icon.vue';
 import { Transition } from 'vue';
 import Terminal from './Common/Terminal.vue';
-import TerminalNav from './Common/TerminalNav.vue';
+import TerminalNav from './Common/TerminalNav/TerminalNav.vue';
 import { v4 as uuid } from 'uuid';
 import bus from '@/event';
 import { notifications } from '@/store/constants';

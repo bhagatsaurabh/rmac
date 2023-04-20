@@ -54,9 +54,9 @@
 <script setup>
 import { ref, computed, onBeforeUnmount, nextTick, watch, capitalize } from 'vue';
 import { useStore } from 'vuex';
-import Button from './Button.vue';
-import Spinner from './Spinner.vue';
-import Toggle from './Toggle.vue';
+import Button from '../Button/Button.vue';
+import Spinner from '../Spinner/Spinner.vue';
+import Toggle from '../Toggle/Toggle.vue';
 
 const store = useStore();
 

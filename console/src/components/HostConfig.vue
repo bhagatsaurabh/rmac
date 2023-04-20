@@ -32,9 +32,9 @@
 <script setup>
 import { ref, onMounted, computed, watch, capitalize } from 'vue';
 import { useStore } from 'vuex';
-import Icon from './Common/Icon.vue';
-import Property from './Common/Property.vue';
-import Spinner from './Common/Spinner.vue';
+import Icon from './Common/Icon/Icon.vue';
+import Property from './Common/Property/Property.vue';
+import Spinner from './Common/Spinner/Spinner.vue';
 import { configTypes } from '@/utils';
 import bus from '@/event';
 import { notifications } from '@/store/constants';

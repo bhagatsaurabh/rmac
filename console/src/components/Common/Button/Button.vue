@@ -41,8 +41,8 @@
 </template>
 
 <script setup>
-import Icon from './Icon.vue';
-import Spinner from './Spinner.vue';
+import Icon from '../Icon/Icon.vue';
+import Spinner from '../Spinner/Spinner.vue';
 
 defineProps({
   icon: {

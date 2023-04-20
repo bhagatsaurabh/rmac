@@ -157,10 +157,10 @@
 <script setup>
 import store from '@/store';
 import { watch, ref } from 'vue';
-import Backdrop from './Backdrop.vue';
-import Button from './Button.vue';
-import Icon from './Icon.vue';
-import Toggle from './Toggle.vue';
+import Backdrop from './Backdrop/Backdrop.vue';
+import Button from './Button/Button.vue';
+import Icon from './Icon/Icon.vue';
+import Toggle from './Toggle/Toggle.vue';
 
 const config = ref({
   name: '',
