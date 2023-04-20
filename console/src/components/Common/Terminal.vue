@@ -24,7 +24,7 @@ import { debounce, rand } from '@/utils';
 import { useStore } from 'vuex';
 import { emit } from '@/socket';
 import bus from '@/event';
-import Button from './Button.vue';
+import Button from './Button/Button.vue';
 
 const store = useStore();
 

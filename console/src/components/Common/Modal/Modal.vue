@@ -25,8 +25,8 @@
 <script setup>
 import { watch, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
-import Backdrop from './Backdrop.vue';
-import Icon from './Icon.vue';
+import Backdrop from '../Backdrop/Backdrop.vue';
+import Icon from '../Icon/Icon.vue';
 
 const emit = defineEmits(['dismiss']);
 

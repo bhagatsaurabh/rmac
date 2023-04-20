@@ -44,10 +44,10 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
-import Button from '@/components/Common/Button.vue';
-import ExternalLink from '@/components/Common/ExternalLink.vue';
-import Icon from '@/components/Common/Icon.vue';
-import Logo from '@/components/Common/Logo.vue';
+import Button from '@/components/Common/Button/Button.vue.js';
+import ExternalLink from '@/components/Common/ExternalLink/ExternalLink.vue.js';
+import Icon from '@/components/Common/Icon/Icon.vue.js';
+import Logo from '@/components/Common/Logo/Logo.vue.js';
 
 const store = useStore();
 const statusMsg = computed(() => store.state.bridge.statusMsg);

@@ -24,10 +24,10 @@ import { onBeforeUnmount, computed } from 'vue';
 
 import { themes } from '@/store/constants';
 import ThemeSelector from '@/components/Common/ThemeSelector.vue';
-import Footer from './components/Common/Footer.vue';
-import Notifications from './components/Common/Notifications.vue';
-import Header from './components/Common/Header.vue';
-import Logo from './components/Common/Logo.vue';
+import Footer from './components/Common/Footer/Footer.vue';
+import Notifications from './components/Common/Notifications/Notifications.vue';
+import Header from './components/Common/Header/Header.vue';
+import Logo from './components/Common/Logo/Logo.vue';
 import { useRoute } from 'vue-router';
 
 const store = useStore();

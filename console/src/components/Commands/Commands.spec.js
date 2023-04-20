@@ -22,13 +22,6 @@ describe('Commands component', () => {
   });
 
   it('should render', () => {
-    wrapper = mount(Commands, {
-      global: {
-        plugins: [mockStore],
-        directives: { hide() {} },
-      },
-      props: { host: { id: '12345678' } },
-    });
     expect(wrapper.vm).toBeDefined();
   });
 

@@ -25,7 +25,7 @@
 import { themeName, themes } from '@/store/constants';
 import { computed, watch, ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
-import Icon from './Icon.vue';
+import Icon from './Icon/Icon.vue';
 
 const store = useStore();
 

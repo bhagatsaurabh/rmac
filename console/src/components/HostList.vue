@@ -14,7 +14,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useStore } from 'vuex';
-import Icon from './Common/Icon.vue';
+import Icon from './Common/Icon/Icon.vue';
 import HostCard from './HostCard.vue';
 
 const store = useStore();
