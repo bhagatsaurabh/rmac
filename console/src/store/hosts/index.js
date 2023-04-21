@@ -160,7 +160,7 @@ const actions = {
             }),
           }),
         rand(1000, 3000)
-      );
+      ).then();
       return true;
     }
 

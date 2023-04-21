@@ -9,9 +9,9 @@
 </template>
 
 <script setup>
-import HostConfig from '@/components/HostConfig/HostConfig.vue.js';
-import HostDetails from '@/components/HostDetails/HostDetails.vue.js';
-import Terminals from '@/components/Terminals/Terminals.vue.js';
+import HostConfig from '@/components/HostConfig/HostConfig.vue';
+import HostDetails from '@/components/HostDetails/HostDetails.vue';
+import Terminals from '@/components/Terminals/Terminals.vue';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useStore } from 'vuex';

@@ -11,8 +11,14 @@ let connHandle = {};
 const connect = () =>
   new Promise((resolve, reject) => {
     connHandle = {
-      resolve: () => resolve() && (connHandle = {}),
-      reject: (err) => reject(err) && (connHandle = {}),
+      resolve: () => {
+        resolve();
+        connHandle = {};
+      },
+      reject: (err) => {
+        reject(err);
+        connHandle = {};
+      },
     };
     pingTimer = -1;
     store.commit(mutationKeys.SET_STATUS_MSG, 'Connecting...');
@@ -34,7 +40,7 @@ const disconnect = () => {
 const onClose = () => {
   clearTimeout(pingTimer);
   if (!store.state.bridge.connected) {
-    connHandle.reject?.();
+    connHandle.reject?.(new Error('Connection closed'));
   }
   removeListeners();
   router.push('/');
@@ -66,7 +72,7 @@ const onMessage = async ({ data }) => {
     if (!store.state.bridge.connected && result) {
       connHandle.resolve?.();
     } else if (!store.state.bridge.connected) {
-      connHandle.reject?.();
+      connHandle.reject?.(new Error('Failed to fetch hosts'));
     }
   } else if (message.event === 'config') {
     store.commit(mutationKeys.SET_HOST_CONFIG, message);
@@ -109,4 +115,4 @@ const heartbeat = () => {
   }, 30000 + 1000);
 };
 
-export { connect, disconnect, emit, onMessage };
+export { connect, disconnect, emit, heartbeat, onMessage, onError, onClose, onOpen };
