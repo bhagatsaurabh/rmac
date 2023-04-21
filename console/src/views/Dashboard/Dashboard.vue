@@ -7,7 +7,7 @@
 
 <script setup>
 import SearchFilter from '@/components/Common/SearchFilter/SearchFilter.vue';
-import HostList from '@/components/HostList/HostList.vue.js';
+import HostList from '@/components/HostList/HostList.vue';
 import { computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 

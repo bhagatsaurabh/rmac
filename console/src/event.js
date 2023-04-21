@@ -25,6 +25,7 @@ class EventBus {
 
   clear() {
     this.registeredEvents = {};
+    this.lastId = 0;
   }
 }
 

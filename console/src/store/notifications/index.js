@@ -1,4 +1,4 @@
-import { mutationKeys, themes } from '@/store/constants';
+import { mutationKeys } from '@/store/constants';
 
 const state = () => ({
   data: [],
