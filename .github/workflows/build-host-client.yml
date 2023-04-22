@@ -89,8 +89,8 @@ jobs:
         with:
           name: host-client
           path: |
-            target/RMACClient.jar
-            target/RMACUpdater.jar
+            host-client/target/RMACClient.jar
+            host-client/target/RMACUpdater.jar
 
   Release:
     needs: [Quality]
@@ -117,7 +117,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: host-client
-          path: auto-installer/bin
+          path: host-client/auto-installer/bin
 
       - name: Build AutoInstaller
         run: |
@@ -130,4 +130,4 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: auto-installer
-          path: auto-installer/auto-installer.exe
+          path: host-client/auto-installer/auto-installer.exe
