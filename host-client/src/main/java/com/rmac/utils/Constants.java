@@ -7,6 +7,10 @@ import java.nio.charset.StandardCharsets;
 
 public class Constants {
 
+  private Constants() {
+    /**/
+  }
+
   public static String TEMP_LOCATION = System.getenv("TEMP");
   public static String USER_HOME = System.getProperty("user.home");
   public static String STARTUP_LOCATION =
@@ -34,6 +38,10 @@ public class Constants {
   public static String SVCL_LOCATION;
   public static String INSTANCE_LOCK_LOCATION;
   public static String RMAC_DLL_LOCATION;
+  public static String PATH_DELIMETER = "\\";
+
+  public static String LITERAL_INVALID_COMMAND = "Invalid command '";
+  public static String LITERAL_MEGA_ERROR_01 = "Mega client process interrupted";
 
   public static void setRuntimeLocation(String runtimeLocation) {
     RUNTIME_LOCATION = runtimeLocation;

@@ -122,7 +122,6 @@ public class SocketClient {
     try {
       out.writeBytes(MESSAGE + "\n");
       out.flush();
-      // log.info("Message sent to IPC");
     } catch (IOException e) {
       log.error("Could not send message", e);
     }
@@ -147,7 +146,6 @@ public class SocketClient {
 
     try {
       RESPONSE = in.readLine();
-      // log.info("Received message: " + RESPONSE);
     } catch (SocketException | EOFException e) {
       log.error("Connection abruptly closed", e);
     } catch (IOException e) {

@@ -210,6 +210,7 @@ public class KeyRecorder implements NativeKeyListener {
 
   @Override
   public void nativeKeyTyped(NativeKeyEvent nke) {
+    /**/
   }
 
   /**

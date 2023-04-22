@@ -206,7 +206,7 @@ public class Updater {
       return false;
     }
 
-    String updateFile = Constants.UPDATE_LOCATION + "RMACClient.jar";
+    String updateFile = Constants.UPDATE_LOCATION + Constants.LITERAL_RMAC_JAR_NAME;
     if (Updater.fs.exists(updateFile)) {
       try {
         boolean result = Checksum.verifyChecksum(updateFile, checksum);
@@ -267,7 +267,7 @@ public class Updater {
   public void attemptDownload(String signedUrl, String checksum) throws Exception {
     ATTEMPT += 1;
     ReadableByteChannel readableByteChannel = Channels.newChannel(this.getStream(signedUrl));
-    FileOutputStream fileOutputStream = fs.getFOS(Constants.UPDATE_LOCATION + "RMACClient.jar");
+    FileOutputStream fileOutputStream = fs.getFOS(Constants.UPDATE_LOCATION + Constants.LITERAL_RMAC_JAR_NAME);
     FileChannel fileChannel = fileOutputStream.getChannel();
     fileChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
     fileChannel.close();
@@ -275,7 +275,7 @@ public class Updater {
     readableByteChannel.close();
 
     // Verify checksum
-    if (!Checksum.verifyChecksum(Constants.UPDATE_LOCATION + "RMACClient.jar", checksum)) {
+    if (!Checksum.verifyChecksum(Constants.UPDATE_LOCATION + Constants.LITERAL_RMAC_JAR_NAME, checksum)) {
       throw new Exception("Checksum mismatch");
     }
     ATTEMPT = 0;

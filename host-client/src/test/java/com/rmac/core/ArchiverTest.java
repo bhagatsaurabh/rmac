@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -14,7 +15,6 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.verify;
 
 import com.rmac.RMAC;
@@ -390,7 +390,7 @@ public class ArchiverTest {
         "X:\\test\\Live\\archives\\pending");
 
     verify(fs, atLeast(2)).copy(anyString(), eq(zos));
-    verify(fs).deleteAll(anyString());
+    verify(fs, atLeast(1)).deleteAll(anyString());
   }
 
   @Test

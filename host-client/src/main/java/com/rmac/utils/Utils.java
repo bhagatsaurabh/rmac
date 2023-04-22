@@ -12,6 +12,10 @@ import java.util.Map;
  */
 public class Utils {
 
+  private Utils() {
+    /**/
+  }
+
   public static SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SS");
   public static SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy MM dd");
 

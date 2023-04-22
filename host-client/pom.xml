@@ -17,6 +17,7 @@
     <java.home>${env.JAVA_HOME}</java.home>
     <sonar.organization>saurabh-prosoft</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+    <sonar.projectKey>saurabh-prosoft_rmac</sonar.projectKey>
   </properties>
 
   <dependencies>

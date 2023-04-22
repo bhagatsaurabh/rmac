@@ -5,6 +5,11 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
 public class Constants {
+
+  private Constants() {
+    /**/
+  }
+
   public static String CURRENT_LOCATION;
   public static String RMAC_LOCATION;
 
@@ -13,6 +18,8 @@ public class Constants {
   public static String UPDATE_LOCATION;
   public static String START_RMAC_LOCATION;
   public static String INSTANCE_LOCK_LOCATION;
+
+  public static String LITERAL_RMAC_JAR_NAME = "RMACClient.jar";
 
   public static void setRuntimeLocation(String runtimeLocation) {
     RUNTIME_LOCATION = runtimeLocation;
