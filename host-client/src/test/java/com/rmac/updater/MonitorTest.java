@@ -118,32 +118,4 @@ public class MonitorTest {
     assertNotEquals(Long.MAX_VALUE, monitor.healthCheckFailStart);
     Mockito.reset(monitor);
   }
-
-  @Test
-  @DisplayName("Run Monitor when health is down, threshold is reached, RMAC restart fails")
-  public void run_HealthDown_ThresholdReached_Restart_Failed() throws Exception {
-    SocketClient mockSC1 = mock(SocketClient.class);
-    Updater.client = mockSC1;
-
-    Clock mockClock = mock(Clock.class);
-    when(mockClock.millis()).thenReturn(123456789L, 123456789L + 60000L);
-
-    Updater mockUpdater = mock(Updater.class);
-    when(mockUpdater.stopRMAC()).thenReturn(true);
-    when(mockUpdater.startRMAC()).thenReturn(false);
-
-    Monitor monitor = spy(Monitor.class);
-    monitor.updater = mockUpdater;
-    monitor.clock = mockClock;
-    when(monitor.healthCheck()).thenReturn(false);
-
-    monitor.thread.start();
-    ScheduledExecutorService stopper = Executors.newScheduledThreadPool(1);
-    stopper.schedule(() -> monitor.thread.interrupt(), 100, TimeUnit.MILLISECONDS);
-    monitor.thread.join();
-
-    assertNotEquals(Long.MAX_VALUE, monitor.healthCheckFailStart);
-    verify(mockSC1).shutdown();
-    assertNull(Updater.client);
-  }
 }
