@@ -23,7 +23,7 @@ jobs:
         uses: mavrosxristoforos/get-xml-info@1.1.1
         with:
           xml-file: "host-client/pom.xml"
-          xpath: '//*[local-name()="rmac.version"]/text()'
+          xpath: '//*[local-name()="rmac.version"]'
 
       - run: echo ${{ steps.get-version.outputs.info }}
 
