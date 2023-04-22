@@ -46,11 +46,13 @@ jobs:
       - name: Upload Coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
           flags: host-client
+
   Quality:
     needs: [Test]
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
         with:
@@ -61,9 +63,6 @@ jobs:
         with:
           java-version: "11"
           distribution: "temurin"
-
-      - name: Test with Maven
-        run: mvn test
 
       - name: Cache SonarCloud packages
         uses: actions/cache@v3
@@ -83,4 +82,50 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=saurabh-prosoft_rmac
+        run: mvn -B verify "-Dsonar.projectKey=saurabh-prosoft_rmac" org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@master
+        with:
+          name: host-client
+          path: target/*.jar
+
+  Release:
+    needs: [Quality]
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download Runtime
+        run: |
+          mkdir auto-installer
+          cd auto-installer
+          $ProgressPreference = 'SilentlyContinue'
+          Invoke-WebRequest "https://dl.dropboxusercontent.com/s/oekklz5gw3uwc09/rmac-runtime-1.0.zip?dl=0" -OutFile runtime.zip
+          7z x runtime.zip -oruntime
+          rm runtime.zip
+          mv runtime/7zSD.sfx 7zSD.sfx
+          mv runtime/config.txt config.txt
+          mv runtime/setup.bat setup.bat
+          mv runtime/setup.vbs setup.vbs
+          mv runtime/start.vbs start.vbs
+        shell: powershell
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: host-client
+          path: auto-installer/bin
+
+      - name: Build AutoInstaller
+        run: |
+          cd auto-installer
+          7z a auto-installer.7z bin\ runtime\ setup.bat setup.vbs start.vbs
+          copy /b 7zSD.sfx + config.txt + auto-installer.7z auto-installer.exe
+        shell: cmd
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@master
+        with:
+          name: auto-installer
+          path: auto-installer/auto-installer.exe

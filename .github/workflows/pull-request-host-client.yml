@@ -1,4 +1,4 @@
-name: Build host-client
+name: PR host-client
 
 on:
   pull_request:
