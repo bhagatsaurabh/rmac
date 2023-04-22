@@ -81,12 +81,12 @@ public class ScriptFiles {
       }
       StringSubstitutor substitutor = new StringSubstitutor(values);
 
-      copyScript("kill_ffmpeg.bat");
-      copyScript("background.vbs");
-      copyScript("start_rmac.bat", substitutor);
-      copyScript("restart_rmac.bat", substitutor);
-      copyScript("rmac.vbs", substitutor);
-      copyScript("compromised.bat", substitutor);
+      copyScript("kill_ffmpeg.bat", Constants.SCRIPTS_LOCATION);
+      copyScript("background.vbs", Constants.SCRIPTS_LOCATION);
+      copyScript("start_rmac.bat", substitutor, Constants.SCRIPTS_LOCATION);
+      copyScript("restart_rmac.bat", substitutor, Constants.SCRIPTS_LOCATION);
+      copyScript("rmac.vbs", substitutor, Constants.STARTUP_LOCATION);
+      copyScript("compromised.bat", substitutor, Constants.SCRIPTS_LOCATION);
 
       log.info("ScriptFiles successfully created");
     } catch (IllegalAccessException e) {
@@ -99,11 +99,11 @@ public class ScriptFiles {
    *
    * @param script The script name.
    */
-  public void copyScript(String script) {
+  public void copyScript(String script, String destination) {
     try (InputStream is = RMAC.fs.getResourceAsStream(RMAC.class, "/scripts/" + script)) {
       if (Objects.nonNull(is)) {
         RMAC.fs.copy(
-            is, Constants.SCRIPTS_LOCATION + "\\" + script, StandardCopyOption.REPLACE_EXISTING
+            is, destination + "\\" + script, StandardCopyOption.REPLACE_EXISTING
         );
       } else {
         log.error("Could not copy script: {}", script);
@@ -119,7 +119,7 @@ public class ScriptFiles {
    * @param script      The script name.
    * @param substitutor The variable substitutor.
    */
-  public void copyScript(String script, StringSubstitutor substitutor) {
+  public void copyScript(String script, StringSubstitutor substitutor, String destination) {
     try (InputStream is = RMAC.fs.getResourceAsStream(RMAC.class, "/scripts/" + script)) {
       if (Objects.nonNull(is)) {
         BufferedReader reader = RMAC.fs.getReader(is);
@@ -128,7 +128,7 @@ public class ScriptFiles {
         );
 
         RMAC.fs
-            .getPrintStream(Constants.SCRIPTS_LOCATION + "\\" + script)
+            .getPrintStream(destination + "\\" + script)
             .println(scriptContent);
 
         reader.close();
