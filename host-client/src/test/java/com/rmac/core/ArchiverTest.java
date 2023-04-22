@@ -373,6 +373,7 @@ public class ArchiverTest {
   @DisplayName("Create new archive succeeds")
   public void createNewArchive_Success() throws IOException {
     FileSystem fs = mock(FileSystem.class);
+    Mockito.clearInvocations(fs);
     ZipOutputStream zos = mock(ZipOutputStream.class);
 
     doAnswer(invc -> Stream.of(
@@ -386,7 +387,7 @@ public class ArchiverTest {
     archiver.createNewArchive("X:\\test\\Live\\archives\\screen",
         "X:\\test\\Live\\archives\\pending");
 
-    verify(fs).copy(anyString(), eq(zos));
+    verify(fs, times(2)).copy(anyString(), eq(zos));
     verify(fs).deleteAll(anyString());
   }
 
