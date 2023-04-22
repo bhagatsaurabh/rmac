@@ -45,7 +45,6 @@ public class Monitor {
               }
             }
           } else {
-            // log.info("Health check succeeded");
             healthCheckFailStart = Long.MAX_VALUE;
           }
           synchronized (this.thread) {

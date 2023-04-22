@@ -17,6 +17,7 @@ public class PipeStream extends Thread {
     this.os = os;
   }
 
+  @Override
   public void run() {
     byte[] buffer = new byte[1024];
     int len;

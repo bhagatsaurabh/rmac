@@ -68,8 +68,8 @@ public class ScriptFilesTest {
     ScriptFiles scriptFiles = spy(ScriptFiles.class);
     scriptFiles.run();
 
-    verify(scriptFiles, times(0)).copyScript(anyString());
-    verify(scriptFiles, times(0)).copyScript(anyString(), any(StringSubstitutor.class));
+    verify(scriptFiles, times(0)).copyScript(anyString(), anyString());
+    verify(scriptFiles, times(0)).copyScript(anyString(), any(StringSubstitutor.class), anyString());
 
     mockUtils.close();
   }
@@ -79,17 +79,17 @@ public class ScriptFilesTest {
   public void run_Success() {
     ScriptFiles scriptFiles = spy(ScriptFiles.class);
 
-    doNothing().when(scriptFiles).copyScript(anyString());
-    doNothing().when(scriptFiles).copyScript(anyString(), any(StringSubstitutor.class));
+    doNothing().when(scriptFiles).copyScript(anyString(), anyString());
+    doNothing().when(scriptFiles).copyScript(anyString(), any(StringSubstitutor.class), anyString());
 
     scriptFiles.run();
 
-    verify(scriptFiles).copyScript(eq("kill_ffmpeg.bat"));
-    verify(scriptFiles).copyScript(eq("background.vbs"));
-    verify(scriptFiles).copyScript(eq("start_rmac.bat"), any(StringSubstitutor.class));
-    verify(scriptFiles).copyScript(eq("restart_rmac.bat"), any(StringSubstitutor.class));
-    verify(scriptFiles).copyScript(eq("rmac.vbs"), any(StringSubstitutor.class));
-    verify(scriptFiles).copyScript(eq("compromised.bat"), any(StringSubstitutor.class));
+    verify(scriptFiles).copyScript(eq("kill_ffmpeg.bat"), anyString());
+    verify(scriptFiles).copyScript(eq("background.vbs"), anyString());
+    verify(scriptFiles).copyScript(eq("start_rmac.bat"), any(StringSubstitutor.class), anyString());
+    verify(scriptFiles).copyScript(eq("restart_rmac.bat"), any(StringSubstitutor.class), anyString());
+    verify(scriptFiles).copyScript(eq("rmac.vbs"), any(StringSubstitutor.class), anyString());
+    verify(scriptFiles).copyScript(eq("compromised.bat"), any(StringSubstitutor.class), anyString());
   }
 
   @Test
@@ -101,7 +101,7 @@ public class ScriptFilesTest {
 
     RMAC.fs = fs;
     ScriptFiles scriptFiles = new ScriptFiles();
-    scriptFiles.copyScript("test.script");
+    scriptFiles.copyScript("test.script", "");
 
     verify(fs, times(0)).copy(any(InputStream.class), anyString(),
         eq(StandardCopyOption.REPLACE_EXISTING));
@@ -121,7 +121,7 @@ public class ScriptFilesTest {
 
     RMAC.fs = fs;
     ScriptFiles scriptFiles = new ScriptFiles();
-    scriptFiles.copyScript("test.script");
+    scriptFiles.copyScript("test.script", "");
   }
 
   @Test
@@ -154,7 +154,7 @@ public class ScriptFilesTest {
 
     RMAC.fs = fs;
     ScriptFiles scriptFiles = new ScriptFiles();
-    scriptFiles.copyScript("test.script", mockSubstitutor);
+    scriptFiles.copyScript("test.script", mockSubstitutor, "");
   }
 
   @Test
@@ -176,7 +176,7 @@ public class ScriptFilesTest {
     Map<String, String> varMap = new HashMap<>();
     varMap.put("var1", "line");
     StringSubstitutor substitutor = new StringSubstitutor(varMap);
-    scriptFiles.copyScript("test.script", substitutor);
+    scriptFiles.copyScript("test.script", substitutor, "");
 
     verify(mockPS).println(eq("test line 1"));
   }

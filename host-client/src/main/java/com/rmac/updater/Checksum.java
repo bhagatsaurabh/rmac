@@ -13,6 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Checksum {
 
+  private Checksum() {
+    /**/
+  }
   /**
    * Calculate SHA-256 checksum of the given file and compare against given expected value.
    *

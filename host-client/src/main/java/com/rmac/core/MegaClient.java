@@ -105,7 +105,7 @@ public class MegaClient {
         command.stop();
       }
     } catch (InterruptedException | IllegalArgumentException e) {
-      log.error("Mega client process interrupted", e);
+      log.error(Constants.LITERAL_MEGA_ERROR_01, e);
       LOGGED_IN = false;
       return;
     }

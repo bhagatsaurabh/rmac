@@ -65,7 +65,6 @@ public class IPC {
       while (Objects.nonNull(message) && !message.equals("Exit") && !this.socket.isClosed()) {
         try {
           message = this.in.readLine();
-          // log.info("Received message: " + message);
           this.processMessage(message);
         } catch (SocketException | EOFException | RuntimeException e) {
           log.error("Connection abruptly closed by client", e);
@@ -133,7 +132,6 @@ public class IPC {
       // Maybe sending some diagnostics here can be more helpful instead of just sending a thumbs up
       this.out.println("Up");
       this.out.flush();
-      // log.info("Response sent to Socket");
     }
   }
 

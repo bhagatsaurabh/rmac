@@ -40,7 +40,7 @@ public class Archiver {
      * network state changes from down to up.
      */
     Connectivity.onChange(state -> {
-      if (state) {
+      if (Boolean.TRUE.equals(state)) {
         this.uploadArchiveAsync();
       }
     });
@@ -224,7 +224,7 @@ public class Archiver {
    * @param destFolder   Destination directory in which the archive will be placed.
    */
   public void createNewArchive(String sourceFolder, String destFolder) {
-    String zipPath = destFolder + "\\" + Utils.getTimestamp() + ".zip";
+    String zipPath = destFolder + Constants.PATH_DELIMETER + Utils.getTimestamp() + ".zip";
     Stream<Path> files;
     try {
       files = RMAC.fs.list(sourceFolder);
