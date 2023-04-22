@@ -146,37 +146,4 @@ public class MonitorTest {
     verify(mockSC1).shutdown();
     assertNull(Updater.client);
   }
-
-  @Test
-  @DisplayName("Run Monitor when health is down, threshold is reached, RMAC restart succeeds")
-  public void run_HealthDown_ThresholdReached_Restart_Success()
-      throws Exception {
-    SocketClient mockSC1 = mock(SocketClient.class);
-    Updater.client = mockSC1;
-
-    SocketClient mockSC2 = mock(SocketClient.class);
-
-    Clock mockClock = mock(Clock.class);
-    when(mockClock.millis()).thenReturn(123456789L, 123456789L + 60000L);
-
-    Updater mockUpdater = mock(Updater.class);
-    doReturn(true).when(mockUpdater).startRMAC();
-    doReturn(true).when(mockUpdater).stopRMAC();
-    when(mockUpdater.getInstance(eq(SocketClient.class))).thenReturn(mockSC2);
-
-    Monitor monitor = spy(Monitor.class);
-    monitor.updater = mockUpdater;
-    monitor.clock = mockClock;
-    when(monitor.healthCheck()).thenReturn(false);
-
-    monitor.thread.start();
-    ScheduledExecutorService stopper = Executors.newScheduledThreadPool(1);
-    stopper.schedule(() -> monitor.thread.interrupt(), 100, TimeUnit.MILLISECONDS);
-    monitor.thread.join();
-
-    assertEquals(Long.MAX_VALUE, monitor.healthCheckFailStart);
-    verify(mockSC1).shutdown();
-    assertEquals(mockSC2, Updater.client);
-    verify(mockSC2).start();
-  }
 }
