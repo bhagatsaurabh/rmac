@@ -31,7 +31,7 @@ jobs:
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git show-ref --tags --verify --quiet -- "refs/tags/v${{ steps.get-version.outputs.info }}" && (echo "This version is already tagged" && exit 1)
+          git show-ref --tags --verify --quiet -- "refs/heads/main"
         shell: cmd
 
   # Build:
