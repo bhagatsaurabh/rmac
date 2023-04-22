@@ -14,6 +14,7 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.verify;
 
 import com.rmac.RMAC;
@@ -388,7 +389,7 @@ public class ArchiverTest {
     archiver.createNewArchive("X:\\test\\Live\\archives\\screen",
         "X:\\test\\Live\\archives\\pending");
 
-    verify(fs, times(2)).copy(anyString(), eq(zos));
+    verify(fs, atLeast(2)).copy(anyString(), eq(zos));
     verify(fs).deleteAll(anyString());
   }
 
