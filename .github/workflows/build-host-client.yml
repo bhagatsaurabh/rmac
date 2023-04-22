@@ -14,6 +14,8 @@ defaults:
 jobs:
   Versioning:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get-version.outputs.info }}
 
     steps:
       - uses: actions/checkout@v3
@@ -25,9 +27,13 @@ jobs:
           xml-file: "host-client/pom.xml"
           xpath: '//*[local-name()="rmac.version"]'
 
-      - run: echo ${{ steps.get-version.outputs.info }}
+      - name: Check Tag
+        run: |
+          git show-ref --tags --verify --quiet -- "refs/tags/v${{ steps.get-version.outputs.info }}" && (echo "This version is already tagged" && exit 1)
+        shell: cmd
 
   # Build:
+  #   needs: [Versioning]
   #   runs-on: windows-latest
 
   #   steps:
@@ -43,7 +49,7 @@ jobs:
   #       run: mvn --batch-mode --update-snapshots -DskipTests=true clean install
 
   # Test:
-  #   needs: [Build]
+  #   needs: [Versioning]
   #   runs-on: windows-latest
 
   #   steps:
@@ -65,79 +71,88 @@ jobs:
   #         fail_ci_if_error: true
   #         flags: host-client
 
-  # Quality:
-  #   needs: [Test]
-  #   runs-on: windows-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #       with:
-  #         fetch-depth: 0
+  Quality:
+    # needs: [Build, Test]
+    needs: [Versioning]
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-  #     - name: Set up JDK 11
-  #       uses: actions/setup-java@v3
-  #       with:
-  #         java-version: "11"
-  #         distribution: "temurin"
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: "11"
+          distribution: "temurin"
 
-  #     - name: Cache SonarCloud packages
-  #       uses: actions/cache@v3
-  #       with:
-  #         path: ~/.sonar/cache
-  #         key: ${{ runner.os }}-sonar
-  #         restore-keys: ${{ runner.os }}-sonar
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
 
-  #     - name: Cache Maven packages
-  #       uses: actions/cache@v3
-  #       with:
-  #         path: ~/.m2
-  #         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-  #         restore-keys: ${{ runner.os }}-m2
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
 
-  #     - name: Analyze
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-  #       run: mvn -B verify "-Dsonar.projectKey=saurabh-prosoft_rmac" org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+      - name: Analyze
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -B verify "-Dsonar.projectKey=saurabh-prosoft_rmac" org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
 
-  #     - name: Upload artifacts
-  #       uses: actions/upload-artifact@v3.1.2
-  #       with:
-  #         name: host-client
-  #         path: |
-  #           host-client/target/RMACClient.jar
-  #           host-client/target/RMACUpdater.jar
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: host-client
+          path: |
+            host-client/target/RMACClient.jar
+            host-client/target/RMACUpdater.jar
 
-  # Release:
-  #   needs: [Quality]
-  #   runs-on: windows-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
+  Release:
+    needs: [Versioning, Quality]
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
 
-  #     - name: Download Runtime
-  #       run: |
-  #         mkdir auto-installer
-  #         cd auto-installer
-  #         $ProgressPreference = 'SilentlyContinue'
-  #         Invoke-WebRequest "https://dl.dropboxusercontent.com/s/oekklz5gw3uwc09/rmac-runtime-1.0.zip?dl=0" -OutFile runtime.zip
-  #         7z x runtime.zip
-  #         rm runtime.zip
-  #       shell: powershell
+      - name: Download Runtime
+        run: |
+          mkdir auto-installer
+          cd auto-installer
+          $ProgressPreference = 'SilentlyContinue'
+          Invoke-WebRequest "https://dl.dropboxusercontent.com/s/oekklz5gw3uwc09/rmac-runtime-1.0.zip?dl=0" -OutFile runtime.zip
+          7z x runtime.zip
+          rm runtime.zip
+        shell: powershell
 
-  #     - name: Download artifacts
-  #       uses: actions/download-artifact@v3
-  #       with:
-  #         name: host-client
-  #         path: host-client/auto-installer/bin
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: host-client
+          path: host-client/auto-installer/bin
 
-  #     - name: Build AutoInstaller
-  #       run: |
-  #         cd auto-installer
-  #         7z a auto-installer.7z bin\ runtime\ setup.bat setup.vbs start.vbs
-  #         copy /b 7zSD.sfx + config.txt + auto-installer.7z auto-installer.exe
-  #       shell: cmd
+      - name: Build AutoInstaller
+        run: |
+          cd auto-installer
+          7z a auto-installer.7z bin\ runtime\ setup.bat setup.vbs start.vbs
+          copy /b 7zSD.sfx + config.txt + auto-installer.7z auto-installer.exe
+        shell: cmd
 
-  #     - name: Upload artifacts
-  #       uses: actions/upload-artifact@master
-  #       with:
-  #         name: auto-installer
-  #         path: host-client/auto-installer/auto-installer.exe
+      # - name: Upload artifacts
+      #   uses: actions/upload-artifact@master
+      #   with:
+      #     name: auto-installer
+      #     path: host-client/auto-installer/auto-installer.exe
+
+      - uses: ncipollo/release-action@v1.12.0
+        with:
+          artifacts: "host-client/auto-installer/auto-installer.exe,host-client/auto-installer/bin/RMACClient.jar,host-client/auto-installer/bin/RMACUpdater.jar"
+          commit: "main"
+          tag: ${needs.Versioning.outputs.version}
+          makeLatest: "latest"
+          generateReleaseNotes: true
