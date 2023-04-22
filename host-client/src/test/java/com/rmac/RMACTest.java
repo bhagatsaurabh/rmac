@@ -60,7 +60,7 @@ import org.mockito.stubbing.Answer;
 import org.slf4j.LoggerFactory;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class RMACTest {
 
   private final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
