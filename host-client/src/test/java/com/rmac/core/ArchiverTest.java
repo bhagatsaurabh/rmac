@@ -29,6 +29,7 @@ import java.util.zip.ZipOutputStream;
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 public class ArchiverTest {
 
