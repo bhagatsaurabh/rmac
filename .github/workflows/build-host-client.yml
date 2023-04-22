@@ -85,10 +85,12 @@ jobs:
         run: mvn -B verify "-Dsonar.projectKey=saurabh-prosoft_rmac" org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v3.1.2
         with:
           name: host-client
-          path: target/*.jar
+          path: |
+            target/RMACClient.jar
+            target/RMACUpdater.jar
 
   Release:
     needs: [Quality]
