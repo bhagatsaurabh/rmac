@@ -104,7 +104,7 @@ jobs:
           cd auto-installer
           $ProgressPreference = 'SilentlyContinue'
           Invoke-WebRequest "https://dl.dropboxusercontent.com/s/oekklz5gw3uwc09/rmac-runtime-1.0.zip?dl=0" -OutFile runtime.zip
-          7z x runtime.zip -oruntime
+          7z x runtime.zip
           rm runtime.zip
           mv runtime/7zSD.sfx 7zSD.sfx
           mv runtime/config.txt config.txt
