@@ -27,11 +27,15 @@ jobs:
           xml-file: "host-client/pom.xml"
           xpath: '//*[local-name()="rmac.version"]'
 
+      - uses: mukunku/tag-exists-action@v1.2.0
+        id: tagExists
+        with:
+          tag: ${{ steps.get-version.outputs.info }}
+
       - name: Check Tag
         run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git show-ref --tags --verify --quiet -- "refs/heads/main"
+          echo ${{ steps.tagExists.outputs.exists }}
+          IF ${{ steps.tagExists.outputs.exists }} EQU 'true' exit 1
         shell: cmd
 
   # Build:
