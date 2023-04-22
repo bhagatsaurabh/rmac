@@ -8,8 +8,7 @@
   },
   "scripts": {
     "dev": "node -r dotenv/config src/index.mjs dotenv_config_path=.env.development",
-    "start": "node -r dotenv/config src/index.js dotenv_config_path=.env.production",
-    "test": "jest"
+    "start": "node -r dotenv/config src/index.js dotenv_config_path=.env.production"
   },
   "repository": {
     "type": "git",
