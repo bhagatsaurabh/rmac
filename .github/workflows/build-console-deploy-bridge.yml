@@ -1,4 +1,4 @@
-name: PR console
+name: Build Deploy bridge-server
 
 on:
   push:
@@ -26,6 +26,7 @@ jobs:
 
       - name: Test
         run: |
+          npm i
           npm test
 
       - name: Upload Coverage to Codecov
@@ -52,6 +53,7 @@ jobs:
 
       - name: Lint
         run: |
+          npm i
           npm run lint
 
   Build:
@@ -71,6 +73,7 @@ jobs:
 
       - name: Build
         run: |
+          npm i
           npm run build
 
       - name: Upload artifacts
@@ -99,6 +102,7 @@ jobs:
 
       - name: Test
         run: |
+          npm i
           npm test
 
       - name: SonarCloud Scan
