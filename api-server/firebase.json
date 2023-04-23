@@ -1,10 +1,12 @@
 {
   "hosting": {
     "public": "public",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      {
+        "source": "**",
+        "function": "api"
+      }
     ]
   },
   "functions": [
@@ -17,12 +19,6 @@
         "firebase-debug.log",
         "firebase-debug.*.log"
       ]
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "**",
-      "function": "api"
     }
   ],
   "storage": {

@@ -3,7 +3,7 @@
   "description": "RMAC Cloud Function",
   "type": "module",
   "scripts": {
-    "serve": "npm run docs && firebase emulators:start --only functions",
+    "serve": "npm run docs && firebase emulators:start",
     "shell": "firebase functions:shell",
     "start": "npm run shell",
     "logs": "firebase functions:log",

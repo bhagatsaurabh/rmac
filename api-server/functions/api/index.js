@@ -1,28 +1,30 @@
-import express from 'express';
+import express from "express";
 import bodyParser from "body-parser";
 
-import { errorHandler } from '../middleware/error-handler.js';
-import { getRegister } from './register.js';
-import { getCommand, postCommand } from './command.js';
-import { getUpdate } from './update.js';
+import { errorHandler } from "../middleware/error-handler.js";
+import { getRegister } from "./register.js";
+import { getCommand, postCommand } from "./command.js";
+import { getUpdate } from "./update.js";
 
 const getServer = (context) => {
-    const server = express();
+  const server = express();
 
-    server.use(bodyParser.json());
-    server.use((req, _res, next) => {
-        req.context = context;
-        next();
-    });
+  server.use("/docs", express.static("../docs"));
 
-    server.get("/register", getRegister);
-    server.get("/command", getCommand);
-    server.post("/command", postCommand);
-    server.get("/update", getUpdate);
+  server.use(bodyParser.json());
+  server.use((req, _res, next) => {
+    req.context = context;
+    next();
+  });
 
-    server.use(errorHandler);
+  server.get("/api/register", getRegister);
+  server.get("/api/command", getCommand);
+  server.post("/api/command", postCommand);
+  server.get("/api/update", getUpdate);
 
-    return server;
-}
+  server.use(errorHandler);
+
+  return server;
+};
 
 export { getServer };
