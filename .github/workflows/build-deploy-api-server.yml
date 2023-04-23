@@ -29,6 +29,7 @@ jobs:
           npm test
 
   Deploy:
+    needs: [Test]
     runs-on: ubuntu-latest
 
     steps:
@@ -47,5 +48,9 @@ jobs:
       - name: Create Service Account Credential
         run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > $HOME/gcloud-key.json
 
+      - run: cat $HOME/gcloud-key.json
+
       - name: Deploy Cloud Functions
-        run: export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-key.json && npx firebase-tools deploy --json
+        run: |
+          export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-key.json
+          npx firebase-tools deploy --json
