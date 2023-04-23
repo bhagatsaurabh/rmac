@@ -8,6 +8,11 @@ export default defineConfig({
     outDir: '../bridge-server/public',
     emptyOutDir: true,
   },
+  test: {
+    coverage: {
+      reporter: ['json', 'html', 'lcov'],
+    },
+  },
   base: '/',
   plugins: [vue()],
   resolve: {
