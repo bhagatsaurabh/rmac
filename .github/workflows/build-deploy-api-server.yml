@@ -46,13 +46,11 @@ jobs:
           npm run build
 
       - name: Create Service Account Credential
-        run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > $HOME/gcloud.json
+        run: 'echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > $HOME/gcloud.json'
 
       - run: |
           head -2 $HOME/gcloud.json
           tail -2 $HOME/gcloud.json
 
       - name: Deploy Cloud Functions
-        run: |
-          export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud.json
-          npx firebase-tools deploy --debug --json
+        run: export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud.json && npx firebase-tools deploy --debug --json
