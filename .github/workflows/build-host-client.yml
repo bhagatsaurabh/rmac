@@ -151,7 +151,7 @@ jobs:
         with:
           artifacts: "host-client/auto-installer/auto-installer.exe,host-client/auto-installer/bin/RMACClient.jar,host-client/auto-installer/bin/RMACUpdater.jar"
           commit: "main"
-          tag: "v${{ needs.Versioning.outputs.version }}"
+          tag: ${{ needs.Versioning.outputs.version }}
           makeLatest: "latest"
           generateReleaseNotes: true
 
