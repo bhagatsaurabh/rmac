@@ -28,7 +28,6 @@ jobs:
         run: mvn --batch-mode --update-snapshots -DskipTests=true clean install
 
   Test:
-    needs: [Build]
     runs-on: windows-latest
 
     steps:
@@ -51,7 +50,7 @@ jobs:
           flags: host-client
 
   Quality:
-    needs: [Test]
+    needs: [Build, Test]
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
