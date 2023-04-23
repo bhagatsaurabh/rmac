@@ -34,8 +34,7 @@ jobs:
 
       - name: Check Tag
         run: |
-          echo ${{ steps.tagExists.outputs.exists }}
-          IF ${{ steps.tagExists.outputs.exists }} EQU true exit 1
+          IF ${{ steps.tagExists.outputs.exists }} EQU true echo "Tag already exists" && exit 1
         shell: cmd
 
   # Build:
@@ -159,6 +158,6 @@ jobs:
         with:
           artifacts: "host-client/auto-installer/auto-installer.exe,host-client/auto-installer/bin/RMACClient.jar,host-client/auto-installer/bin/RMACUpdater.jar"
           commit: "main"
-          tag: ${needs.Versioning.outputs.version}
+          tag: ${{ needs.Versioning.outputs.version }}
           makeLatest: "latest"
           generateReleaseNotes: true
