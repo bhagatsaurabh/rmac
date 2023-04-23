@@ -2,7 +2,7 @@
   <nav class="terminals-nav">
     <ul ref="navList">
       <li class="add"><button @click="emit('add')">+</button></li>
-      <li v-for="(id, index) in terminals" :class="{ active: id === active }">
+      <li v-for="(id, index) in terminals" :class="{ active: id === active }" :key="id">
         <button @click="emit('select', id)">{{ index + 1 }}</button>
       </li>
     </ul>

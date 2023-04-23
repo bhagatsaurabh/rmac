@@ -18,7 +18,7 @@ import { computed, useSlots, ref } from 'vue';
 import Icon from '../Icon/Icon.vue';
 import Modal from '../Modal/Modal.vue';
 
-const props = defineProps({
+defineProps({
   hideLabel: {
     type: Boolean,
     default: false,

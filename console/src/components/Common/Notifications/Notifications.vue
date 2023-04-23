@@ -9,7 +9,7 @@
       <Icon @click="router.back()" alt="Close icon" name="icons/cancel" adaptive :size="2" />
     </header>
     <section>
-      <Notification v-for="ntfcn in notifications" :data="ntfcn" />
+      <Notification v-for="(ntfcn, index) in notifications" :data="ntfcn" :key="index" />
       <div v-if="(notifications ?? []).length === 0" class="empty">
         <Icon alt="Empty icon" name="icons/empty" adaptive :size="2" />
         Empty

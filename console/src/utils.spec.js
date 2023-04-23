@@ -65,7 +65,7 @@ describe('The utils', () => {
   it('should generate random numbers', () => {
     const numbers = Array(100)
       .fill(0)
-      .map((_, _i) => rand(0, 1000000));
+      .map(() => rand(0, 1000000));
 
     expect(new Set(numbers).size).toStrictEqual(100);
   });

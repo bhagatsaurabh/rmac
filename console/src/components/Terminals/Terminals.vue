@@ -43,7 +43,6 @@
 import { ref } from 'vue';
 import Commands from '../Commands/Commands.vue';
 import Icon from '../Common/Icon/Icon.vue';
-import { Transition } from 'vue';
 import Terminal from '../Common/Terminal/Terminal.vue';
 import TerminalNav from '../Common/TerminalNav/TerminalNav.vue';
 import { v4 as uuid } from 'uuid';

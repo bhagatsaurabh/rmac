@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { flushPromises, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import { createStore } from 'vuex';
 import Terminals from './Terminals.vue';
 import { Transition, nextTick } from 'vue';

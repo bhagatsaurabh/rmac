@@ -89,6 +89,7 @@ const props = defineProps({
 const orgValue = computed(() => {
   if (props.type === 'global') return store.getters.getHostById(props.id)[props.name];
   else if (props.type === 'config') return store.getters.getHostById(props.id).config[props.name];
+  return null;
 });
 
 const state = ref('idle');
