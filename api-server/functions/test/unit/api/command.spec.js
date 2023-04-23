@@ -7,7 +7,7 @@ let logger = { error: jest.fn(), warn: jest.fn(), log: jest.fn() };
 
 describe('GET /command', () => {
     it("should send error response when clientId is not provided", async () => {
-        await supertest(getServer({ logger })).get("/command")
+        await supertest(getServer({ logger })).get("/api/command")
             .expect(400)
             .then(res => {
                 expect(res.body.status).toEqual(400);
@@ -19,7 +19,7 @@ describe('GET /command', () => {
             ref: () => ({ get: () => ({ exists: jest.fn(() => false) }) })
         };
 
-        await supertest(getServer({ db: mockDB, logger })).get("/command?id=test1234")
+        await supertest(getServer({ db: mockDB, logger })).get("/api/command?id=test1234")
             .expect(404)
             .then(res => {
                 expect(res.body.status).toEqual(404);
@@ -36,7 +36,7 @@ describe('GET /command', () => {
             })
         };
 
-        await supertest(getServer({ db: mockDB, logger })).get("/command?id=test1234")
+        await supertest(getServer({ db: mockDB, logger })).get("/api/command?id=test1234")
             .expect(200)
             .then(res => {
                 expect(res.body).toEqual([]);
@@ -57,7 +57,7 @@ describe('GET /command', () => {
             })
         };
 
-        await supertest(getServer({ db: mockDB, logger })).get("/command?id=test1234")
+        await supertest(getServer({ db: mockDB, logger })).get("/api/command?id=test1234")
             .expect(200)
             .then(res => {
                 expect(res.body).toEqual(['testcmd1', 'testcmd2', 'testcmd3']);
@@ -68,7 +68,7 @@ describe('GET /command', () => {
 
 describe('POST /command', () => {
     it("should send error response when clientId is not provided", async () => {
-        await supertest(getServer({ logger })).post("/command")
+        await supertest(getServer({ logger })).post("/api/command")
             .send(['testcmd1', 'testcmd2'])
             .expect(400)
             .then(res => {
@@ -77,7 +77,7 @@ describe('POST /command', () => {
             });
     });
     it("should send error response when commands format is incorrect", async () => {
-        await supertest(getServer({ logger })).post("/command?id=test123")
+        await supertest(getServer({ logger })).post("/api/command?id=test123")
             .send({ notAnArray: 1234 })
             .expect(400)
             .then(res => {
@@ -90,7 +90,7 @@ describe('POST /command', () => {
             ref: () => ({ get: () => ({ exists: jest.fn(() => false) }) })
         };
 
-        await supertest(getServer({ db: mockDB, logger })).post("/command?id=test123")
+        await supertest(getServer({ db: mockDB, logger })).post("/api/command?id=test123")
             .send(['testcmd1', 'testcmd2'])
             .expect(404)
             .then(res => {
@@ -110,7 +110,7 @@ describe('POST /command', () => {
             })
         };
 
-        await supertest(getServer({ db: mockDB, logger })).post("/command?id=test123")
+        await supertest(getServer({ db: mockDB, logger })).post("/api/command?id=test123")
             .send(['testcmd1', 'testcmd2'])
             .expect(200)
             .then(res => {
@@ -133,7 +133,7 @@ describe('POST /command', () => {
             })
         };
 
-        await supertest(getServer({ db: mockDB, logger })).post("/command?id=test123")
+        await supertest(getServer({ db: mockDB, logger })).post("/api/command?id=test123")
             .send(['testcmd1', 'testcmd2'])
             .expect(200)
             .then(res => {

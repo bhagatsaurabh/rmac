@@ -7,7 +7,7 @@ let logger = { error: jest.fn(), warn: jest.fn(), log: jest.fn() };
 
 describe('GET /update', () => {
     it("should send error response when version is not provided", async () => {
-        await supertest(getServer({ logger })).get("/update")
+        await supertest(getServer({ logger })).get("/api/update")
             .expect(400)
             .then(res => {
                 expect(res.body.status).toEqual(400);
@@ -19,7 +19,7 @@ describe('GET /update', () => {
         const mockDB = { ref: () => ({ get: () => ({ val: () => '2.0.4' }) }) };
         const mockBucket = { file: () => ({ getSignedUrl: mockFn }) };
 
-        await supertest(getServer({ db: mockDB, logger })).get("/update?version=2.0.4")
+        await supertest(getServer({ db: mockDB, logger })).get("/api/update?version=2.0.4")
             .expect(200)
             .then(res => {
                 expect(res.body).toEqual([]);
@@ -31,7 +31,7 @@ describe('GET /update', () => {
         const mockFn = jest.fn(() => ['http://testdownloadurl']);
         const mockBucket = { file: () => ({ getSignedUrl: mockFn }) };
 
-        await supertest(getServer({ db: mockDB, bucket: mockBucket, logger })).get("/update?version=2.0.4")
+        await supertest(getServer({ db: mockDB, bucket: mockBucket, logger })).get("/api/update?version=2.0.4")
             .expect(200)
             .then(res => {
                 expect(res.body).toEqual(['http://testdownloadurl', 'testchecksum']);

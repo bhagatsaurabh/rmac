@@ -7,7 +7,7 @@ let logger = { error: jest.fn(), warn: jest.fn(), log: jest.fn() };
 
 describe('GET /register', () => {
     it("should send error response when clientName is not provided", async () => {
-        await supertest(getServer({ logger })).get("/register")
+        await supertest(getServer({ logger })).get("/api/register")
             .expect(400)
             .then(res => {
                 expect(res.body.status).toEqual(400);
@@ -18,7 +18,7 @@ describe('GET /register', () => {
         const mockPush = jest.fn(() => ({ key: 'testid1234' }));
         const mockDB = { ref: () => ({ push: mockPush }) };
 
-        await supertest(getServer({ db: mockDB, logger })).get("/register?clientName=Test&hostName=Test")
+        await supertest(getServer({ db: mockDB, logger })).get("/api/register?clientName=Test&hostName=Test")
             .expect(201)
             .then(res => {
                 expect(res.text).toEqual('testid1234');
@@ -29,7 +29,7 @@ describe('GET /register', () => {
         const mockPush = jest.fn(() => ({ key: 'testid1234' }));
         const mockDB = { ref: () => ({ push: mockPush, once: () => ({ exists: () => false }) }) };
 
-        await supertest(getServer({ db: mockDB, logger })).get("/register?clientName=Test&hostName=Test&id=testid1234")
+        await supertest(getServer({ db: mockDB, logger })).get("/api/register?clientName=Test&hostName=Test&id=testid1234")
             .expect(201)
             .then(res => {
                 expect(res.text).toEqual('testid1234');
@@ -40,7 +40,7 @@ describe('GET /register', () => {
         const mockPush = jest.fn(() => ({ key: 'testid1234' }));
         const mockDB = { ref: () => ({ push: mockPush, once: () => ({ exists: () => true }) }) };
 
-        await supertest(getServer({ db: mockDB, logger })).get("/register?clientName=Test&hostName=Test&id=testid1234")
+        await supertest(getServer({ db: mockDB, logger })).get("/api/register?clientName=Test&hostName=Test&id=testid1234")
             .expect(200)
             .then(res => {
                 expect(res.text).toEqual('testid1234');
