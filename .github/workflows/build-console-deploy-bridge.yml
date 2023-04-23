@@ -128,7 +128,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: console-app
-          path: public
+          path: bridge-server/public
 
       - name: Deploy to Heroku
         uses: AkhileshNS/heroku-deploy@v3.12.13
