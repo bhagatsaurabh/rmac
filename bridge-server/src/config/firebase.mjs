@@ -5,17 +5,20 @@ import fs from "fs/promises";
 let db = null;
 
 const setup = async () => {
-  let adminConfig;
+  let credential;
   if (process.env.PROFILE === "Dev") {
     const key = await fs.readFile(process.env.FIREBASE_ADMIN_KEY_PATH);
-    adminConfig = JSON.parse(key);
+    credential = JSON.parse(key);
   } else if (process.env.PROFILE === "Prod") {
-    adminConfig = JSON.parse(
+    credential = JSON.parse(
       Buffer.from(process.env.FIREBASE_ADMIN_KEY_BASE64, "base64").toString()
     );
   }
 
-  initializeApp(adminConfig);
+  initializeApp({
+    credential: firebase.credential.cert(credential),
+    databaseURL: credential.databaseURL,
+  });
   db = firebase.database();
 };
 
