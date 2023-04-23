@@ -80,7 +80,7 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: console-app
-          path: ../bridge-server/public
+          path: bridge-server/public
 
   Quality:
     needs: [Test, Lint, Build]
