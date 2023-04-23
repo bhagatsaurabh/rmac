@@ -1,0 +1,145 @@
+name: PR console
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "console/**"
+      - "bridge-server/**"
+  workflow_dispatch:
+
+jobs:
+  Test:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./console
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Test
+        run: |
+          npm test
+
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          flags: console
+
+  Lint:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./console
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Lint
+        run: |
+          npm run lint
+
+  Build:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./console
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Build
+        run: |
+          npm run build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@master
+        with:
+          name: console-app
+          path: ../bridge-server/public
+
+  Quality:
+    needs: [Test, Lint, Build]
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./console
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Test
+        run: |
+          npm test
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@156db6fef3e168e4972abb76de0b32bbce8ec77a
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: console/
+
+  Deploy:
+    needs: [Quality]
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./bridge-server
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: console-app
+          path: public
+
+      - name: Deploy to Heroku
+        uses: AkhileshNS/heroku-deploy@v3.12.13
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "rmac-bridge"
+          heroku_email: "saurabhbhagat98die@gmail.com"
+          appdir: "bridge-server"
+
+  Cleanup:
+    needs: [Deploy]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete artifacts
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          name: console-app
