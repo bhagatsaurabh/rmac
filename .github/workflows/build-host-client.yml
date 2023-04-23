@@ -35,7 +35,7 @@ jobs:
       - name: Check Tag
         run: |
           echo ${{ steps.tagExists.outputs.exists }}
-          IF ${{ steps.tagExists.outputs.exists }} EQU 'true' exit 1
+          IF ${{ steps.tagExists.outputs.exists }} EQU true exit 1
         shell: cmd
 
   # Build:
