@@ -130,6 +130,8 @@ jobs:
           name: console-app
           path: bridge-server/public
 
+      - run: sed -i '/public/d' ./.gitignore
+
       - name: Deploy to Heroku
         uses: AkhileshNS/heroku-deploy@v3.12.13
         with:
