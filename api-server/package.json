@@ -1,11 +1,7 @@
 {
-  "dependencies": {
-    "body-parser": "^1.20.1",
-    "express": "^4.18.2",
-    "firebase-admin": "^11.2.0",
-    "node-stream-zip": "^1.15.0"
-  },
-  "devDependencies": {
-    "jest": "^29.3.1"
+  "scripts": {
+    "deps": "cd functions && npm ci",
+    "build": "cd functions && npm run docs",
+    "test": "cd functions && npm run test:unit"
   }
 }

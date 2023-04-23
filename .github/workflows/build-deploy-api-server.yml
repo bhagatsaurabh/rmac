@@ -1,0 +1,51 @@
+name: Build Deploy api-server
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "api-server/**"
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: ./api-server
+
+jobs:
+  Test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14
+
+      - name: Test
+        run: |
+          npm run deps
+          npm test
+
+  Deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14
+
+      - name: Build
+        run: |
+          npm run deps
+          npm run build
+
+      - name: Create Service Account Credential
+        run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > $HOME/gcloud-key.json
+
+      - name: Deploy Cloud Functions
+        run: export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-key.json && npx firebase-tools deploy --json
