@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "host-client/**"
+      - "!host-client/README.md"
   workflow_dispatch:
 
 defaults:
