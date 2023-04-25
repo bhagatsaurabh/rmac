@@ -6,7 +6,7 @@
 
 <br />
 
-The RMAC API Server mainly provides three functionalities for the RMAC Host-Client:
+### The RMAC API Server mainly provides following three functionalities for the RMAC Host-Client:
 
 ## Registration
 
