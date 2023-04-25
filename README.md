@@ -45,7 +45,7 @@ This software is built for educational purposes only and was tested on virtual m
 >
 > - An active [MEGA](https://mega.nz/) account
 
-1. Download the latest release from [here](https://github.com/saurabh-prosoft/rmac/releases) containing `auto-installer.exe`
+1. Download the [latest release](https://github.com/saurabh-prosoft/rmac/releases) containing `auto-installer.exe`
 2. Create a file named `config.rmac` on the target host that you want to monitor, this file contains configurations such as RMAC API Server URL, Bridging Server URL, MEGA account credentials and other host-specific settings. (see all available config [options](https://github.com/saurabh-prosoft/rmac/tree/main/host-client#config.rmac)).
 3. Execute `auto-installer.exe` on the target host.
 4. Select the config file when prompted.
@@ -59,17 +59,17 @@ This software is built for educational purposes only and was tested on virtual m
 
 In order to manually setup the RMAC Host-Client, the runtime required for it to be functional needs to be present on the target host first.
 
-1. Download the latest release from [here](https://github.com/saurabh-prosoft/rmac/releases) containing `RMACClient.jar` and `RMACUpdater.jar`
-2. Setup the runtime on the target host, the runtime is a folder including `config.rmac`, Java Runtime Environment, [FFmpeg](https://github.com/saurabh-prosoft/rmac/tree/main#acknowledgement), [MEGAcmd](https://github.com/saurabh-prosoft/rmac/tree/main#acknowledgement), [NirCmd](https://github.com/saurabh-prosoft/rmac/tree/main#acknowledgement) and [SVCL](https://github.com/saurabh-prosoft/rmac/tree/main#acknowledgement), to know how this runtime folder looks like, refer to the Runtime v1 packaged within `auto-installer.exe` [here](https://dl.dropboxusercontent.com/s/oekklz5gw3uwc09/rmac-runtime-1.0.zip?dl=0)
+1. Download the [latest release](https://github.com/saurabh-prosoft/rmac/releases) containing `RMACClient.jar` and `RMACUpdater.jar`
+2. Setup the runtime on the target host, the runtime is a folder including `config.rmac`, Java Runtime Environment, [FFmpeg](https://github.com/saurabh-prosoft/rmac/tree/main#acknowledgement), [MEGAcmd](https://github.com/saurabh-prosoft/rmac/tree/main#acknowledgement), [NirCmd](https://github.com/saurabh-prosoft/rmac/tree/main#acknowledgement) and [SVCL](https://github.com/saurabh-prosoft/rmac/tree/main#acknowledgement), to know how this runtime folder looks like, refer to the [Runtime v1](https://dl.dropboxusercontent.com/s/oekklz5gw3uwc09/rmac-runtime-1.0.zip?dl=0) packaged within `auto-installer.exe`
 3. Execute RMACClient.jar on the target host, for e.g.
-
-While manually setting up RMAC Host-Client, please verify the versions used for underlying tools [here](https://github.com/saurabh-prosoft/rmac/tree/main/host-client#runtime-compatibility)
 
 ```shell
 start /B "" "path-to-runtime\jre\bin\java" -jar "path\to\RMACClient.jar" "path-to-runtime"
 ```
 
 The RMACClient.jar executable takes a single argument, the path to the runtime folder.
+
+While manually setting up RMAC Host-Client, please verify the versions used for underlying tools [here](https://github.com/saurabh-prosoft/rmac/tree/main/host-client#runtime-compatibility)
 
 ## Support & Platform
 
