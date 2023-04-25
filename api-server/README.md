@@ -12,11 +12,19 @@
 
 Whenever the RMAC Host-Client boots up, the first thing it does is register itself with the RMAC API Server using the unique `ClientName` field configured in `config.rmac`, the server stores this information in the database (Firebase realtime database) and returns a unique `Id` back to the host-client which it stores in its `config.rmac` for future API calls.
 
+<p align="center">
+<img src="https://raw.githubusercontent.com/saurabh-prosoft/saurabh-prosoft.github.io/readme-resources/resource/rmac-host-client-registration.png" />
+</p>
+
 If the RMAC Host-Client is already registered using a `ClientName`, calling the registration API with that same `ClientName` will return back the same `Id`.
 
 ## Control Commands Buffer
 
 The RMAC API Server provides endpoints to issue control commands to host-clients, since host-clients can be offline the API Server will store the issued commands to the database.
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/saurabh-prosoft/saurabh-prosoft.github.io/readme-resources/resource/rmac-host-client-command-offline.png" />
+</p>
 
 These are the control commands that can be issued:
 
@@ -30,6 +38,10 @@ These commands can be issued irrespective of whether the RMAC Host-Client is cur
 
 The RMAC Host-Client polls the API Server regularly to check whether any commands have been issued and executes them, hence the RMAC API Server acts as a logical buffer for passive command execution.
 
+<p align="center">
+<img src="https://raw.githubusercontent.com/saurabh-prosoft/saurabh-prosoft.github.io/readme-resources/resource/rmac-host-client-command-online.png" />
+</p>
+
 ## Update Check
 
 The RMAC Host-Client boot process includes a step to call the API Server by passing its own version and check for any update.
@@ -37,6 +49,10 @@ The RMAC Host-Client boot process includes a step to call the API Server by pass
 The API Server checks the database to get the latest available version of RMAC Host-Client and compares it with the provided version in the API call, if the version sent by RMAC Host-Client is old, it returns a download link (valid for 30 minutes) to the new client jar (stored in the Firebase storage) along with a checksum value.
 
 The RMAC Host-Client will update itself using the download link to a new version and will restart.
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/saurabh-prosoft/saurabh-prosoft.github.io/readme-resources/resource/rmac-host-client-update.png" />
+</p>
 
 <br/>
 
@@ -53,3 +69,9 @@ Provides the three functionalities listed above: RMAC Host-Client Registration, 
 The hosts database (Firebase realtime database) contains two top-level keys `latestHostVersion` and `latestHostChecksum`, signifying the latest available RMAC Host-Client version.
 
 Whenever a new RMAC Host-Client jar file is uploaded to the storage (Firebase Storage) this function gets triggered, it unwraps the jar, reads its version from manifest and updates the `latestHostVersion` key in database, calculates the SHA-256 checksum and updates the value in `latestHostChecksum` key.
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/saurabh-prosoft/saurabh-prosoft.github.io/readme-resources/resource/rmac-host-client-update-function.png" />
+</p>
+
+> Note: The RMAC Host-Client jar uploaded to Firebase storage must have the same name as its version, for e.g. uploading a new RMAC Host-Client version 2.1.3 should have the name 2.1.3.jar
