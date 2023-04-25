@@ -60,7 +60,7 @@ This software is built for educational purposes only and was tested on virtual m
 In order to manually setup the RMAC Host-Client, the runtime required for it to be functional needs to be present on the target host first.
 
 1. Download the latest release from [here](https://github.com/saurabh-prosoft/rmac/releases) containing `RMACClient.jar` and `RMACUpdater.jar`
-2. Setup the runtime on the target host, the runtime is a folder including `config.rmac`, Java Runtime Environment (JRE 11), FFmpeg, MEGAcmd, NirCmd and SVCL, to know how this runtime folder looks like, refer to the one packaged within `auto-installer.exe` [here](https://dl.dropboxusercontent.com/s/oekklz5gw3uwc09/rmac-runtime-1.0.zip?dl=0)
+2. Setup the runtime on the target host, the runtime is a folder including `config.rmac`, Java Runtime Environment (JRE 11), [FFmpeg](https://github.com/saurabh-prosoft/rmac/tree/main#acknowledgement), [MEGAcmd](https://github.com/saurabh-prosoft/rmac/tree/main#acknowledgement), [NirCmd](https://github.com/saurabh-prosoft/rmac/tree/main#acknowledgement) and [SVCL](https://github.com/saurabh-prosoft/rmac/tree/main#acknowledgement), to know how this runtime folder looks like, refer to the one packaged within `auto-installer.exe` [here](https://dl.dropboxusercontent.com/s/oekklz5gw3uwc09/rmac-runtime-1.0.zip?dl=0)
 3. Execute RMACClient.jar on the target host, for e.g.
 
 ```shell
