@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "api-server/**"
+      - "api-server/README.md"
   workflow_dispatch:
 
 defaults:

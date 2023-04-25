@@ -6,6 +6,8 @@ on:
     paths:
       - "console/**"
       - "bridge-server/**"
+      - "!bridge-server/README.md"
+      - "!console/README.md"
   workflow_dispatch:
 
 jobs:
