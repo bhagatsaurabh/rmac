@@ -46,7 +46,7 @@ This software is built for educational purposes only and was tested on virtual m
 > - An active [MEGA](https://mega.nz/) account
 
 1. Download the [latest release](https://github.com/saurabh-prosoft/rmac/releases) containing `auto-installer.exe`
-2. Create a file named `config.rmac` on the target host that you want to monitor, this file contains configurations such as RMAC API Server URL, Bridging Server URL, MEGA account credentials and other host-specific settings. (see all available config [options](https://github.com/saurabh-prosoft/rmac/tree/main/host-client#config.rmac)).
+2. Create a file named `config.rmac` on the target host that you want to monitor, this file contains configurations such as [RMAC API Server](https://github.com/saurabh-prosoft/rmac/tree/main/api-server#rmac-api-server) URL, [Bridging Server](https://github.com/saurabh-prosoft/rmac/tree/main/bridge-server#rmac-bridge-server) URL, MEGA account credentials and other host-specific settings. (see all available config [options](https://github.com/saurabh-prosoft/rmac/tree/main/host-client#config.rmac)).
 3. Execute `auto-installer.exe` on the target host.
 4. Select the config file when prompted.
 5. The RMAC Host-Client will be installed, configured and started automatically.
