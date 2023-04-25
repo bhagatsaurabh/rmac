@@ -37,13 +37,66 @@
 
 This software is built for educational purposes only and was tested on sandboxed virtual machines, you may use this software at your own risk. The developers assume no liability and are not responsible for any misuse or damage caused by this software.
 
-## Support
-
-## Note
-
 ## Usage
 
+### Automatic setup (Recommended)
+
+1. Download the latest release from [here](https://github.com/saurabh-prosoft/rmac/releases)
+2. Create a file named `config.rmac` on the target host that you want to monitor (see available config [options](https://github.com/saurabh-prosoft/rmac/tree/main/host-client#config.rmac)).
+3. Execute `auto-installer.exe` on the target host.
+4. Select the config file when prompted.
+5. The RMAC Host-Client will be installed, configured and started automatically.
+
+### Manual setup (Not Recommended)
+
+In order to manually setup the RMAC Host-Client, the runtime required for it to be functional needs to be present on the target host first.
+
+1. Download the latest release from [here](https://github.com/saurabh-prosoft/rmac/releases) containing RMACClient.jar and RMACUpdater.jar
+2. Setup the runtime on the target host, the runtime is a folder including `config.rmac`, Java Runtime Environment (JRE 11), FFmpeg, MEGAcmd, NirCmd and SVCL, to know how this runtime folder looks like, refer to the one packaged within `auto-installer.exe` [here](https://dl.dropboxusercontent.com/s/oekklz5gw3uwc09/rmac-runtime-1.0.zip?dl=0)
+3. Execute RMACClient.jar on the target host, for e.g.
+
+```shell
+start /B "" "path-to-runtime\jre\bin\java" -jar "path\to\RMACClient.jar" "path-to-runtime"
+```
+
+## Support & Platform
+
+| Component     | Platform / Technology        | Versions     |
+| ------------- | ---------------------------- | ------------ |
+| Host-Client   | Windows x64                  | 7, 8, 10, 11 |
+| API Server    | Firebase Cloud Functions     | 3.x          |
+| Bridge Server | Node.js                      | 14.x, 16.x   |
+| Console       | Any Browser supporting Vue 3 |              |
+
 ## Architecture
+
+The RMAC ecosystem is a collection of four components:
+
+1. **Host-Client** - The actual spyware client running on the target host.
+2. **API Server** - The server hosting the RMAC api that interacts with the registered hosts database.
+3. **Bridge Server** - The server acting as a bridge for communications between the Host-Clients and Consoles.
+4. **Console** - An opened RMAC Console dashboard being used by an end-user.
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/saurabh-prosoft/saurabh-prosoft.github.io/readme-resources/resource/rmac-ecosystem.png" />
+</p>
+
+The **Host-Client** is a Java application that only interacts with the API and Bridge servers.
+
+The **Bridge Server** is a nodejs server that enables a two-way socket communication between the Host-Clients and the end-user Consoles, it also makes API calls to the API Server in few scenarios.
+
+The **API Server** handles Host-Client registrations, passive command executions and update check requests.
+
+The API and Bridging servers are the only systems that can connect to the hosts database directly.
+
+The end-user can manage hosts remotely in a user-friendly way using the **RMAC Console** by changing properties and configuration of Host-Client and running interactive powershell command-line (non-admin)
+
+## Acknowledgement
+
+- [FFmpeg](https://ffmpeg.org/)
+- [NirCmd](https://www.nirsoft.net/utils/nircmd.html)
+- [SVCL](https://www.nirsoft.net/utils/sound_volume_command_line.html)
+- [MEGAcmd](https://mega.io/cmd)
 
 ## License
 
