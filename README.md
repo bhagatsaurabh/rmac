@@ -35,29 +35,39 @@
 
 ## :warning: Disclaimer
 
-This software is built for educational purposes only and was tested on sandboxed virtual machines, you may use this software at your own risk. The developers assume no liability and are not responsible for any misuse or damage caused by this software.
+This software is built for educational purposes only and was tested on virtual machines, you may use this software at your own risk. The developers assume no liability and are not responsible for any misuse or damage caused by this software.
 
 ## Usage
 
 ### Automatic setup (Recommended)
 
-1. Download the latest release from [here](https://github.com/saurabh-prosoft/rmac/releases)
-2. Create a file named `config.rmac` on the target host that you want to monitor (see available config [options](https://github.com/saurabh-prosoft/rmac/tree/main/host-client#config.rmac)).
+> #### Pre-requisites
+>
+> - An active [MEGA](https://mega.nz/) account
+
+1. Download the latest release from [here](https://github.com/saurabh-prosoft/rmac/releases) containing `auto-installer.exe`
+2. Create a file named `config.rmac` on the target host that you want to monitor, this file contains configurations such as RMAC API Server URL, Bridging Server URL, MEGA account credentials and other host-specific settings. (see all available config [options](https://github.com/saurabh-prosoft/rmac/tree/main/host-client#config.rmac)).
 3. Execute `auto-installer.exe` on the target host.
 4. Select the config file when prompted.
 5. The RMAC Host-Client will be installed, configured and started automatically.
+
+> **Note:** Please do not use the publicly available RMAC API Server (https://rmac.saurabhagat.me) and Bridging server (https://console.rmac.saurabhagat.me), configuring these public server URLs in `config.rmac` will expose your target host to the public domain, and likely your configured MEGA account credentials, please consider hosting your own RMAC API and Bridging servers.
+
+> **Caution**: Communications between the Host-Client and Servers are not secure, and there are no security mechanisms in place for authentication, this will likely be fixed in future releases.
 
 ### Manual setup (Not Recommended)
 
 In order to manually setup the RMAC Host-Client, the runtime required for it to be functional needs to be present on the target host first.
 
-1. Download the latest release from [here](https://github.com/saurabh-prosoft/rmac/releases) containing RMACClient.jar and RMACUpdater.jar
+1. Download the latest release from [here](https://github.com/saurabh-prosoft/rmac/releases) containing `RMACClient.jar` and `RMACUpdater.jar`
 2. Setup the runtime on the target host, the runtime is a folder including `config.rmac`, Java Runtime Environment (JRE 11), FFmpeg, MEGAcmd, NirCmd and SVCL, to know how this runtime folder looks like, refer to the one packaged within `auto-installer.exe` [here](https://dl.dropboxusercontent.com/s/oekklz5gw3uwc09/rmac-runtime-1.0.zip?dl=0)
 3. Execute RMACClient.jar on the target host, for e.g.
 
 ```shell
 start /B "" "path-to-runtime\jre\bin\java" -jar "path\to\RMACClient.jar" "path-to-runtime"
 ```
+
+The RMACClient.jar executable takes a single argument, the path to the runtime folder.
 
 ## Support & Platform
 
@@ -83,7 +93,7 @@ The RMAC ecosystem is a collection of four components:
 
 The **Host-Client** is a Java application that only interacts with the API and Bridge servers.
 
-The **Bridge Server** is a nodejs server that enables a two-way socket communication between the Host-Clients and the end-user Consoles, it also makes API calls to the API Server in few scenarios.
+The **Bridge Server** is a nodejs server that enables a two-way socket communication between the Host-Clients and the end-user Consoles, it also makes API calls to the API Server in few scenarios, this server also serves the RMAC Console webapp.
 
 The **API Server** handles Host-Client registrations, passive command executions and update check requests.
 
