@@ -46,7 +46,7 @@ This software is built for educational purposes only and was tested on virtual m
 > - An active [MEGA](https://mega.nz/) account
 
 1. Download the [latest release](https://github.com/saurabh-prosoft/rmac/releases) containing `auto-installer.exe`
-2. Create a file named `config.rmac` on the target host that you want to monitor, this file contains configurations such as [RMAC API Server](https://github.com/saurabh-prosoft/rmac/tree/main/api-server#rmac-api-server) URL, [Bridging Server](https://github.com/saurabh-prosoft/rmac/tree/main/bridge-server#rmac-bridge-server) URL, MEGA account credentials and other host-specific settings. (see all available config [options](https://github.com/saurabh-prosoft/rmac/tree/main/host-client#config.rmac)).
+2. Create a file named `config.rmac` on the target host that you want to monitor, this file contains configurations such as [RMAC API Server](https://github.com/saurabh-prosoft/rmac/tree/main/api-server#rmac-api-server) URL, [Bridging Server](https://github.com/saurabh-prosoft/rmac/tree/main/bridge-server#rmac-bridge-server) URL, MEGA account credentials and other host-specific settings. (see all available config [options](https://github.com/saurabh-prosoft/rmac/tree/main/host-client#config.rmac) to know what is the minimum configuration required).
 3. Execute `auto-installer.exe` on the target host.
 4. Select the config file when prompted.
 5. The RMAC Host-Client will be installed, configured and started automatically.
@@ -77,8 +77,8 @@ There are multiple ways to uninstall RMAC Host-Client from the target host depen
 
 If the RMAC Host-Client that you want to remove is online, there are two possible ways:
 
-1. Goto RMAC Console and issue a 'panic' command for the specific host, the RMAC Host-Client will completely remove itself.
-2. Make an API call to RMAC API Server's `/command` endpoint with the 'panic' command (This api server should be the same one that was configured with the host-client in its `config.rmac`).
+1. Goto RMAC Console and issue a 'compromised' command for the specific host, the RMAC Host-Client will completely remove itself.
+2. Make an API call to RMAC API Server's `/command` endpoint with the 'compromised' command (This api server should be the same one that was configured with the host-client in its `config.rmac`).
 
 If the RMAC Host-Client is offline, the only way to remove it, is to manually execute the script `compromised.bat` under the `scripts` folder of [RMAC Runtime](https://github.com/saurabh-prosoft/rmac/tree/main/host-client#runtime) path.
 
