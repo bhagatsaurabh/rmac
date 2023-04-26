@@ -19,8 +19,8 @@ The RMAC Host-Client (also referred to as RMAC Client) is the actual spy agent r
 ### Functionalities
 
 - Keylogging
-- [Secure Context Keylogging](https://github.com/saurabh-prosoft/rmac/tree/main/host-client#what-is-secure-context-keylogging) (only works when [RMAC KMKL](https://github.com/saurabh-prosoft/rmac-drivers#readme) Driver is installed)
-- Interactive remote Powershell command-line via [RMAC Console](https://github.com/saurabh-prosoft/rmac/tree/main/console#readme)
+- [Secure Context Keylogging](https://github.com/saurabh-prosoft/rmac/tree/main/host-client#what-is-secure-context-keylogging-) (only works when [RMAC KMKL](https://github.com/saurabh-prosoft/rmac-drivers#readme) Driver is installed)
+- Interactive remote Powershell command-line via [RMAC Console](https://github.com/saurabh-prosoft/rmac/tree/main/console#rmac-console)
 - Screen Recording
 - Audio Recording
 - Camera capture
@@ -51,7 +51,7 @@ MegaPass=Megapassword
 - `KeyLogUploadInterval` (Default: 600000) - Interval for key-log dumps
 - `LogFileUpload` (Default: true) - Whether to enable upload of key-log dumps to MEGA account
 - `VideoUpload` (Default: true) - Whether to enable upload of screen recordings to MEGA account
-- `MaxStagingSize` (157286400) - Size limit for staging directories in bytes ([what is staging?](https://github.com/saurabh-prosoft/rmac/tree/main/host-client#staging))
+- `MaxStagingSize` (157286400) - Size limit for staging directories in bytes ([what is staging?](https://github.com/saurabh-prosoft/rmac/tree/main/host-client#what-is-staging-))
 - `MaxStorageSize` (2147483648) - Size limit of pending uploads storage in bytes
 - `MaxParallelUploads` (3) - No. of files that can be uploaded in parallel
 - `FetchCommandPollInterval` (5000) - Polling interval for fetching [control commands](https://github.com/saurabh-prosoft/rmac/tree/main/api-server#control-commands-buffer) from RMAC API Server in milliseconds
