@@ -106,13 +106,13 @@ The RMAC ecosystem is a collection of four components:
 
 The **Host-Client** is a Java application that only interacts with the API and Bridge servers.
 
-The **Bridge Server** is a nodejs server that enables a two-way socket communication between the Host-Clients and the end-user Consoles, it also makes API calls to the API Server in few scenarios, this server also serves the RMAC Console webapp.
+The **Bridge Server** is a nodejs server that enables a two-way socket communication between the Host-Clients and the end-user Consoles, this server also serves the RMAC Console webapp.
 
-The **API Server** handles Host-Client registrations, passive command executions and update check requests.
+The **API Server** handles Host-Client registrations, queuing control commands and serving update check requests.
 
 The API and Bridging servers are the only systems that can connect to the hosts database directly.
 
-The end-user can manage hosts remotely in a user-friendly way using the **RMAC Console** by changing properties and configuration of Host-Client and running interactive powershell command-line (non-admin)
+The end-user can manage hosts remotely in a user-friendly way using the **RMAC Console** by changing properties and configuration of Host-Clients and running interactive powershell command-line (non-admin)
 
 ## Acknowledgement
 
