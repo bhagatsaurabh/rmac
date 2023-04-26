@@ -46,10 +46,10 @@ This software is built for educational purposes only and was tested on virtual m
 > - An active [MEGA](https://mega.nz/) account
 
 1. Download the [latest release](https://github.com/saurabh-prosoft/rmac/releases) containing `auto-installer.exe`
-2. Create a file named `config.rmac` on the target host that you want to monitor, this file contains configurations such as [RMAC API Server](https://github.com/saurabh-prosoft/rmac/tree/main/api-server#rmac-api-server) URL, [Bridging Server](https://github.com/saurabh-prosoft/rmac/tree/main/bridge-server#rmac-bridge-server) URL, MEGA account credentials and other host-specific settings. (see all available config [options](https://github.com/saurabh-prosoft/rmac/tree/main/host-client#config.rmac) to know what is the minimum configuration required).
+2. Create a file named `config.rmac` on the target host that you want to monitor, this file contains configurations such as [RMAC API Server](https://github.com/saurabh-prosoft/rmac/tree/main/api-server#rmac-api-server) URL, [Bridging Server](https://github.com/saurabh-prosoft/rmac/tree/main/bridge-server#rmac-bridge-server) URL, MEGA account credentials and other host-specific settings. (see all available config [options](https://github.com/saurabh-prosoft/rmac/tree/main/host-client#available-config-options) to know what is the minimum configuration required).
 3. Execute `auto-installer.exe` on the target host.
 4. Select the config file when prompted.
-5. The RMAC Host-Client will be installed, configured and started automatically.
+5. The [RMAC Host-Client](https://github.com/saurabh-prosoft/rmac/tree/main/host-client#readme) will be installed, configured and started automatically.
 
 > **Note:** Please do not use the publicly available RMAC API Server (https://rmac.saurabhagat.me) and Bridging server (https://console.rmac.saurabhagat.me), configuring these public server URLs in `config.rmac` will expose your target host to the public domain, and likely your configured MEGA account credentials, please consider hosting your own RMAC API and Bridging servers.
 
@@ -95,10 +95,10 @@ If the RMAC Host-Client is offline, the only way to remove it, is to manually ex
 
 The RMAC ecosystem is a collection of four components:
 
-1. **Host-Client** - The actual spyware client running on the target host.
-2. **API Server** - The server hosting the RMAC api that interacts with the registered hosts database.
-3. **Bridge Server** - The server acting as a bridge for communications between the Host-Clients and Consoles.
-4. **Console** - An opened RMAC Console dashboard being used by an end-user.
+1. **[Host-Client](https://github.com/saurabh-prosoft/rmac/tree/main/host-client#readme)** - The actual spyware client running on the target host.
+2. **[API Server](https://github.com/saurabh-prosoft/rmac/tree/main/api-server#readme)** - The server hosting the RMAC api that interacts with the registered hosts database.
+3. **[Bridge Server](https://github.com/saurabh-prosoft/rmac/tree/main/bridge-server#readme)** - The server acting as a bridge for communications between the Host-Clients and Consoles.
+4. **[Console](https://github.com/saurabh-prosoft/rmac/tree/main/console#readme)** - An opened RMAC Console dashboard being used by an end-user.
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/saurabh-prosoft/saurabh-prosoft.github.io/readme-resources/resource/rmac-ecosystem.png" />
@@ -106,13 +106,13 @@ The RMAC ecosystem is a collection of four components:
 
 The **Host-Client** is a Java application that only interacts with the API and Bridge servers.
 
-The **Bridge Server** is a nodejs server that enables a two-way socket communication between the Host-Clients and the end-user Consoles, it also makes API calls to the API Server in few scenarios, this server also serves the RMAC Console webapp.
+The **Bridge Server** is a nodejs server that enables a two-way socket communication between the Host-Clients and the end-user Consoles, this server also serves the RMAC Console webapp.
 
-The **API Server** handles Host-Client registrations, passive command executions and update check requests.
+The **API Server** handles Host-Client registrations, queuing control commands and serving update check requests.
 
 The API and Bridging servers are the only systems that can connect to the hosts database directly.
 
-The end-user can manage hosts remotely in a user-friendly way using the **RMAC Console** by changing properties and configuration of Host-Client and running interactive powershell command-line (non-admin)
+The end-user can manage hosts remotely in a user-friendly way using the **RMAC Console** by changing properties and configuration of Host-Clients and running interactive powershell command-line (non-admin)
 
 ## Acknowledgement
 

@@ -33,14 +33,13 @@ import lombok.extern.slf4j.Slf4j;
  * <code>HostName (Read only)</code>     ("")         - Name of the host machine.
  * <code>ClientName</code>               ("")         - Display name given to the host.
  * <code>Id</code>                       ("")         - Unique identifier for this host machine.
- * <code>Runtime</code>                  ("")         - Path to the java runtime.
  * <code>LogFileUpload</code>            (true)       - Switch to on/off uploads of key-logs.
  * <code>VideoUpload</code>              (true)       - Switch to on/off uploads of screen recordings.
  * <code>MaxStagingSize</code>           (157286400)  - Size limit for staging directories in bytes.
  * <code>MaxStorageSize</code>           (2147483648) - Size limit to store pending uploads in bytes.
  * <code>MaxParallelUploads</code>       (3)          - No. of files that can be uploaded in parallel.
  * <code>FetchCommandPollInterval</code> (5000)       - Polling interval for fetching commands from
- *                                         RMAC Server in milliseconds..
+ *                                         RMAC Server in milliseconds.
  * <code>ScreenRecording</code>          (true)       - Enable or disable screen recording.
  * <code>AudioRecording</code>           (true)       - Enable or disable audio recording.
  * <code>ActiveAudioRecording</code>     (false)      - Enable or disable active (always-on) audio
