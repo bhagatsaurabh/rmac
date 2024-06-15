@@ -1,9 +1,9 @@
 <p align="center">
 <a href="https://console.rmac.saurabhagat.me">
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/saurabh-prosoft/saurabh-prosoft.github.io/readme-resources/resource/rmac-logo-spell-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/saurabh-prosoft/saurabh-prosoft.github.io/readme-resources/resource/rmac-logo-spell.png">
-  <img width="50%" alt="RMAC" src="https://raw.githubusercontent.com/saurabh-prosoft/saurabh-prosoft.github.io/readme-resources/resource/rmac-logo-spell.png">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/saurabh-prosoft/saurabh-prosoft.github.io/readme-resources/rmac/rmac-logo-spell-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/saurabh-prosoft/saurabh-prosoft.github.io/readme-resources/rmac/rmac-logo-spell.png">
+  <img width="50%" alt="RMAC" src="https://raw.githubusercontent.com/saurabh-prosoft/saurabh-prosoft.github.io/readme-resources/rmac/rmac-logo-spell.png">
 </picture>
 </a>
 </p>
@@ -101,7 +101,7 @@ The RMAC ecosystem is a collection of four components:
 4. **[Console](https://github.com/saurabh-prosoft/rmac/tree/main/console#readme)** - An opened RMAC Console dashboard being used by an end-user.
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/saurabh-prosoft/saurabh-prosoft.github.io/readme-resources/resource/rmac-ecosystem.png" />
+<img src="https://raw.githubusercontent.com/saurabh-prosoft/saurabh-prosoft.github.io/readme-resources/rmac/rmac-ecosystem.png" />
 </p>
 
 The **Host-Client** is a Java application that only interacts with the API and Bridge servers.
