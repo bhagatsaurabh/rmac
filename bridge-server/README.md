@@ -21,7 +21,7 @@ Neither RMAC Host-Client nor RMAC Console can be a Socket Server because the Hos
 RMAC Bridge Server acts as the Socket Server and lets them connect as Socket Clients, then proxies, transforms and processes messages between them.
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/saurabh-prosoft/saurabh-prosoft.github.io/readme-resources/resource/rmac-bridge-server.png" />
+<img src="https://raw.githubusercontent.com/saurabh-prosoft/saurabh-prosoft.github.io/readme-resources/rmac/rmac-bridge-server.png" />
 </p>
 
 ## Comms Specification
@@ -41,7 +41,7 @@ If the RMAC Host-Client is not registered yet, it will not have any `Id`, and he
 When RMAC Console is the sender of `identity` message, it will not send any data, the Bridge Server will always assign a new uuid to a new RMAC Console socket connection.
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/saurabh-prosoft/saurabh-prosoft.github.io/readme-resources/resource/rmac-bridge-server-identity.png" />
+<img src="https://raw.githubusercontent.com/saurabh-prosoft/saurabh-prosoft.github.io/readme-resources/rmac/rmac-bridge-server-identity.png" />
 </p>
 
 ### `config`
