@@ -71,17 +71,6 @@ The RMACClient.jar executable takes a single argument, the path to the runtime f
 
 While manually setting up RMAC Host-Client, please verify the versions used for underlying tools [here](https://github.com/saurabh-prosoft/rmac/tree/main/host-client#runtime-compatibility)
 
-## Uninstall
-
-There are multiple ways to uninstall RMAC Host-Client from the target host depending on whether it is online or offline:
-
-If the RMAC Host-Client that you want to remove is online, there are two possible ways:
-
-1. Goto RMAC Console and issue a 'compromised' command for the specific host, the RMAC Host-Client will completely remove itself.
-2. Make an API call to RMAC API Server's `/command` endpoint with the 'compromised' command (This api server should be the same one that was configured with the host-client in its `config.rmac`).
-
-If the RMAC Host-Client is offline, the only way to remove it, is to manually execute the script `compromised.bat` under the `scripts` folder of [RMAC Runtime](https://github.com/saurabh-prosoft/rmac/tree/main/host-client#runtime) path.
-
 ## Support & Platform
 
 | Component     | Platform / Technology        | Versions     |
