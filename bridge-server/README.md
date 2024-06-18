@@ -16,7 +16,7 @@ The RMAC Bridge Server acts as an interface for communication between the RMAC H
 
 To enable two-way, real-time socket communication between two entities, one of the entity should act as a Socket Server
 
-Neither RMAC Host-Client nor RMAC Console can be a Socket Server because the Host-Client is the spy agent running on host machine and Console is a Web application which can only open socket client connections.
+Neither RMAC Host-Client nor RMAC Console can be a Socket Server because the Host-Client is the monitoring agent running on host machine and Console is a Web application which can only open socket client connections.
 
 RMAC Bridge Server acts as the Socket Server and lets them connect as Socket Clients, then proxies, transforms and processes messages between them.
 
