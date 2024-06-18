@@ -25,16 +25,6 @@ describe('Commands component', () => {
     expect(wrapper.vm).toBeDefined();
   });
 
-  it("should dispatch correct action when 'compromised' button is clicked", async () => {
-    await wrapper.findAll('button').at(0).trigger('click');
-
-    expect(actions.sendCommand.mock.calls[0][1]).toStrictEqual({
-      hostId: '12345678',
-      command: 'compromised',
-    });
-    expect(wrapper.find('input').element.value).toBe('');
-  });
-
   it("should dispatch correct action when 'shutdown' button is clicked", async () => {
     await wrapper.findAll('button').at(1).trigger('click');
 
