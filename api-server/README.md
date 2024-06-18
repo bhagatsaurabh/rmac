@@ -36,7 +36,6 @@ The RMAC API Server provides endpoints to issue control commands to host-clients
 
 These are the control commands that can be issued:
 
-- _compromised_ - Uninstall RMAC Host-Client from the target host and remove any associated files
 - _fetch_ - Upload any file on the host machine to the configured MEGA account
 - _system shutdown_ - Shutdown RMAC Host-Client on the target host
 - _cam_ - Capture a snapshot from the default camera and upload to the configured MEGA account
