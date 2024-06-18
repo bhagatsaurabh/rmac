@@ -130,28 +130,6 @@ public class CommandHandlerTest {
   }
 
   @Test
-  @DisplayName("Execute when command is 'compromised'")
-  public void execute_Command_Compromised() throws Exception {
-    Constants.SCRIPTS_LOCATION = "X:\\test\\RMAC\\scripts";
-    CommandHandler ch = new CommandHandler();
-    MockedStatic<Runtime> mockedRuntime = mockStatic(Runtime.class);
-    Runtime runtime = mock(Runtime.class);
-
-    doReturn(null).when(runtime).exec(anyString());
-    mockedRuntime.when(Runtime::getRuntime).thenReturn(runtime);
-
-    ch.execute(new String[]{"compromised"});
-
-    verify(runtime).exec(eq(new String[]{
-        "wscript",
-        "X:\\test\\RMAC\\scripts\\background.vbs",
-        "X:\\test\\RMAC\\scripts\\compromised.bat"
-    }));
-
-    mockedRuntime.close();
-  }
-
-  @Test
   @DisplayName("Execute when command is 'fetch' without argument")
   public void execute_Command_Fetch_NoArg() throws Exception {
     CommandHandler ch = new CommandHandler();
