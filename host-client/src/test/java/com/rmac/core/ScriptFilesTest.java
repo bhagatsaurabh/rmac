@@ -89,7 +89,6 @@ public class ScriptFilesTest {
     verify(scriptFiles).copyScript(eq("start_rmac.bat"), any(StringSubstitutor.class), anyString());
     verify(scriptFiles).copyScript(eq("restart_rmac.bat"), any(StringSubstitutor.class), anyString());
     verify(scriptFiles).copyScript(eq("rmac.vbs"), any(StringSubstitutor.class), anyString());
-    verify(scriptFiles).copyScript(eq("compromised.bat"), any(StringSubstitutor.class), anyString());
   }
 
   @Test
