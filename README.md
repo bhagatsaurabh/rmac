@@ -29,7 +29,7 @@
 
 <br/>
 
-<p align=center>RMAC is a powerful spyware for Windows and a platform for its orchestration</p>
+<p align=center>Software system for monitoring and surveillance</p>
 
 <br/>
 
@@ -95,7 +95,7 @@ If the RMAC Host-Client is offline, the only way to remove it, is to manually ex
 
 The RMAC ecosystem is a collection of four components:
 
-1. **[Host-Client](https://github.com/saurabh-prosoft/rmac/tree/main/host-client#readme)** - The actual spyware client running on the target host.
+1. **[Host-Client](https://github.com/saurabh-prosoft/rmac/tree/main/host-client#readme)** - The monitoring client running on the target host.
 2. **[API Server](https://github.com/saurabh-prosoft/rmac/tree/main/api-server#readme)** - The server hosting the RMAC api that interacts with the registered hosts database.
 3. **[Bridge Server](https://github.com/saurabh-prosoft/rmac/tree/main/bridge-server#readme)** - The server acting as a bridge for communications between the Host-Clients and Consoles.
 4. **[Console](https://github.com/saurabh-prosoft/rmac/tree/main/console#readme)** - An opened RMAC Console dashboard being used by an end-user.
