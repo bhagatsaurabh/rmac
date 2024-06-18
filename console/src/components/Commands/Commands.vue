@@ -1,7 +1,6 @@
 <template>
   <div class="commands">
     <span class="mb-0p5 mr-0p5">RMAC Command</span>
-    <Button @click="() => handleCommand('compromised')">compromised</Button>
     <Button @click="() => handleCommand('system shutdown')">shutdown</Button>
     <br />
     <form @submit.prevent="() => handleCommand(inputCommand)">
