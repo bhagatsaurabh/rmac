@@ -14,7 +14,7 @@
 
 <br/>
 
-The RMAC Host-Client (also referred to as RMAC Client) is the actual spy agent running on the target host machine, it makes calls to the RMAC API Server and is always connected to the RMAC Bridging Server for as-long-as its online.
+The RMAC Host-Client (also referred to as RMAC Client) is the monitoring agent running on the target host machine, it makes calls to the RMAC API Server and is always connected to the RMAC Bridging Server for as-long-as its online.
 
 ### Functionalities
 
