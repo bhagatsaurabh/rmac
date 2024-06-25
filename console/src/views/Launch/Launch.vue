@@ -12,13 +12,13 @@
         <h1><pre>C o n s o l e</pre></h1>
       </section>
       <section class="links">
-        <ExternalLink to="https://github.com/saurabh-prosoft/rmac">
+        <ExternalLink to="https://github.com/bhagatsaurabh/rmac">
           <template #prefix>
             <Icon alt="GitHub icon" name="icons/github" adaptive></Icon>
           </template>
           GitHub
         </ExternalLink>
-        <ExternalLink to="https://github.com/saurabh-prosoft/rmac">
+        <ExternalLink to="https://github.com/bhagatsaurabh/rmac">
           <template #prefix>
             <Icon alt="Help icon" name="icons/help" adaptive></Icon>
           </template>
