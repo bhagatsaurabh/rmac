@@ -108,8 +108,8 @@ jobs:
       - name: Analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify "-Dsonar.projectKey=saurabh-prosoft_rmac_hostclient" org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_CLIENT }}
+        run: mvn -B verify "-Dsonar.projectKey=bhagatsaurabh_rmac_hostclient" org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3.1.2
