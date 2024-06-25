@@ -112,7 +112,7 @@ jobs:
         run: mvn -B verify "-Dsonar.projectKey=bhagatsaurabh_rmac_hostclient" org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3.1.2
+        uses: actions/upload-artifact@v4.3.3
         with:
           name: host-client
           path: |
@@ -136,7 +136,7 @@ jobs:
         shell: powershell
 
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.7
         with:
           name: host-client
           path: host-client/auto-installer/bin
