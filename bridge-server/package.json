@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/saurabh-prosoft/rmac.git"
+    "url": "git+https://github.com/bhagatsaurabh/rmac.git"
   },
   "keywords": [
     "RMAC",
@@ -26,9 +26,9 @@
   "author": "Saurabh Bhagat",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/saurabh-prosoft/rmac/issues"
+    "url": "https://github.com/bhagatsaurabh/rmac/issues"
   },
-  "homepage": "https://github.com/saurabh-prosoft/rmac#readme",
+  "homepage": "https://github.com/bhagatsaurabh/rmac#readme",
   "dependencies": {
     "body-parser": "^1.20.2",
     "dotenv": "^16.0.3",
