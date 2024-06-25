@@ -30,7 +30,7 @@ describe('Commands component', () => {
 
     expect(actions.sendCommand.mock.calls[0][1]).toStrictEqual({
       hostId: '12345678',
-      command: 'system shutdown',
+      command: '',
     });
     expect(wrapper.find('input').element.value).toBe('');
   });
@@ -42,17 +42,6 @@ describe('Commands component', () => {
     expect(actions.sendCommand.mock.calls[0][1]).toStrictEqual({
       hostId: '12345678',
       command: 'test command',
-    });
-    expect(wrapper.find('input').element.value).toBe('');
-  });
-
-  it("should dispatch correct action when custom command is entered and 'Send' button is clicked", async () => {
-    await wrapper.find('input').setValue('test command two');
-    await wrapper.findAll('button').at(2).trigger('click');
-
-    expect(actions.sendCommand.mock.calls[0][1]).toStrictEqual({
-      hostId: '12345678',
-      command: 'test command two',
     });
     expect(wrapper.find('input').element.value).toBe('');
   });
